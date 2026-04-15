@@ -23,9 +23,9 @@ Tis the Season Holiday Lighting is a full-service holiday lighting company based
 
 Whether you want a classic warm-white roofline or a colorful display across your entire property, we work with you to design the perfect look.
 
-**Residential lighting** — rooflines, trees, walkways, porches, wreaths, and more.
+**Residential lighting** — rooflines and wreaths.
 
-**Commercial lighting** — storefronts, office buildings, entrances, common areas, and event spaces.
+**Commercial lighting** — storefronts and office buildings.
 
 ### LED Options & Design Choices
 

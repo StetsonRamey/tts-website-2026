@@ -1,0 +1,62 @@
+{{- $schemaType := .Params.seo.schema_type -}}
+
+{{/* LocalBusiness schema */}}
+{{- if eq $schemaType "LocalBusiness" -}}
+{{- $schema := dict
+  "@context" "https://schema.org"
+  "@type" "LocalBusiness"
+  "name" site.Params.companyName
+  "description" site.Params.description
+  "url" site.BaseURL
+  "telephone" site.Params.phone
+  "email" site.Params.email
+  "areaServed" (slice
+    (dict "@type" "City" "name" "Lee's Summit" "addressRegion" "MO")
+    (dict "@type" "City" "name" "Raymore" "addressRegion" "MO")
+  )
+  "priceRange" "$$"
+  "image" (printf "%simages/logo.svg" site.BaseURL)
+-}}
+<script type="application/ld+json">
+{{ $schema | jsonify (dict "indent" "  ") }}
+</script>
+{{- end -}}
+
+{{/* Service schema */}}
+{{- if eq $schemaType "Service" -}}
+{{- $schema := dict
+  "@context" "https://schema.org"
+  "@type" "Service"
+  "name" .Title
+  "description" .Description
+  "url" .Permalink
+  "provider" (dict
+    "@type" "LocalBusiness"
+    "name" site.Params.companyName
+    "telephone" site.Params.phone
+    "url" site.BaseURL
+  )
+  "areaServed" (slice
+    (dict "@type" "City" "name" "Lee's Summit" "addressRegion" "MO")
+    (dict "@type" "City" "name" "Raymore" "addressRegion" "MO")
+  )
+-}}
+<script type="application/ld+json">
+{{ $schema | jsonify (dict "indent" "  ") }}
+</script>
+{{- end -}}
+
+{{/* FAQPage schema — reads FAQ items from front matter */}}
+{{- if eq $schemaType "FAQPage" -}}
+{{- with .Params.faq_items -}}
+{{- $faqJSON := slice -}}
+{{- range . -}}
+  {{- $item := dict "@type" "Question" "name" .question "acceptedAnswer" (dict "@type" "Answer" "text" .answer) -}}
+  {{- $faqJSON = $faqJSON | append $item -}}
+{{- end -}}
+{{- $schema := dict "@context" "https://schema.org" "@type" "FAQPage" "mainEntity" $faqJSON -}}
+<script type="application/ld+json">
+{{ $schema | jsonify (dict "indent" "  ") }}
+</script>
+{{- end -}}
+{{- end -}}

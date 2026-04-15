@@ -35,7 +35,7 @@ Full-service holiday lighting for homes and businesses. We handle the design, in
 
 ### Residential Holiday Lighting
 
-Make your home the highlight of the neighborhood. From rooflines to trees, wreaths to walkways, we create a custom display that fits your style and budget.
+Make your home the highlight of the neighborhood. We create custom roofline and wreath displays that fit your style and budget.
 
 ![Residential placeholder](https://placehold.co/600x400?text=Residential+Lighting)
 
@@ -43,7 +43,7 @@ Make your home the highlight of the neighborhood. From rooflines to trees, wreat
 
 ### Commercial Holiday Lighting
 
-Create a welcoming, professional atmosphere for your customers and employees. We work with storefronts, office buildings, entrances, and common areas.
+Create a welcoming, professional atmosphere for your customers and employees. We work with storefronts and office buildings.
 
 ![Commercial placeholder](https://placehold.co/600x400?text=Commercial+Lighting)
 

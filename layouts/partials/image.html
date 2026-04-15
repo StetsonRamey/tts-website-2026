@@ -1,0 +1,68 @@
+{{/*
+  Reusable responsive image partial with blur-up support.
+
+  Usage:
+    {{ partial "image.html" (dict "src" "/images/originals/hero.jpg" "alt" "Description" "width" 1200 "height" 600 "lazy" true "page" .) }}
+
+  For placeholder images during development, pass an external URL:
+    {{ partial "image.html" (dict "src" "https://placehold.co/1200x600" "alt" "Placeholder" "width" 1200 "height" 600 "lazy" true) }}
+*/}}
+
+{{- $src := .src -}}
+{{- $alt := .alt | default "" -}}
+{{- $width := .width | default nil -}}
+{{- $height := .height | default nil -}}
+{{- $lazy := .lazy | default true -}}
+{{- $class := .class | default "" -}}
+
+{{- $isExternal := or (hasPrefix $src "http://") (hasPrefix $src "https://") -}}
+
+{{- if $isExternal -}}
+  {{/* External / placeholder image — render a simple img tag */}}
+  <img
+    src="{{ $src }}"
+    alt="{{ $alt }}"
+    {{ with $width }}width="{{ . }}"{{ end }}
+    {{ with $height }}height="{{ . }}"{{ end }}
+    {{ if $lazy }}loading="lazy" decoding="async"{{ else }}decoding="async"{{ end }}
+    {{ with $class }}class="{{ . }}"{{ end }}
+  >
+{{- else -}}
+  {{/* Local image — use Hugo image processing when available */}}
+  {{- $page := .page -}}
+  {{- if $page -}}
+    {{- $img := $page.Resources.GetMatch $src -}}
+    {{- if $img -}}
+      {{- $full := $img.Process "resize 1200x webp" -}}
+      {{- $small := $img.Process "resize 40x webp" -}}
+      <img
+        src="{{ $full.RelPermalink }}"
+        alt="{{ $alt }}"
+        width="{{ $full.Width }}"
+        height="{{ $full.Height }}"
+        {{ if $lazy }}loading="lazy" decoding="async"{{ else }}decoding="async"{{ end }}
+        style="background-image: url({{ $small.RelPermalink }}); background-size: cover;"
+        {{ with $class }}class="{{ . }}"{{ end }}
+      >
+    {{- else -}}
+      {{/* Fallback if resource not found */}}
+      <img
+        src="{{ $src }}"
+        alt="{{ $alt }}"
+        {{ with $width }}width="{{ . }}"{{ end }}
+        {{ with $height }}height="{{ . }}"{{ end }}
+        {{ if $lazy }}loading="lazy" decoding="async"{{ else }}decoding="async"{{ end }}
+        {{ with $class }}class="{{ . }}"{{ end }}
+      >
+    {{- end -}}
+  {{- else -}}
+    <img
+      src="{{ $src }}"
+      alt="{{ $alt }}"
+      {{ with $width }}width="{{ . }}"{{ end }}
+      {{ with $height }}height="{{ . }}"{{ end }}
+      {{ if $lazy }}loading="lazy" decoding="async"{{ else }}decoding="async"{{ end }}
+      {{ with $class }}class="{{ . }}"{{ end }}
+    >
+  {{- end -}}
+{{- end -}}

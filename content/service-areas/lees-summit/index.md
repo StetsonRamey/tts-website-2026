@@ -39,7 +39,7 @@ If your HOA has lighting guidelines, we're happy to work within those requiremen
 
 ### Residential & Commercial
 
-We serve both homeowners and local businesses in Lee's Summit. From residential rooflines and trees to commercial storefronts and entrances, we handle projects of all sizes.
+We serve both homeowners and local businesses in Lee's Summit. From residential rooflines and wreaths to commercial storefronts and office buildings, we handle projects of all sizes.
 
 ### What Lee's Summit Customers Can Expect
 

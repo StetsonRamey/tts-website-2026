@@ -19,9 +19,9 @@
   icon: storage
 
 - name: Residential Holiday Lighting
-  description: Custom holiday lighting for homes — rooflines, trees, walkways, porches, and wreaths.
+  description: Custom holiday lighting for homes — rooflines and wreaths.
   icon: residential
 
 - name: Commercial Holiday Lighting
-  description: Professional holiday lighting for storefronts, office buildings, entrances, and common areas.
+  description: Professional holiday lighting for storefronts, office buildings.
   icon: commercial

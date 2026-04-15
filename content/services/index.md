@@ -24,7 +24,7 @@ Your home deserves to shine. We work with homeowners to design and install custo
 
 **What residential customers love:**
 
-- Custom designs for rooflines, trees, walkways, porches, and wreaths
+- Custom designs for rooflines and wreaths
 - Hassle-free installation by an insured, experienced team
 - In-season maintenance and repair included
 - Takedown after the holidays
@@ -33,13 +33,13 @@ Your home deserves to shine. We work with homeowners to design and install custo
 
 ### Commercial Holiday Lighting
 
-Create a professional, welcoming atmosphere for your customers and employees. We serve storefronts, office buildings, entrances, common areas, and more.
+Create a professional, welcoming atmosphere for your customers and employees. We serve storefronts and office buildings.
 
 ![Commercial lighting placeholder](https://placehold.co/800x500?text=Commercial+Service)
 
 **What commercial customers value:**
 
-- Professional presentation for storefronts and office entrances
+- Professional presentation for storefronts and office buildings
 - Custom designs scaled to your property
 - Reliable scheduling that respects your business hours
 - Full maintenance through the season

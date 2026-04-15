@@ -1,0 +1,12 @@
+<header role="banner">
+  <a href="/" aria-label="{{ site.Params.companyName }} — Home">
+    <img src="/images/logo.svg" alt="{{ site.Params.companyName }}" width="180" height="40">
+  </a>
+  <nav aria-label="Primary">
+    <ul role="list">
+      {{- range site.Menus.main }}
+      <li><a href="{{ .URL }}"{{ if $.IsMenuCurrent "main" . }} aria-current="page"{{ end }}>{{ .Name }}</a></li>
+      {{- end }}
+    </ul>
+  </nav>
+</header>

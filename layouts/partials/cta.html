@@ -1,0 +1,15 @@
+{{- $heading := .heading | default "Ready to Light Up Your Home?" -}}
+{{- $text := .text | default "Get a free, no-hassle estimate with guaranteed first-year pricing." -}}
+{{- $buttonLabel := .buttonLabel | default "Get a Free Estimate" -}}
+{{- $buttonURL := .buttonURL | default "/contact/" -}}
+<aside aria-label="Call to action">
+  <h2>{{ $heading }}</h2>
+  <p>{{ $text }}</p>
+  <p>
+    <a href="{{ $buttonURL }}">{{ $buttonLabel }}</a>
+  </p>
+  <p>
+    Or call <a href="tel:{{ site.Params.phone }}">{{ site.Params.phone }}</a>
+    · text <a href="sms:{{ site.Params.textPhone }}">{{ site.Params.textPhone }}</a>
+  </p>
+</aside>

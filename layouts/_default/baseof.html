@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="{{ site.LanguageCode }}">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} | {{ site.Title }}{{ end }}</title>
-  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
-  {{ partial "css-bundle.html" . }}
+  {{ partial "head.html" . }}
 </head>
 <body>
+  {{ partial "header.html" . }}
   {{ block "main" . }}{{ end }}
+  {{ partial "footer.html" . }}
+  {{ partial "schema.html" . }}
+  {{ partial "analytics.html" . }}
 </body>
 </html>

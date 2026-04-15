@@ -39,7 +39,7 @@ Have HOA requirements? We're experienced working within community guidelines.
 
 ### Residential & Commercial Service
 
-Raymore homeowners and businesses both benefit from our full-service approach. From residential displays to commercial storefronts and entrances, we design and install lighting that makes your property stand out.
+Raymore homeowners and businesses both benefit from our full-service approach. From residential rooflines and wreaths to commercial storefronts and office buildings, we design and install lighting that makes your property stand out.
 
 ### Why Raymore Customers Choose Us
 

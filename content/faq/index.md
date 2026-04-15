@@ -8,6 +8,31 @@ seo:
 keywords:
   - 'holiday lighting faq'
   - 'christmas light installation questions'
+faq_items:
+  - question: 'How much does holiday lighting cost?'
+    answer: 'Every property is different. We provide free, no-hassle estimates with guaranteed first-year pricing so you know exactly what to expect before we start.'
+  - question: 'Are there any hidden fees?'
+    answer: 'No. Your estimate includes design, installation, maintenance, takedown, and storage. The price you are quoted is the price you pay.'
+  - question: 'Do I need to buy my own lights?'
+    answer: 'No. We provide all the lights and materials. They are included in your estimate.'
+  - question: 'When should I book my installation?'
+    answer: 'We recommend reaching out in late summer or early fall. Our schedule fills up quickly, so booking early helps secure your preferred installation date.'
+  - question: 'How long does installation take?'
+    answer: 'Most residential installations are completed in one visit. Larger or more complex projects may take two visits.'
+  - question: 'When do you take the lights down?'
+    answer: 'We schedule takedowns after the holiday season, typically in January. We will coordinate a time that works for you.'
+  - question: 'Where do you provide service?'
+    answer: 'We currently serve Lee''s Summit, MO and Raymore, MO, including neighborhoods like Winterset Valley and Creekmoor.'
+  - question: 'What types of lights do you use?'
+    answer: 'We use commercial-grade LED lights. Options include warm white, cool white, multi-color, and custom combinations in various bulb styles.'
+  - question: 'What if a light goes out during the season?'
+    answer: 'We include in-season maintenance at no extra charge. Let us know and we will come fix it.'
+  - question: 'Do you work with HOA requirements?'
+    answer: 'Yes. We are familiar with HOA guidelines in Lee''s Summit and Raymore neighborhoods and are happy to work within your community''s rules.'
+  - question: 'Are you insured?'
+    answer: 'Yes. We carry full liability coverage for every installation.'
+  - question: 'Do you store the lights after the season?'
+    answer: 'Yes. Off-season storage is included with every project.'
 ---
 
 ## Frequently Asked Questions
