@@ -1,0 +1,4 @@
+# Cloudflare Pages redirect rules
+# Format: from  to  status
+
+/terms-and-conditions  /terms/  301

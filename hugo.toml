@@ -1,0 +1,64 @@
+baseURL = 'https://tistheseasonkc.com/'
+languageCode = 'en-us'
+title = 'Tis The Season Holiday Lighting'
+enableRobotsTXT = true
+
+[sitemap]
+  changefreq = 'monthly'
+  priority = 0.5
+
+[outputs]
+  home = ['HTML', 'RSS']
+
+[params]
+  description = "Professional holiday lighting installation in Lee's Summit, MO and surrounding areas. Residential and commercial. Free estimates, full-service install, maintenance, takedown & storage."
+  phone = '816-281-7032'
+  textPhone = '844-600-1675'
+  email = 'hello@tts.lighting'
+  companyName = 'Tis The Season Holiday Lighting'
+  tagline = 'Professional Holiday Lighting'
+  primaryCity = "Lee's Summit, MO"
+  inBusinessSince = '2015'
+
+[menus]
+  [[menus.main]]
+    name = 'Home'
+    pageRef = '/'
+    weight = 10
+  [[menus.main]]
+    name = 'Services'
+    pageRef = '/services/'
+    weight = 20
+  [[menus.main]]
+    name = 'Areas'
+    pageRef = '/service-areas/'
+    weight = 30
+  [[menus.main]]
+    name = 'About'
+    pageRef = '/about/'
+    weight = 40
+  [[menus.main]]
+    name = 'Contact'
+    pageRef = '/contact/'
+    weight = 50
+
+  [[menus.footer]]
+    name = 'Holiday Lighting'
+    pageRef = '/holiday-lighting/'
+    weight = 10
+  [[menus.footer]]
+    name = 'Gallery'
+    pageRef = '/gallery/'
+    weight = 20
+  [[menus.footer]]
+    name = 'FAQ'
+    pageRef = '/faq/'
+    weight = 30
+  [[menus.footer]]
+    name = 'Fix Request'
+    pageRef = '/create-fix-request/'
+    weight = 40
+  [[menus.footer]]
+    name = 'Terms'
+    pageRef = '/terms/'
+    weight = 50

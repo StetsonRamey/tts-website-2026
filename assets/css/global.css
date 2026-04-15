@@ -1,0 +1,143 @@
+/* ==========================================================================
+   GLOBAL — Reset, custom properties, base element styles
+   ========================================================================== */
+
+/* --- Box sizing reset --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* --- Remove default margin/padding --- */
+body,
+h1, h2, h3, h4, h5, h6,
+p,
+figure,
+blockquote,
+dl, dd {
+  margin: 0;
+}
+
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* --- Core tokens --- */
+:root {
+  /* Core brand */
+  --color-primary: #69C4BB;
+  --color-secondary: #F066A1;
+  --color-accent: #d4af37;
+
+  /* Neutrals */
+  --color-dark: #1a1a2e;
+  --color-mid: #4a4a5a;
+  --color-light: #f5f5f0;
+  --color-white: #ffffff;
+
+  /* Semantic */
+  --color-text: var(--color-dark);
+  --color-text-muted: var(--color-mid);
+  --color-bg: var(--color-white);
+  --color-bg-accent: var(--color-light);
+  --color-surface: var(--color-white);
+  --color-border: #e0e0d8;
+
+  /* States */
+  --color-success: #2d8a4e;
+  --color-error: #c53030;
+  --color-focus: var(--color-accent);
+
+  /* Fluid spacing scale — min @ 320px, max @ 1140px */
+  --space-3xs: clamp(0.25rem, 0.23rem + 0.09vw, 0.3125rem);
+  --space-2xs: clamp(0.5rem, 0.46rem + 0.19vw, 0.625rem);
+  --space-xs:  clamp(0.75rem, 0.69rem + 0.28vw, 0.9375rem);
+  --space-s:   clamp(1rem, 0.93rem + 0.37vw, 1.25rem);
+  --space-m:   clamp(1.5rem, 1.39rem + 0.56vw, 1.875rem);
+  --space-l:   clamp(2rem, 1.85rem + 0.74vw, 2.5rem);
+  --space-xl:  clamp(3rem, 2.78rem + 1.11vw, 3.75rem);
+  --space-2xl: clamp(4rem, 3.7rem + 1.48vw, 5rem);
+  --space-3xl: clamp(6rem, 5.56rem + 2.22vw, 7.5rem);
+
+  /* One-up pairs */
+  --space-s-m:  clamp(1rem, 0.76rem + 1.2vw, 1.875rem);
+  --space-m-l:  clamp(1.5rem, 1.13rem + 1.85vw, 2.5rem);
+  --space-l-xl: clamp(2rem, 1.39rem + 3.06vw, 3.75rem);
+
+  /* Global gutter */
+  --gutter: var(--space-s-m);
+
+  /* Fluid type scale — min @ 320px, max @ 1140px */
+  --step--2: clamp(0.6944rem, 0.6547rem + 0.1984vw, 0.8333rem);
+  --step--1: clamp(0.8333rem, 0.7754rem + 0.2893vw, 1rem);
+  --step-0:  clamp(1rem, 0.913rem + 0.4348vw, 1.25rem);
+  --step-1:  clamp(1.2rem, 1.0739rem + 0.6304vw, 1.5625rem);
+  --step-2:  clamp(1.44rem, 1.2522rem + 0.9391vw, 1.9531rem);
+  --step-3:  clamp(1.728rem, 1.4478rem + 1.4009vw, 2.4414rem);
+  --step-4:  clamp(2.0736rem, 1.6563rem + 2.0870vw, 3.0518rem);
+  --step-5:  clamp(2.4883rem, 1.8689rem + 3.0972vw, 3.8147rem);
+
+  /* Font stacks (system fonts) */
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-heading: var(--font-body);
+}
+
+/* --- Base element styles --- */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+}
+
+h1 { font-size: var(--step-5); line-height: 1.1; }
+h2 { font-size: var(--step-4); line-height: 1.2; }
+h3 { font-size: var(--step-3); line-height: 1.2; }
+h4 { font-size: var(--step-2); line-height: 1.3; }
+h5 { font-size: var(--step-1); line-height: 1.3; }
+h6 { font-size: var(--step-0); line-height: 1.5; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration-color: var(--color-primary);
+}
+
+a:hover {
+  color: var(--color-dark);
+}
+
+img,
+picture,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

@@ -1,0 +1,34 @@
+/* ==========================================================================
+   UTILITIES — Small, single-purpose classes (CUBE CSS)
+   ========================================================================== */
+
+/* --- Color utilities --- */
+.bg-primary    { background-color: var(--color-primary); }
+.bg-secondary  { background-color: var(--color-secondary); }
+.bg-accent     { background-color: var(--color-accent); }
+.bg-light      { background-color: var(--color-bg-accent); }
+.bg-dark       { background-color: var(--color-dark); }
+.color-primary { color: var(--color-primary); }
+.color-light   { color: var(--color-light); }
+
+/* --- Spacing utilities --- */
+.gap-s  { gap: var(--space-s); }
+.gap-m  { gap: var(--space-m); }
+.gap-l  { gap: var(--space-l); }
+
+/* --- Typography utilities --- */
+.text-center  { text-align: center; }
+.font-heading { font-family: var(--font-heading); }
+.uppercase    { text-transform: uppercase; }
+.weight-bold  { font-weight: 700; }
+
+/* --- Layout utilities --- */
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  block-size: 1px;
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}

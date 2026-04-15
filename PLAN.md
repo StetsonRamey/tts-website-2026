@@ -260,8 +260,8 @@ Based on the current site's holiday/Christmas theme:
 ```css
 :root {
   /* Core brand */
-  --color-primary: #b22234;       /* Christmas red */
-  --color-secondary: #165b33;     /* Evergreen */
+  --color-primary: #69C4BB;       /* Brand Teal Color */
+  --color-secondary: #F066A1;     /* Brand Pink Color */
   --color-accent: #d4af37;        /* Gold / warm lights */
 
   /* Neutrals */
@@ -426,6 +426,7 @@ These are reusable layout classes (inspired by Every Layout):
 - [ ] Create CSS file structure (global, composition, utilities, blocks, exceptions)
 - [ ] Create design tokens (colors, spacing, typography custom properties)
 - [ ] Set up Hugo Pipes to bundle CSS
+- [ ] Commit changes
 
 ### Phase 1: Raw Pages (Content + Minimal Templates)
 - [ ] Create `baseof.html` with HTML shell
@@ -435,6 +436,7 @@ These are reusable layout classes (inspired by Every Layout):
 - [ ] Use `placehold.co` image slots so page structure and styling can be built before final asset selection
 - [ ] Pages render with content, zero styling
 - [ ] Verify all routes work (`make dev`)
+- [ ] Commit changes
 
 ### Phase 2: Reusable Components (Partials)
 - [ ] `head.html` — full `<head>` with SEO meta tags, OG tags, canonical, favicon
@@ -444,6 +446,7 @@ These are reusable layout classes (inspired by Every Layout):
 - [ ] `cta.html` — reusable "Get a Free Quote" call-to-action
 - [ ] `image.html` — reusable responsive image partial with blur-up support
 - [ ] Navigation menu from `hugo.toml` menu config
+- [ ] Commit changes
 
 ### Phase 3: Semantic HTML Scaffolding (SEO-first markup)
 - [ ] All pages use proper semantic elements (`<header>`, `<main>`, `<article>`, `<section>`, `<footer>`)
@@ -453,6 +456,7 @@ These are reusable layout classes (inspired by Every Layout):
 - [ ] Image elements with proper `alt`, `width`, `height`, `loading="lazy"`
 - [ ] Internal links between pages (every page → Contact)
 - [ ] Breadcrumbs partial (optional, good for SEO)
+- [ ] Commit changes
 
 ### Phase 4: Styling (CUBE CSS)
 - [ ] `global.css` — reset/normalize, custom properties, base element styles, global typography
@@ -462,6 +466,7 @@ These are reusable layout classes (inspired by Every Layout):
 - [ ] `exceptions.css` — data-attribute states (active nav, reversed card, etc.)
 - [ ] Responsive behavior via fluid type/space (no breakpoint-heavy media queries)
 - [ ] Test across viewport sizes, with the nav staying usable as a horizontal list on mobile
+- [ ] Commit changes
 
 ### Phase 5: Forms + Minimal JS
 - [ ] Build progressive-enhancement JS for phone formatting (`(XXX) XXX-XXXX`)
@@ -471,12 +476,14 @@ These are reusable layout classes (inspired by Every Layout):
 - [ ] Wire contact form submission to Val Town
 - [ ] Use PRG (`POST` → `303` redirect → thank-you page) to avoid duplicate submissions on refresh
 - [ ] Reuse the form shell on `/create-fix-request/` with the new site chrome
+- [ ] Commit changes
 
 ### Phase 6: Gallery + Image Pipeline
 - [ ] Build gallery page with Hugo-processed responsive images
 - [ ] Support a strong browsing experience without requiring a heavy JS lightbox at launch
 - [ ] Use blur-up placeholders for gallery thumbnails and major editorial images
 - [ ] Confirm image output sizes, lazy loading, and CLS-safe rendering
+- [ ] Commit changes
 
 ### Phase 7: Custom Analytics (Post-Launch)
 - [ ] **Lightweight tracker** (`analytics.js`) — no third-party dependencies
@@ -502,6 +509,7 @@ These are reusable layout classes (inspired by Every Layout):
   - Use UTM links in ads: `tistheseasonkc.com/?utm_source=facebook&utm_campaign=fall2026`
   - Analytics script parses and stores UTM params with pageview
   - You can filter/group by campaign in your data store
+- [ ] Commit changes
 
 ---
 
