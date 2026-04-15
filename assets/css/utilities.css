@@ -32,3 +32,19 @@
   position: absolute;
   white-space: nowrap;
 }
+
+.visually-hidden:focus {
+  clip: auto;
+  clip-path: none;
+  block-size: auto;
+  inline-size: auto;
+  overflow: visible;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  padding: var(--space-xs) var(--space-s);
+  background: var(--color-dark);
+  color: var(--color-white);
+  white-space: normal;
+}

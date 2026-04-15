@@ -1,0 +1,12 @@
+{{ define "main" }}
+<main id="main-content">
+  {{ partial "breadcrumbs.html" . }}
+  <article>
+    <h1>{{ .Title }}</h1>
+    <section aria-label="Frequently asked questions">
+      {{ .Content }}
+    </section>
+  </article>
+  {{ partial "cta.html" (dict "heading" "Still Have Questions?" "text" "We're happy to help. Reach out anytime." "page" .) }}
+</main>
+{{ end }}

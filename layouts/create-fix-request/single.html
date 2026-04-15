@@ -3,8 +3,9 @@
   {{ partial "breadcrumbs.html" . }}
   <article>
     <h1>{{ .Title }}</h1>
-    {{ .Content }}
+    <section aria-label="Fix request form">
+      {{ .Content }}
+    </section>
   </article>
-  {{ partial "cta.html" (dict "page" .) }}
 </main>
 {{ end }}
