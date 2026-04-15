@@ -1,24 +1,34 @@
-<footer role="contentinfo">
-  <div>
-    <p><strong>{{ site.Params.companyName }}</strong></p>
-    <p>Locally operated in the {{ site.Params.primaryCity }} area, serving Lee's Summit, Raymore, and nearby communities.</p>
+<footer class="site-footer" role="contentinfo">
+  <div class="site-footer__inner wrapper">
+    <div class="site-footer__top">
+      <div class="site-footer__brand">
+        <p class="site-footer__name">{{ site.Params.companyName }}</p>
+        <p class="site-footer__desc">Professional holiday lighting in {{ site.Params.primaryCity }}. Serving Lee's Summit, Raymore, and nearby communities.</p>
+      </div>
+      <div class="site-footer__columns">
+        <div class="site-footer__col">
+          <p class="site-footer__col-heading">Services</p>
+          <ul role="list">
+            <li><a href="/services/">All Services</a></li>
+            <li><a href="/holiday-lighting/">Holiday Lighting</a></li>
+            <li><a href="/gallery/">Gallery</a></li>
+            <li><a href="/faq/">FAQ</a></li>
+          </ul>
+        </div>
+        <div class="site-footer__col">
+          <p class="site-footer__col-heading">Company</p>
+          <ul role="list">
+            <li><a href="/about/">About</a></li>
+            <li><a href="/contact/">Contact</a></li>
+            <li><a href="/service-areas/">Service Areas</a></li>
+            <li><a href="/terms/">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="site-footer__bottom">
+      <p>&copy; {{ now.Year }} {{ site.Params.companyName }}. All rights reserved.</p>
+      <p>{{ site.Params.primaryCity }}</p>
+    </div>
   </div>
-
-  <div>
-    <p>
-      <strong>Call:</strong> <a href="tel:{{ site.Params.phone }}">{{ site.Params.phone }}</a><br>
-      <strong>Text:</strong> <a href="sms:{{ site.Params.textPhone }}">{{ site.Params.textPhone }}</a><br>
-      <strong>Email:</strong> <a href="mailto:{{ site.Params.email }}">{{ site.Params.email }}</a>
-    </p>
-  </div>
-
-  <nav aria-label="Footer">
-    <ul role="list">
-      {{- range site.Menus.footer }}
-      <li><a href="{{ .URL }}">{{ .Name }}</a></li>
-      {{- end }}
-    </ul>
-  </nav>
-
-  <p>&copy; {{ now.Year }} {{ site.Params.companyName }}. All rights reserved.</p>
 </footer>

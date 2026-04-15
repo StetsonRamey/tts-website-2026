@@ -1,12 +1,18 @@
-<header role="banner">
-  <a href="/" aria-label="{{ site.Params.companyName }} — Home">
-    <img src="/images/logo.svg" alt="{{ site.Params.companyName }}" width="180" height="40">
-  </a>
-  <nav aria-label="Primary">
-    <ul role="list">
-      {{- range site.Menus.main }}
-      <li><a href="{{ .URL }}"{{ if $.IsMenuCurrent "main" . }} aria-current="page"{{ end }}>{{ .Name }}</a></li>
-      {{- end }}
-    </ul>
-  </nav>
+<header class="site-header" role="banner">
+  <div class="site-header__inner wrapper">
+    <a href="/" class="site-header__logo" aria-label="{{ site.Params.companyName }} — Home">
+      <img src="/images/logo.svg" alt="{{ site.Params.companyName }}" width="180" height="40">
+    </a>
+    <nav class="site-header__nav" aria-label="Primary">
+      <ul role="list" class="cluster">
+        {{- range site.Menus.main }}
+        <li><a href="{{ .URL }}"{{ if $.IsMenuCurrent "main" . }} aria-current="page"{{ end }}>{{ .Name }}</a></li>
+        {{- end }}
+      </ul>
+    </nav>
+    <div class="site-header__actions cluster">
+      <a href="tel:{{ site.Params.phone }}" class="site-header__phone">{{ site.Params.phone }}</a>
+      <a href="/contact/" class="button">Free Estimate</a>
+    </div>
+  </div>
 </header>

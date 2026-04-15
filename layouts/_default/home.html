@@ -1,6 +1,159 @@
 {{ define "main" }}
 <main id="main-content">
-  {{ .Content }}
+
+  {{/* ── Hero ── */}}
+  <section class="hero region">
+    <div class="wrapper hero__inner switcher">
+      <div class="hero__image">
+        <img src="https://placehold.co/800x600?text=Hero+Image" alt="Professional holiday lighting installation" width="800" height="600">
+      </div>
+      <div class="hero__content flow">
+        <p class="overline">Professional Holiday Lighting</p>
+        <h1>Holiday Lighting in Lee's Summit, MO</h1>
+        <p>Full-service holiday lighting for homes and businesses. We handle the design, installation, maintenance, takedown, and storage — so you don't have to.</p>
+        <div class="hero__actions cluster">
+          <a href="/contact/" class="button">Get Your Free Estimate</a>
+          <a href="tel:{{ site.Params.phone }}" class="hero__phone">{{ site.Params.phone }}</a>
+        </div>
+        <ul class="hero__trust cluster" role="list">
+          <li>✓ Since 2015</li>
+          <li>✓ 900+ Homes</li>
+          <li>✓ Fully Insured</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Trust Bar ── */}}
+  <section class="trust-bar region" aria-label="Why choose us">
+    <div class="wrapper text-center flow">
+      <p class="overline">Why Tis The Season</p>
+      <h2>Everything You Need for a Hassle-Free Holiday</h2>
+      <div class="trust-bar__grid grid">
+        {{ range first 5 hugo.Data.services }}
+        <div class="trust-item flow">
+          <p class="trust-item__icon" aria-hidden="true">✦</p>
+          <p class="trust-item__title weight-bold">{{ .name }}</p>
+          <p class="trust-item__desc">{{ .description }}</p>
+        </div>
+        {{ end }}
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Service Cards ── */}}
+  <section class="services-preview region" aria-label="Services">
+    <div class="wrapper flow">
+      <div class="services-preview__grid grid" style="--grid-min-item-size: 20rem;">
+        <a href="/services/" class="service-card" aria-label="Residential Holiday Lighting">
+          <img src="https://placehold.co/600x400?text=Residential" alt="Residential holiday lighting" width="600" height="400" loading="lazy">
+          <div class="service-card__overlay">
+            <h3>Residential</h3>
+            <p>View Services →</p>
+          </div>
+        </a>
+        <a href="/services/" class="service-card" aria-label="Commercial Holiday Lighting">
+          <img src="https://placehold.co/600x400?text=Commercial" alt="Commercial holiday lighting" width="600" height="400" loading="lazy">
+          <div class="service-card__overlay">
+            <h3>Commercial</h3>
+            <p>View Services →</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Process / How It Works ── */}}
+  <section class="process region bg-dark" aria-label="How it works">
+    <div class="wrapper text-center flow">
+      <p class="overline">How It Works</p>
+      <h2>Simple from Start to Finish</h2>
+      <div class="process__grid grid" style="--grid-min-item-size: 14rem;">
+        <div class="process-step flow">
+          <p class="process-step__number">1</p>
+          <h3 class="process-step__title">Free Estimate</h3>
+          <p>Call, text, or fill out our form for a no-hassle quote.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">2</p>
+          <h3 class="process-step__title">Design & Install</h3>
+          <p>Our team handles the design and professional installation.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">3</p>
+          <h3 class="process-step__title">Enjoy the Season</h3>
+          <p>We maintain your lights throughout the holidays.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">4</p>
+          <h3 class="process-step__title">Takedown & Storage</h3>
+          <p>We remove everything and store your lights for next year.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Featured Installations ── */}}
+  <section class="gallery-preview region" aria-label="Featured installations">
+    <div class="wrapper text-center flow">
+      <p class="overline">Our Work</p>
+      <h2>Featured Installations</h2>
+      <div class="gallery-preview__grid grid" style="--grid-min-item-size: 18rem;">
+        <figure class="gallery-card">
+          <img src="https://placehold.co/500x400?text=Install+1" alt="Holiday lighting installation example" width="500" height="400" loading="lazy">
+        </figure>
+        <figure class="gallery-card">
+          <img src="https://placehold.co/500x400?text=Install+2" alt="Holiday lighting installation example" width="500" height="400" loading="lazy">
+        </figure>
+        <figure class="gallery-card">
+          <img src="https://placehold.co/500x400?text=Install+3" alt="Holiday lighting installation example" width="500" height="400" loading="lazy">
+        </figure>
+      </div>
+      <p><a href="/gallery/" class="text-link">View Full Gallery →</a></p>
+    </div>
+  </section>
+
+  {{/* ── Testimonials ── */}}
+  <section class="testimonials region bg-light" aria-label="Testimonials">
+    <div class="wrapper text-center flow">
+      <p class="overline">What Customers Say</p>
+      <h2>Trusted by Homeowners</h2>
+      <div class="testimonials__grid grid" style="--grid-min-item-size: 18rem;">
+        {{ range hugo.Data.testimonials }}
+        <blockquote class="testimonial-card flow">
+          <p class="testimonial-card__stars" aria-label="5 stars">★★★★★</p>
+          <p>"{{ .quote }}"</p>
+          <footer>
+            <cite>{{ .name }}</cite>
+            <p>{{ .city }}</p>
+          </footer>
+        </blockquote>
+        {{ end }}
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Service Areas ── */}}
+  <section class="areas-preview region bg-dark" aria-label="Service areas">
+    <div class="wrapper text-center flow">
+      <p class="overline">Where We Serve</p>
+      <h2>Service Coverage</h2>
+      <div class="areas-preview__grid grid" style="--grid-min-item-size: 20rem;">
+        {{ range hugo.Data.service_areas }}
+        <a href="/service-areas/{{ .slug }}/" class="area-card" aria-label="{{ .name }}, {{ .state }}">
+          <img src="https://placehold.co/600x400?text={{ .name }}" alt="Holiday lighting in {{ .name }}, {{ .state }}" width="600" height="400" loading="lazy">
+          <div class="area-card__overlay">
+            <p class="area-card__pin" aria-hidden="true">📍</p>
+            <h3>{{ .name }}, {{ .state }}</h3>
+          </div>
+        </a>
+        {{ end }}
+      </div>
+    </div>
+  </section>
+
+  {{/* ── CTA ── */}}
   {{ partial "cta.html" (dict "page" .) }}
+
 </main>
 {{ end }}
