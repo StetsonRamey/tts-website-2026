@@ -18,6 +18,7 @@
 
 /* --- Typography utilities --- */
 .text-center  { text-align: center; }
+.text-center p:not(.overline) { text-align: left; }
 .font-heading { font-family: var(--font-heading); }
 .uppercase    { text-transform: uppercase; }
 .weight-bold  { font-weight: 700; }

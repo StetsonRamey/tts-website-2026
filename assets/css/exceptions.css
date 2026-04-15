@@ -1,4 +1,8 @@
 /* ==========================================================================
    EXCEPTIONS — Data-attribute state overrides (CUBE CSS)
-   Populated in Phase 4 during styling work.
    ========================================================================== */
+
+/* Cards on light backgrounds get white bg to stand out */
+[data-theme="light"] .feature-card {
+  background: var(--color-surface);
+}

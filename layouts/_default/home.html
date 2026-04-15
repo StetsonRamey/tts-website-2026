@@ -9,7 +9,7 @@
       </div>
       <div class="hero__content flow">
         <p class="overline">Professional Holiday Lighting</p>
-        <h1>Holiday Lighting in Lee's Summit, MO</h1>
+        <h1 data-balance>Holiday Lighting in Lee's Summit, MO</h1>
         <p>Full-service holiday lighting for homes and businesses. We handle the design, installation, maintenance, takedown, and storage — so you don't have to.</p>
         <div class="hero__actions cluster">
           <a href="/contact/" class="button">Get Your Free Estimate</a>
@@ -26,9 +26,9 @@
 
   {{/* ── Trust Bar ── */}}
   <section class="trust-bar region" aria-label="Why choose us">
-    <div class="wrapper text-center flow">
-      <p class="overline">Why Tis The Season</p>
-      <h2>Everything You Need for a Hassle-Free Holiday</h2>
+    <div class="wrapper flow">
+      <p class="overline text-center">Why Tis The Season</p>
+      <h2 class="text-center">Everything You Need for a Hassle-Free Holiday</h2>
       <div class="trust-bar__grid grid">
         {{ range first 5 hugo.Data.services }}
         <div class="trust-item flow">
@@ -68,7 +68,7 @@
     <div class="wrapper text-center flow">
       <p class="overline">How It Works</p>
       <h2>Simple from Start to Finish</h2>
-      <div class="process__grid grid" style="--grid-min-item-size: 14rem;">
+      <div class="process__grid">
         <div class="process-step flow">
           <p class="process-step__number">1</p>
           <h3 class="process-step__title">Free Estimate</h3>
@@ -139,7 +139,7 @@
       <p class="overline">Where We Serve</p>
       <h2>Service Coverage</h2>
       <div class="areas-preview__grid grid" style="--grid-min-item-size: 20rem;">
-        {{ range hugo.Data.service_areas }}
+        {{ range (index hugo.Data "service-areas").areas }}
         <a href="/service-areas/{{ .slug }}/" class="area-card" aria-label="{{ .name }}, {{ .state }}">
           <img src="https://placehold.co/600x400?text={{ .name }}" alt="Holiday lighting in {{ .name }}, {{ .state }}" width="600" height="400" loading="lazy">
           <div class="area-card__overlay">

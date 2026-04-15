@@ -9,7 +9,7 @@
 
 /* Wrapper: centered max-width container */
 .wrapper {
-  max-width: 65rem;
+  max-width: var(--wrapper-max, 65rem);
   margin-inline: auto;
   padding-inline: var(--gutter);
 }

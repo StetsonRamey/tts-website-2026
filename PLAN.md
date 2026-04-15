@@ -416,27 +416,28 @@ These are reusable layout classes (inspired by Every Layout):
 ## Build Phases
 
 ### Phase 0: Project Setup ✦ CURRENT
-- [ ] Install Hugo
-- [ ] Scaffold Hugo project (`hugo new site`)
-- [ ] Create `Makefile` with `dev`, `build`, `build-prod`, and `clean` as the canonical local interface
-- [ ] Set up `hugo.toml` with baseURL, menus, params
-- [ ] Add `README.md` with setup steps, workflow conventions, and canonical Make targets
-- [ ] Keep the repo free of `package.json`/Bun unless future JS tooling creates a real need
-- [ ] Add Cloudflare Pages support files (`static/_redirects`, optional `_headers`)
-- [ ] Create CSS file structure (global, composition, utilities, blocks, exceptions)
-- [ ] Create design tokens (colors, spacing, typography custom properties)
-- [ ] Set up Hugo Pipes to bundle CSS
-- [ ] Commit changes
+- [ x ] Install Hugo
+- [ x ] Scaffold Hugo project (`hugo new site`)
+- [ x ] Create `Makefile` with `dev`, `build`, `build-prod`, and `clean` as the canonical local interface
+- [ x ] Set up `hugo.toml` with baseURL, menus, params
+- [ x ] Add `README.md` with setup steps, workflow conventions, and canonical Make targets
+- [ x ] Keep the repo free of `package.json`/Bun unless future JS tooling creates a real need
+- [ x ] Add Cloudflare Pages support files (`static/_redirects`, optional `_headers`)
+- [ x ] Create CSS file structure (global, composition, utilities, blocks, exceptions)
+- [ x ] Create design tokens (colors, spacing, typography custom properties)
+- [ x ] Set up Hugo Pipes to bundle CSS
+- [ x ] Commit changes
 
 ### Phase 1: Raw Pages (Content + Minimal Templates)
-- [ ] Create `baseof.html` with HTML shell
-- [ ] Create content `.md` files for all pages with front matter (SEO meta, structured data)
-- [ ] Create bare-minimum `single.html` / `home.html` templates
-- [ ] Add page shells for `holiday-lighting`, `service-areas`, `gallery`, and `create-fix-request`
-- [ ] Use `placehold.co` image slots so page structure and styling can be built before final asset selection
-- [ ] Pages render with content, zero styling
-- [ ] Verify all routes work (`make dev`)
-- [ ] Commit changes
+- [ x ] Create `baseof.html` with HTML shell
+- [ x ] Create content `.md` files for all pages with front matter (SEO meta, structured data)
+- [ x ] Create bare-minimum `single.html` / `home.html` templates
+- [ x ] Add page shells for `holiday-lighting`, `service-areas`, `gallery`, and `create-fix-request`
+- [ x ] Use `placehold.co` image slots so page structure and styling can be built before final asset selection
+- [ x ] Pages render with content, zero styling
+- [ x ] Verify all routes work (`make dev`)
+- [ x ] Commit changes
+- [ x ] Update PLAN.md
 
 ### Phase 2: Reusable Components (Partials)
 - [ ] `head.html` — full `<head>` with SEO meta tags, OG tags, canonical, favicon
@@ -447,6 +448,7 @@ These are reusable layout classes (inspired by Every Layout):
 - [ ] `image.html` — reusable responsive image partial with blur-up support
 - [ ] Navigation menu from `hugo.toml` menu config
 - [ ] Commit changes
+- [ ] Update PLAN.md
 
 ### Phase 3: Semantic HTML Scaffolding (SEO-first markup)
 - [ ] All pages use proper semantic elements (`<header>`, `<main>`, `<article>`, `<section>`, `<footer>`)
@@ -457,6 +459,7 @@ These are reusable layout classes (inspired by Every Layout):
 - [ ] Internal links between pages (every page → Contact)
 - [ ] Breadcrumbs partial (optional, good for SEO)
 - [ ] Commit changes
+- [ ] Update PLAN.md
 
 ### Phase 4: Styling (CUBE CSS)
 - [ ] `global.css` — reset/normalize, custom properties, base element styles, global typography
@@ -467,6 +470,7 @@ These are reusable layout classes (inspired by Every Layout):
 - [ ] Responsive behavior via fluid type/space (no breakpoint-heavy media queries)
 - [ ] Test across viewport sizes, with the nav staying usable as a horizontal list on mobile
 - [ ] Commit changes
+- [ ] Update PLAN.md
 
 ### Phase 5: Forms + Minimal JS
 - [ ] Build progressive-enhancement JS for phone formatting (`(XXX) XXX-XXXX`)
@@ -477,6 +481,7 @@ These are reusable layout classes (inspired by Every Layout):
 - [ ] Use PRG (`POST` → `303` redirect → thank-you page) to avoid duplicate submissions on refresh
 - [ ] Reuse the form shell on `/create-fix-request/` with the new site chrome
 - [ ] Commit changes
+- [ ] Update PLAN.md
 
 ### Phase 6: Gallery + Image Pipeline
 - [ ] Build gallery page with Hugo-processed responsive images
@@ -484,6 +489,7 @@ These are reusable layout classes (inspired by Every Layout):
 - [ ] Use blur-up placeholders for gallery thumbnails and major editorial images
 - [ ] Confirm image output sizes, lazy loading, and CLS-safe rendering
 - [ ] Commit changes
+- [ ] Update PLAN.md
 
 ### Phase 7: Custom Analytics (Post-Launch)
 - [ ] **Lightweight tracker** (`analytics.js`) — no third-party dependencies
@@ -510,6 +516,7 @@ These are reusable layout classes (inspired by Every Layout):
   - Analytics script parses and stores UTM params with pageview
   - You can filter/group by campaign in your data store
 - [ ] Commit changes
+- [ ] Update PLAN.md
 
 ---
 

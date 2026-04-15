@@ -127,6 +127,38 @@
   }
 }
 
+/* ── Breadcrumbs ── */
+.breadcrumbs {
+  padding-block: var(--space-xs);
+  font-size: var(--step--2);
+  color: var(--color-text-muted);
+}
+
+.breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em;
+}
+
+.breadcrumbs li:not(:last-child)::after {
+  content: '/';
+  margin-inline-start: 0.5em;
+  color: var(--color-border);
+}
+
+.breadcrumbs a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  color: var(--color-primary);
+}
+
+.breadcrumbs [aria-current="page"] {
+  color: var(--color-dark);
+}
+
 /* ── Hero ── */
 .hero {
   background-color: var(--color-bg-accent);
