@@ -2,6 +2,11 @@
    BLOCKS — Component styles (CUBE CSS)
    ========================================================================== */
 
+/* ── Text Balance (Data Attribute) ── */
+[data-balance] {
+  text-wrap: balance;
+}
+
 /* ── Button ── */
 .button {
   display: inline-block;
@@ -163,6 +168,10 @@
   gap: var(--space-s);
 }
 
+.hero__content > .hero__trust {
+  margin-block-start: var(--space-s);
+}
+
 @media (max-width: 40rem) {
   .hero .button {
     display: block;
@@ -182,7 +191,6 @@
 
 .trust-item {
   --flow-space: var(--space-2xs);
-  text-align: center;
 }
 
 .trust-item__icon {
@@ -272,9 +280,39 @@
   color: var(--color-white);
 }
 
+
 .process-step p:last-child {
   color: rgba(255, 255, 255, 0.7);
   font-size: var(--step--1);
+}
+
+/* Process grid responsive layout */
+.process__grid {
+  --grid-auto-flow: dense;
+}
+
+/* Small: 1 column */
+@media (max-width: 39.9rem) {
+  .process__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Medium: 2 columns (2x2) */
+@media (min-width: 40rem) and (max-width: 63.9rem) {
+  .process__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Large: 4 columns (1 row) */
+@media (min-width: 64rem) {
+  .process__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 /* ── Gallery Preview ── */
@@ -417,6 +455,81 @@
 
 .cta-band__phone:hover {
   color: var(--color-primary);
+}
+
+/* ── Feature Card (Services page) ── */
+.feature-card {
+  --flow-space: var(--space-3xs);
+  background: var(--color-bg-accent);
+  border-radius: 0.75rem;
+  padding: var(--space-m);
+}
+
+.feature-card__icon {
+  font-size: var(--step-2);
+  color: var(--color-primary);
+}
+
+/* ── Why Card (dark bg) ── */
+.why-card {
+  --flow-space: var(--space-2xs);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  padding: var(--space-m);
+  text-align: left;
+}
+
+.why-card__icon {
+  font-size: var(--step-2);
+  color: var(--color-primary);
+}
+
+/* ── FAQ Preview ── */
+.faq-preview {
+  text-align: left;
+}
+
+/* ── LED Options list ── */
+.led-options ul {
+  list-style: none;
+  padding: 0;
+}
+
+.led-options li {
+  padding-block: var(--space-3xs);
+  padding-inline-start: 1.5em;
+  position: relative;
+}
+
+.led-options li::before {
+  content: '✦';
+  position: absolute;
+  left: 0;
+  color: var(--color-primary);
+}
+
+/* ── Switcher image rounding (inner pages) ── */
+.switcher img {
+  border-radius: 0.75rem;
+  width: 100%;
+  height: auto;
+}
+
+/* ── Process section (light bg variant) ── */
+.process:not(.bg-dark) {
+  background-color: var(--color-bg-accent);
+}
+
+.process:not(.bg-dark) .process-step__number {
+  color: var(--color-primary);
+}
+
+.process:not(.bg-dark) .process-step__title {
+  color: var(--color-dark);
+}
+
+.process:not(.bg-dark) .process-step p:last-child {
+  color: var(--color-text-muted);
 }
 
 /* ── Site Footer ── */

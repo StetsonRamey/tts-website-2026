@@ -1,0 +1,195 @@
+{{ define "main" }}
+<main id="main-content">
+  {{ partial "breadcrumbs.html" . }}
+
+  {{/* ── Hero ── */}}
+  <section class="hero region bg-light" aria-label="Holiday Lighting">
+    <div class="wrapper hero__inner switcher">
+      <div class="hero__content flow">
+        <p class="overline">Holiday Lighting</p>
+        <h1 data-balance>Professional Holiday Lighting Installation</h1>
+        <p>Tis the Season Holiday Lighting is a full-service holiday lighting company based in the Lee's Summit, MO area. We design, install, maintain, take down, and store your holiday lights — for both homes and commercial properties.</p>
+        <div class="hero__actions cluster">
+          <a href="/contact/" class="button">Get Your Free Estimate</a>
+          <a href="tel:{{ site.Params.phone }}" class="hero__phone">{{ site.Params.phone }}</a>
+        </div>
+      </div>
+      <div class="hero__image">
+        <img src="https://placehold.co/800x600?text=Holiday+Lighting+Hero" alt="Professional holiday lighting installation on a home" width="800" height="600">
+      </div>
+    </div>
+  </section>
+
+  {{/* ── What We Offer ── */}}
+  <section class="services-preview region" aria-label="What we offer">
+    <div class="wrapper text-center flow">
+      <p class="overline">What We Offer</p>
+      <h2>Holiday Lighting for Homes & Businesses</h2>
+      <div class="services-preview__grid grid" style="--grid-min-item-size: 20rem;">
+        <a href="/services/" class="service-card" aria-label="Residential Holiday Lighting">
+          <img src="https://placehold.co/600x400?text=Residential" alt="Residential holiday lighting" width="600" height="400" loading="lazy">
+          <div class="service-card__overlay">
+            <h3>Residential</h3>
+            <p>Rooflines, wreaths, and full-home displays tailored to your style.</p>
+          </div>
+        </a>
+        <a href="/services/" class="service-card" aria-label="Commercial Holiday Lighting">
+          <img src="https://placehold.co/600x400?text=Commercial" alt="Commercial holiday lighting" width="600" height="400" loading="lazy">
+          <div class="service-card__overlay">
+            <h3>Commercial</h3>
+            <p>Storefronts, office buildings, and large-scale commercial displays.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── LED Options ── */}}
+  <section class="led-options region bg-light" aria-label="LED options">
+    <div class="wrapper switcher">
+      <div>
+        <img src="https://placehold.co/800x600?text=LED+Options" alt="LED holiday light options and bulb styles" width="800" height="600" loading="lazy">
+      </div>
+      <div class="flow">
+        <h2>LED Options & Design Choices</h2>
+        <p>We use commercial-grade LED lights that are energy-efficient, long-lasting, and vibrant. Choose the perfect look for your property:</p>
+        <ul role="list">
+          <li>Warm white</li>
+          <li>Cool white</li>
+          <li>Multi-color</li>
+          <li>Custom color combinations</li>
+          <li>Bulb style choices (C9, mini, icicle, net, and more)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── What's Included ── */}}
+  <section class="process region bg-dark" aria-label="What's included">
+    <div class="wrapper text-center flow">
+      <p class="overline">What's Included</p>
+      <h2>Full-Service from Start to Finish</h2>
+      <div class="process__grid">
+        <div class="process-step flow">
+          <p class="process-step__number">1</p>
+          <h3 class="process-step__title">Free Estimate</h3>
+          <p>No-hassle consultation with guaranteed first-year pricing.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">2</p>
+          <h3 class="process-step__title">Custom Design</h3>
+          <p>We plan a display tailored to your home or business.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">3</p>
+          <h3 class="process-step__title">Professional Installation</h3>
+          <p>Installed by our insured, experienced crew.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">4</p>
+          <h3 class="process-step__title">In-Season Maintenance</h3>
+          <p>If something goes out, we come back and fix it.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">5</p>
+          <h3 class="process-step__title">Takedown</h3>
+          <p>We remove everything after the season ends.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">6</p>
+          <h3 class="process-step__title">Storage</h3>
+          <p>Your lights are stored safely until next year.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Installation Process ── */}}
+  <section class="process region" aria-label="Installation process">
+    <div class="wrapper text-center flow">
+      <p class="overline">Installation Process</p>
+      <h2>How the Installation Works</h2>
+      <div class="process__grid">
+        <div class="process-step flow">
+          <p class="process-step__number">1</p>
+          <h3 class="process-step__title">Schedule Your Estimate</h3>
+          <p>Call, text, or fill out our online form.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">2</p>
+          <h3 class="process-step__title">We Visit Your Property</h3>
+          <p>We assess your space and discuss your vision.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">3</p>
+          <h3 class="process-step__title">Review Your Quote</h3>
+          <p>Transparent pricing with no surprises.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">4</p>
+          <h3 class="process-step__title">Installation Day</h3>
+          <p>Our team handles every detail.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">5</p>
+          <h3 class="process-step__title">Enjoy the Season</h3>
+          <p>We maintain your display through the holidays.</p>
+        </div>
+        <div class="process-step flow">
+          <p class="process-step__number">6</p>
+          <h3 class="process-step__title">Post-Season</h3>
+          <p>We take everything down and store it for you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── FAQ Preview ── */}}
+  <section class="faq-preview region bg-light" aria-label="Common questions">
+    <div class="wrapper text-center flow">
+      <p class="overline">Common Questions</p>
+      <h2>Holiday Lighting FAQ</h2>
+    </div>
+    <div class="wrapper flow" style="--flow-space: 1.5rem;">
+      <div class="flow" style="--flow-space: 0.5rem;">
+        <p><strong>How much does professional holiday lighting cost?</strong></p>
+        <p>Pricing depends on your property size and design preferences. We provide free estimates with guaranteed first-year pricing, so you know exactly what to expect.</p>
+      </div>
+      <div class="flow" style="--flow-space: 0.5rem;">
+        <p><strong>When should I book my installation?</strong></p>
+        <p>The earlier the better. Most customers book in late summer or early fall to secure their preferred installation date.</p>
+      </div>
+      <div class="flow" style="--flow-space: 0.5rem;">
+        <p><strong>Do you work with HOAs?</strong></p>
+        <p>Yes. We're familiar with neighborhoods in Lee's Summit and Raymore, including Winterset Valley and Creekmoor.</p>
+      </div>
+      <div class="flow" style="--flow-space: 0.5rem;">
+        <p><strong>What if a light goes out during the season?</strong></p>
+        <p>We include in-season maintenance at no extra charge. Just let us know and we'll come fix it.</p>
+      </div>
+      <p class="text-center"><a href="/faq/" class="text-link">See All FAQs →</a></p>
+    </div>
+  </section>
+
+  {{/* ── Gallery Preview ── */}}
+  <section class="gallery-preview region" aria-label="Gallery preview">
+    <div class="wrapper text-center flow">
+      <p class="overline">Our Work</p>
+      <h2>See Our Installations</h2>
+      <div class="gallery-preview__grid grid" style="--grid-min-item-size: 18rem;">
+        <figure class="gallery-card">
+          <img src="https://placehold.co/500x400?text=Install+Example+1" alt="Holiday lighting installation example" width="500" height="400" loading="lazy">
+        </figure>
+        <figure class="gallery-card">
+          <img src="https://placehold.co/500x400?text=Install+Example+2" alt="Holiday lighting installation example" width="500" height="400" loading="lazy">
+        </figure>
+      </div>
+      <p><a href="/gallery/" class="text-link">View Full Gallery →</a></p>
+    </div>
+  </section>
+
+  {{/* ── CTA ── */}}
+  {{ partial "cta.html" (dict "heading" "Ready for a Hassle-Free Holiday?" "page" .) }}
+
+</main>
+{{ end }}

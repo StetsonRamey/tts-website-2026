@@ -1,0 +1,170 @@
+{{ define "main" }}
+<main id="main-content">
+
+  {{ partial "breadcrumbs.html" . }}
+
+  {{/* ── Hero ── */}}
+  <section class="hero region bg-light" aria-label="Services overview">
+    <div class="wrapper switcher">
+      <div class="flow">
+        <p class="overline">Full-Service Holiday Lighting</p>
+        <h1>Holiday Lighting Services in Lee's Summit, MO</h1>
+        <p>From design and installation to maintenance, takedown, and storage — we handle everything so you can enjoy a hassle-free holiday season.</p>
+        <div class="cluster">
+          <a href="/contact/" class="button">Get Your Free Estimate</a>
+          <a href="tel:{{ site.Params.phone }}" class="text-link">{{ site.Params.phone }}</a>
+        </div>
+      </div>
+      <div>
+        <img src="https://placehold.co/800x600?text=Services+Hero" alt="Professional holiday lighting installation on a home" width="800" height="600">
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Residential ── */}}
+  <section class="region" aria-label="Residential services">
+    <div class="wrapper flow">
+      <div class="text-center flow">
+        <p class="overline">Residential</p>
+        <h2>Residential Holiday Lighting</h2>
+        <p>Your home deserves to shine. We design and install custom holiday lighting displays that match your style and budget.</p>
+        <p><a href="/contact/" class="button">Get a Free Estimate</a></p>
+      </div>
+      <div class="switcher">
+        <div class="flow">
+          <div class="feature-card flow">
+            <p class="feature-card__icon" aria-hidden="true">✦</p>
+            <p class="weight-bold">Roofline & Gutter Lights</p>
+            <p>Clean, professional roofline and gutter lighting that highlights your home's architecture.</p>
+          </div>
+          <div class="feature-card flow">
+            <p class="feature-card__icon" aria-hidden="true">✦</p>
+            <p class="weight-bold">Wreath Displays</p>
+            <p>Beautiful wreath installations on windows, doors, and facades — hung and removed by our team.</p>
+          </div>
+          <div class="feature-card flow">
+            <p class="feature-card__icon" aria-hidden="true">✦</p>
+            <p class="weight-bold">Custom Designs</p>
+            <p>Unique lighting designs tailored to your property, style, and budget.</p>
+          </div>
+        </div>
+        <div>
+          <img src="https://placehold.co/700x500?text=Residential+Lighting" alt="Residential holiday lighting display" width="700" height="500" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Commercial ── */}}
+  <section class="region bg-light" aria-label="Commercial services">
+    <div class="wrapper flow">
+      <div class="text-center flow">
+        <p class="overline">Commercial</p>
+        <h2>Commercial Holiday Lighting</h2>
+        <p>Create a professional, welcoming atmosphere for your customers and employees with custom commercial lighting.</p>
+        <p><a href="/contact/" class="button">Get a Free Estimate</a></p>
+      </div>
+      <div class="switcher">
+        <div>
+          <img src="https://placehold.co/700x500?text=Commercial+Lighting" alt="Commercial holiday lighting display" width="700" height="500" loading="lazy">
+        </div>
+        <div class="flow">
+          <div class="feature-card flow">
+            <p class="feature-card__icon" aria-hidden="true">✦</p>
+            <p class="weight-bold">Storefront Displays</p>
+            <p>Eye-catching lighting that draws customers in and sets your business apart during the holidays.</p>
+          </div>
+          <div class="feature-card flow">
+            <p class="feature-card__icon" aria-hidden="true">✦</p>
+            <p class="weight-bold">Office Buildings</p>
+            <p>Professional lighting installations scaled to your property and designed to impress.</p>
+          </div>
+          <div class="feature-card flow">
+            <p class="feature-card__icon" aria-hidden="true">✦</p>
+            <p class="weight-bold">Custom Designs</p>
+            <p>Tailored commercial lighting plans that match your brand and budget.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── What's Included ── */}}
+  <section class="region bg-dark" aria-label="What is included">
+    <div class="wrapper text-center flow">
+      <p class="overline">Full Service</p>
+      <h2>What's Included with Every Project</h2>
+      <div class="grid" style="--grid-min-item-size: 14rem;">
+        <div class="flow">
+          <p class="trust-item__icon" aria-hidden="true">✦</p>
+          <p class="weight-bold">Free Estimate</p>
+          <p>No-hassle quote with guaranteed first-year pricing.</p>
+        </div>
+        <div class="flow">
+          <p class="trust-item__icon" aria-hidden="true">✦</p>
+          <p class="weight-bold">Professional Install</p>
+          <p>Insured crew with clean, reliable execution every time.</p>
+        </div>
+        <div class="flow">
+          <p class="trust-item__icon" aria-hidden="true">✦</p>
+          <p class="weight-bold">Maintenance</p>
+          <p>If a light goes out, we fix it — included all season.</p>
+        </div>
+        <div class="flow">
+          <p class="trust-item__icon" aria-hidden="true">✦</p>
+          <p class="weight-bold">Takedown</p>
+          <p>We remove everything after the season ends.</p>
+        </div>
+        <div class="flow">
+          <p class="trust-item__icon" aria-hidden="true">✦</p>
+          <p class="weight-bold">Storage</p>
+          <p>Your lights are stored safely until next year.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Holiday Lighting Feature ── */}}
+  <section class="region" aria-label="Holiday lighting details">
+    <div class="wrapper switcher">
+      <div class="flow">
+        <h2>Holiday Lighting — Our Flagship Service</h2>
+        <p>Holiday lighting is what we do best. From LED options to custom design consultations, we bring the full picture to every project. See our dedicated page for a deeper look at lighting options, styles, and our design process.</p>
+        <p><a href="/holiday-lighting/" class="button">Explore Holiday Lighting →</a></p>
+      </div>
+      <div>
+        <img src="https://placehold.co/700x500?text=Holiday+Lighting" alt="Holiday lighting showcase" width="700" height="500" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  {{/* ── Why Choose Us ── */}}
+  <section class="region bg-dark" aria-label="Why choose us">
+    <div class="wrapper text-center flow">
+      <p class="overline">Why Tis The Season</p>
+      <h2>Why Choose Us</h2>
+      <div class="grid" style="--grid-min-item-size: 18rem;">
+        <div class="why-card flow">
+          <p class="why-card__icon" aria-hidden="true">✦</p>
+          <p class="weight-bold">Clear Communication</p>
+          <p>We keep you informed at every step — from estimate to storage.</p>
+        </div>
+        <div class="why-card flow">
+          <p class="why-card__icon" aria-hidden="true">✦</p>
+          <p class="weight-bold">Proven Experience</p>
+          <p>In business since 2015 with over 900 homes serviced annually.</p>
+        </div>
+        <div class="why-card flow">
+          <p class="why-card__icon" aria-hidden="true">✦</p>
+          <p class="weight-bold">Easy Scheduling</p>
+          <p>Simple booking by phone, text, or online — on your schedule.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{/* ── CTA ── */}}
+  {{ partial "cta.html" (dict "page" .) }}
+
+</main>
+{{ end }}
