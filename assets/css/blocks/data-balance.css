@@ -1,0 +1,6 @@
+@layer blocks {
+    /* ── Text Balance (Data Attribute) ── */
+    [data-balance] {
+        text-wrap: balance;
+    }
+}

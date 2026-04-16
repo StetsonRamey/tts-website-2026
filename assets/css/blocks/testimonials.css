@@ -1,0 +1,37 @@
+@layer blocks {
+    /* ── Testimonials ── */
+    .testimonials__grid {
+        margin-block-start: var(--space-l);
+    }
+
+    .testimonial-card {
+        --flow-space: var(--space-2xs);
+        background: var(--color-white);
+        border-radius: var(--radius-l);
+        padding: var(--space-m);
+        text-align: left;
+        margin: 0;
+        border: none;
+    }
+
+    .testimonial-card__stars {
+        color: var(--color-secondary);
+        font-size: var(--step-1);
+        letter-spacing: 0.1em;
+    }
+
+    .testimonial-card footer {
+        margin-block-start: var(--space-s);
+    }
+
+    .testimonial-card cite {
+        font-style: normal;
+        font-weight: 700;
+        display: block;
+    }
+
+    .testimonial-card footer p {
+        font-size: var(--step--1);
+        color: var(--color-text-muted);
+    }
+}

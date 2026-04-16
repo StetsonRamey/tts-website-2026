@@ -1,0 +1,159 @@
+@layer blocks {
+    /* ── Contact Cards ── */
+    .contact-options__grid {
+        margin-block-start: var(--space-l);
+    }
+
+    .contact-card {
+        --flow-space: var(--space-3xs);
+        background: var(--color-bg-accent);
+        border-radius: var(--radius-l);
+        padding: var(--space-m);
+        text-align: left;
+    }
+
+    .contact-card__icon {
+        font-size: var(--step-2);
+    }
+
+    .contact-card__value {
+        font-weight: 700;
+        color: var(--color-dark);
+        text-decoration: none;
+    }
+
+    .contact-card__value:hover {
+        color: var(--color-primary);
+    }
+
+    .contact-card__desc {
+        font-size: var(--step--1);
+        color: var(--color-text-muted);
+    }
+
+    /* ── Contact Form ── */
+    .contact-form__card {
+        --flow-space: var(--space-s);
+        background: var(--color-white);
+        border-radius: var(--radius-l);
+        padding: var(--space-l);
+        text-align: left;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .contact-form__row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-s);
+    }
+
+    .contact-form__row--address {
+        grid-template-columns: 2fr 1fr 1fr;
+    }
+
+    .contact-form__field {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3xs);
+    }
+
+    .contact-form__field label {
+        font-size: var(--step--1);
+        font-weight: 600;
+    }
+
+    .contact-form__field input,
+    .contact-form__field select,
+    .contact-form__field textarea {
+        padding: 0.625rem 0.75rem;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-s);
+        background: var(--color-white);
+        font-size: var(--step-0);
+        color: var(--color-text);
+    }
+
+    .contact-form__field input:focus,
+    .contact-form__field select:focus,
+    .contact-form__field textarea:focus {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 1px;
+        border-color: var(--color-primary);
+    }
+
+    .contact-form__field textarea {
+        resize: vertical;
+    }
+
+    .contact-form__submit {
+        width: 100%;
+        text-align: center;
+        font-size: var(--step-0);
+        padding: 0.875rem 1.5rem;
+    }
+
+    @media (max-width: 40rem) {
+        .contact-form__row {
+            grid-template-columns: 1fr;
+        }
+
+        .contact-form__row--address {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .contact-form__card {
+            padding: var(--space-m);
+        }
+    }
+
+    /* ── Contact Area Cards ── */
+    .contact-areas__grid {
+        margin-block-start: var(--space-l);
+    }
+
+    .contact-area-card {
+        --flow-space: var(--space-2xs);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-l);
+        padding: var(--space-m);
+    }
+
+    .contact-area-card__icon {
+        font-size: var(--step-3);
+        color: var(--color-primary);
+    }
+
+    .contact-area-card h3 {
+        color: var(--color-white);
+    }
+
+    .contact-area-card p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: var(--step--1);
+    }
+
+    .contact-area-card .button {
+        font-size: var(--step--1);
+    }
+
+    .contact-areas__note {
+        font-size: var(--step--1);
+        color: rgba(255, 255, 255, 0.6);
+        margin-block-start: var(--space-m);
+    }
+
+    /* ── Contact Trust Bar ── */
+    .contact-trust {
+        font-weight: 600;
+        font-size: var(--step--1);
+        color: var(--color-text-muted);
+        margin-block-start: var(--space-l);
+    }
+
+    /* ── Contact Process CTA ── */
+    .contact-process__cta {
+        font-size: var(--step--1);
+        color: var(--color-white);
+        margin-block-start: var(--space-m);
+    }
+}

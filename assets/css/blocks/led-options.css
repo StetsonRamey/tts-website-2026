@@ -1,0 +1,27 @@
+@layer blocks {
+    /* ── LED Options list ── */
+    .led-options ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .led-options li {
+        padding-block: var(--space-3xs);
+        padding-inline-start: 1.5em;
+        position: relative;
+    }
+
+    .led-options li::before {
+        content: "✦";
+        position: absolute;
+        left: 0;
+        color: var(--color-primary);
+    }
+
+    /* ── Switcher image rounding (inner pages) ── */
+    .switcher img {
+        border-radius: var(--radius-l);
+        width: 100%;
+        height: auto;
+    }
+}

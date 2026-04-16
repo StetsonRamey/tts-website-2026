@@ -1,0 +1,29 @@
+@layer blocks {
+    /* ── CTA Band ── */
+    .cta-band {
+        background-color: var(--color-bg-accent);
+    }
+
+    .cta-band .overline {
+        color: var(--color-secondary);
+    }
+
+    .cta-band h2 {
+        font-size: var(--step-4);
+    }
+
+    .cta-band__actions {
+        gap: var(--space-s);
+        margin-block-start: var(--space-s);
+    }
+
+    .cta-band__phone {
+        font-weight: 700;
+        color: var(--color-dark);
+        text-decoration: none;
+    }
+
+    .cta-band__phone:hover {
+        color: var(--color-primary);
+    }
+}

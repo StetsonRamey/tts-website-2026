@@ -1,0 +1,12 @@
+@layer blocks {
+    /* ── Text Link ── */
+    .text-link {
+        font-weight: 600;
+        color: var(--color-primary);
+        text-decoration: none;
+    }
+
+    .text-link:hover {
+        color: var(--color-dark);
+    }
+}

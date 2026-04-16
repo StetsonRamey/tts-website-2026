@@ -1,0 +1,79 @@
+@layer blocks {
+    /* ── Process Section ── */
+    .process {
+        background-color: var(--color-dark);
+        color: var(--color-white);
+    }
+
+    .process h2 {
+        color: var(--color-white);
+    }
+
+    .process__grid {
+        align-items: start;
+        margin-block-start: var(--space-l);
+    }
+
+    .process-step:nth-child(odd) {
+        border: 2px solid var(--color-secondary);
+        margin-block-start: var(--space-l);
+    }
+
+    .process-step:nth-child(even) {
+        border: 2px solid var(--color-primary);
+    }
+
+    .process-step {
+        padding: var(--space-s);
+        --flow-space: var(--space-2xs);
+        display: grid;
+        grid-row: span 3;
+        min-height: 15rem;
+    }
+
+    .process-step__number {
+        font-size: var(--step-5);
+        font-weight: 800;
+        color: var(--color-primary);
+        line-height: 1;
+    }
+
+    .process-step__title {
+        font-size: var(--step-1);
+        color: var(--color-white);
+    }
+
+    .process-step p:last-child {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: var(--step--1);
+    }
+
+    /* Process grid responsive layout */
+    .process__grid {
+        --grid-auto-flow: dense;
+    }
+
+    /* Small: 1 column */
+    @media (max-width: 39.9rem) {
+        .process__grid {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Medium: 2 columns (2x2) */
+    @media (min-width: 40rem) and (max-width: 63.9rem) {
+        .process__grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* Large: 4 columns (1 row) */
+    @media (min-width: 64rem) {
+        .process__grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+}

@@ -1,0 +1,85 @@
+@layer blocks {
+    /* ── Site Footer ── */
+    .site-footer {
+        background-color: #000;
+        color: var(--color-white);
+        padding-block: var(--space-xl);
+    }
+
+    .site-footer a {
+        color: var(--color-white);
+        text-decoration: none;
+    }
+
+    .site-footer a:hover {
+        color: var(--color-primary);
+    }
+
+    .site-footer__top {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: var(--space-xl);
+    }
+
+    .site-footer__brand {
+        max-width: 30rem;
+    }
+
+    .site-footer__name {
+        font-size: var(--step-1);
+        font-weight: 700;
+    }
+
+    .site-footer__desc {
+        color: rgba(255, 255, 255, 0.6);
+        margin-block-start: var(--space-2xs);
+        font-size: var(--step--1);
+    }
+
+    .site-footer__columns {
+        display: flex;
+        gap: var(--space-xl);
+    }
+
+    .site-footer__col-heading {
+        font-size: var(--step--2);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: 600;
+        margin-block-end: var(--space-xs);
+    }
+
+    .site-footer__col li + li {
+        margin-block-start: var(--space-2xs);
+    }
+
+    .site-footer__col a {
+        font-size: var(--step--1);
+    }
+
+    .site-footer__bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-block-start: var(--space-xl);
+        padding-block-start: var(--space-m);
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        font-size: var(--step--2);
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    @media (max-width: 48rem) {
+        .site-footer__top {
+            flex-direction: column;
+            gap: var(--space-l);
+        }
+
+        .site-footer__bottom {
+            flex-direction: column;
+            text-align: center;
+            gap: var(--space-2xs);
+        }
+    }
+}

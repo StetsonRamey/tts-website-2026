@@ -1,0 +1,15 @@
+@layer blocks {
+    /* ── Why Card (dark bg) ── */
+    .why-card {
+        --flow-space: var(--space-2xs);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-l);
+        padding: var(--space-m);
+        text-align: left;
+    }
+
+    .why-card__icon {
+        font-size: var(--step-2);
+        color: var(--color-primary);
+    }
+}
