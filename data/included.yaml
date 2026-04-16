@@ -1,0 +1,15 @@
+- name: Free Estimates
+  description: Call, text, or fill out our form for a no-hassle quote.
+  num: 1
+
+- name: Design & Install
+  description: Our team handles the design and professional installation.
+  num: 2
+
+- name: Enjoy Your Holiday Lights
+  description: We maintain your lights throughout the holidays.
+  num: 3
+
+- name: Takedown and Storage
+  description: We remove everything and store your lights for next year.
+  num: 4
