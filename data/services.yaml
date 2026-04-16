@@ -10,7 +10,7 @@
   description: If a light goes out, we come back and fix it.
   icon: maintenance
 
-- name: Takedown
+- name: Prompt Takedown
   description: We remove everything after the holiday season.
   icon: takedown
 

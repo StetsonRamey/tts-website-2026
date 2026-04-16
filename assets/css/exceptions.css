@@ -1,8 +1,12 @@
 /* ==========================================================================
-   EXCEPTIONS — Data-attribute state overrides (CUBE CSS)
-   ========================================================================== */
+    EXCEPTIONS — Data-attribute state overrides (CUBE CSS)
+    ========================================================================== */
+
+@layer exceptions {
 
 /* Cards on light backgrounds get white bg to stand out */
 [data-theme="light"] .feature-card {
-  background: var(--color-surface);
+   background: var(--color-surface);
 }
+
+} /* end @layer exceptions */

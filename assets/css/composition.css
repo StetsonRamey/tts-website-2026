@@ -1,92 +1,95 @@
 /* ==========================================================================
-   COMPOSITION — Layout primitives (CUBE CSS)
-   ========================================================================== */
+    COMPOSITION — Layout primitives (CUBE CSS)
+    ========================================================================== */
 
-/* Flow: vertical rhythm via lobotomized owl */
-.flow > * + * {
-  margin-block-start: var(--flow-space, 1em);
-}
+@layer composition {
+    /* Flow: vertical rhythm via lobotomized owl */
+    .flow > * + * {
+        margin-block-start: var(--flow-space, 1em);
+    }
 
-/* Wrapper: centered max-width container */
-.wrapper {
-  max-width: var(--wrapper-max, 65rem);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
-}
+    /* Wrapper: centered max-width container */
+    .wrapper {
+        max-width: var(--wrapper-max, 65rem);
+        margin-inline: auto;
+        padding-inline: var(--gutter);
+    }
 
-/* Region: vertical section padding */
-.region {
-  padding-block: var(--region-space, var(--space-l-xl));
-}
+    /* Region: vertical section padding */
+    .region {
+        padding-block: var(--region-space, var(--space-l-xl));
+    }
 
-/* Grid: auto-fit responsive grid */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(min(100%, var(--grid-min-item-size, 16rem)), 1fr)
-  );
-  gap: var(--gutter);
-}
+    /* Grid: auto-fit responsive grid */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min-item-size, 16rem)), 1fr));
+        gap: var(--gutter);
+    }
 
-/* Cluster: horizontal flex grouping */
-.cluster {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--cluster-gap, var(--space-s));
-  align-items: center;
-}
+    /* Cluster: horizontal flex grouping */
+    .cluster {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--cluster-gap, var(--space-s));
+        align-items: center;
+    }
 
-/* Sidebar: two-column layout with sidebar/main */
-.sidebar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gutter);
-}
+    /* Sidebar: two-column layout with sidebar/main */
+    .sidebar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--gutter);
+    }
 
-.sidebar > :first-child {
-  flex-basis: var(--sidebar-width, 20rem);
-  flex-grow: 1;
-}
+    .sidebar > :first-child {
+        flex-basis: var(--sidebar-width, 20rem);
+        flex-grow: 1;
+    }
 
-.sidebar > :last-child {
-  flex-basis: 0;
-  flex-grow: 999;
-  min-inline-size: var(--sidebar-content-min, 50%);
-}
+    .sidebar > :last-child {
+        flex-basis: 0;
+        flex-grow: 999;
+        min-inline-size: var(--sidebar-content-min, 50%);
+    }
 
-/* Switcher: row → column at threshold */
-.switcher {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gutter);
-}
+    /* Switcher: row → column at threshold */
+    .switcher {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--gutter);
+    }
 
-.switcher > * {
-  flex-grow: 1;
-  flex-basis: calc((var(--switcher-threshold, 30rem) - 100%) * 999);
-}
+    .switcher > * {
+        flex-grow: 1;
+        flex-basis: calc((var(--switcher-threshold, 30rem) - 100%) * 999);
+    }
 
-/* Cover: full-height hero section */
-.cover {
-  display: flex;
-  flex-direction: column;
-  min-block-size: var(--cover-min-height, 100vh);
-  padding: var(--gutter);
-}
+    .switcher[data-ratio="2:1"] > :first-child {
+        flex-basis: calc((var(--switcher-threshold, 30rem) - 100%) * 999 * 2);
+    }
 
-.cover > * {
-  margin-block: var(--space-s);
-}
+    /* Cover: full-height hero section */
+    .cover {
+        display: flex;
+        flex-direction: column;
+        min-block-size: var(--cover-min-height, 100vh);
+        padding: var(--gutter);
+    }
 
-.cover > :first-child:not(.cover__centered) {
-  margin-block-start: 0;
-}
+    .cover > * {
+        margin-block: var(--space-s);
+    }
 
-.cover > :last-child:not(.cover__centered) {
-  margin-block-end: 0;
-}
+    .cover > :first-child:not(.cover__centered) {
+        margin-block-start: 0;
+    }
 
-.cover > .cover__centered {
-  margin-block: auto;
-}
+    .cover > :last-child:not(.cover__centered) {
+        margin-block-end: 0;
+    }
+
+    .cover > .cover__centered {
+        margin-block: auto;
+    }
+} /* end @layer composition */

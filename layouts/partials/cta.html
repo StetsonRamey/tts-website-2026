@@ -3,11 +3,11 @@
 {{- $buttonLabel := .buttonLabel | default "Get a Free Estimate" -}}
 {{- $buttonURL := .buttonURL | default "/contact/" -}}
 <aside class="cta-band region" aria-label="Call to action">
-  <div class="wrapper text-center flow">
+  <div class="wrapper flow">
     <p class="overline">Ready to Glow?</p>
     <h2>{{ $heading }}</h2>
-    <p class="text-center">{{ $text }}</p>
-    <div class="cta-band__actions cluster" style="justify-content: center;">
+    <p>{{ $text }}</p>
+    <div class="cta-band__actions cluster">
       <a href="{{ $buttonURL }}" class="button">{{ $buttonLabel }}</a>
       <a href="tel:{{ site.Params.phone }}" class="cta-band__phone">{{ site.Params.phone }}</a>
     </div>

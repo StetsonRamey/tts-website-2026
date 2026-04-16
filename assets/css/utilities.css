@@ -1,6 +1,8 @@
 /* ==========================================================================
-   UTILITIES — Small, single-purpose classes (CUBE CSS)
-   ========================================================================== */
+    UTILITIES — Small, single-purpose classes (CUBE CSS)
+    ========================================================================== */
+
+@layer utilities {
 
 /* --- Color utilities --- */
 .bg-primary    { background-color: var(--color-primary); }
@@ -18,12 +20,21 @@
 
 /* --- Typography utilities --- */
 .text-center  { text-align: center; }
-.text-center p:not(.overline) { text-align: left; }
+/*.text-center p:not(.overline) { text-align: left; }*/
 .font-heading { font-family: var(--font-heading); }
 .uppercase    { text-transform: uppercase; }
 .weight-bold  { font-weight: 700; }
 
 /* --- Layout utilities --- */
+.flex-stretch {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-stretch > *:not(:last-child) {
+  flex-grow: 1;
+}
+
 .visually-hidden {
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
@@ -49,3 +60,5 @@
   color: var(--color-white);
   white-space: normal;
 }
+
+} /* end @layer utilities */
