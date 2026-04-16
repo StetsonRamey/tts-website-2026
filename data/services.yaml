@@ -1,27 +1,27 @@
 - name: Free Estimates
   description: No-hassle estimates with guaranteed first-year pricing.
-  icon: estimate
+  icon: ⚡
 
 - name: Professional Installation
   description: Installed by our insured, experienced team.
-  icon: install
+  icon: ✓
 
 - name: In-Season Maintenance
   description: If a light goes out, we come back and fix it.
-  icon: maintenance
+  icon: 🎯
 
 - name: Prompt Takedown
   description: We remove everything after the holiday season.
-  icon: takedown
+  icon: 🚀
 
 - name: Off-Season Storage
   description: Your lights are stored safely until next year.
-  icon: storage
+  icon: 🗄️
 
 - name: Residential Holiday Lighting
   description: Custom holiday lighting for homes — rooflines and wreaths.
-  icon: residential
+  icon: 💡
 
 - name: Commercial Holiday Lighting
   description: Professional holiday lighting for storefronts, office buildings.
-  icon: commercial
+  icon: 🏢 
