@@ -1,182 +1,255 @@
 {{ define "main" }}
 <main id="main-content">
+    {{ partial "breadcrumbs.html" . }} {{/* ── Hero ── */}}
+    <section class="hero region bg-light" aria-label="Contact hero">
+        <div class="wrapper text-center flow">
+            <p class="overline">Get in Touch</p>
+            <h1 data-balance>Let's Light Up Your Holidays</h1>
+            <p>
+                Whether you're a homeowner in Lee's Summit or a business in Raymore, we'd love to help you shine this
+                season. Get a free, no-obligation estimate for professional holiday lighting.
+            </p>
+            <p><a href="#estimate-form" class="button">Get Your Free Estimate</a></p>
+        </div>
+    </section>
 
-  {{ partial "breadcrumbs.html" . }}
+    {{/* ── Contact Options ── */}}
+    <section class="contact-options region" aria-label="Contact options">
+        <div class="wrapper text-center flow">
+            <p class="overline">Reach Us Directly</p>
+            <h2 data-balance>Other Ways to Connect</h2>
+            <div class="contact-options__grid grid" style="--grid-min-item-size: 16rem">
+                <div class="contact-card flow">
+                    <p class="contact-card__icon" aria-hidden="true">📞</p>
+                    <p class="weight-bold">Phone</p>
+                    <p><a href="tel:{{ site.Params.phone }}" class="contact-card__value">{{ site.Params.phone }}</a></p>
+                    <p class="contact-card__desc">
+                        Give us a call during business hours for a quick conversation about your project.
+                    </p>
+                </div>
+                <div class="contact-card flow">
+                    <p class="contact-card__icon" aria-hidden="true">✉️</p>
+                    <p class="weight-bold">Email</p>
+                    <p>
+                        <a href="mailto:{{ site.Params.email }}" class="contact-card__value">{{ site.Params.email }}</a>
+                    </p>
+                    <p class="contact-card__desc">
+                        Send us details about your project and we'll respond within 24 hours.
+                    </p>
+                </div>
+                <div class="contact-card flow">
+                    <p class="contact-card__icon" aria-hidden="true">💬</p>
+                    <p class="weight-bold">Text</p>
+                    <p>
+                        <a href="sms:{{ site.Params.textPhone }}" class="contact-card__value">
+                            {{ site.Params.textPhone }}
+                        </a>
+                    </p>
+                    <p class="contact-card__desc">
+                        Prefer texting? Send us a message anytime and we'll get back to you ASAP.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  {{/* ── Hero ── */}}
-  <section class="hero region bg-light" aria-label="Contact hero">
-    <div class="wrapper text-center flow">
-      <p class="overline">Get in Touch</p>
-      <h1 data-balance>Let's Light Up Your Holidays</h1>
-      <p>Whether you're a homeowner in Lee's Summit or a business in Raymore, we'd love to help you shine this season. Get a free, no-obligation estimate for professional holiday lighting.</p>
-      <p><a href="#estimate-form" class="button">Get Your Free Estimate</a></p>
-    </div>
-  </section>
+    {{/* ── Estimate Form ── */}}
+    <section id="estimate-form" class="contact-form region bg-light" aria-label="Request an estimate">
+        <div class="wrapper text-center flow" style="--wrapper-max: 50rem">
+            <p class="overline">Request an Estimate</p>
+            <h2 data-balance>Tell Us About Your Property</h2>
+            <p>
+                Fill in a few details about your home or business and we'll put together a custom holiday lighting quote
+                just for you.
+            </p>
+            <form class="contact-form__card flow" action="#" method="POST" novalidate>
+                <div class="contact-form__row">
+                    <div class="contact-form__field">
+                        <label for="first-name">First Name</label>
+                        <input type="text" id="first-name" name="firstName" required autocomplete="given-name" />
+                    </div>
+                    <div class="contact-form__field">
+                        <label for="last-name">Last Name</label>
+                        <input type="text" id="last-name" name="lastName" required autocomplete="family-name" />
+                    </div>
+                </div>
+                <div class="contact-form__row">
+                    <div class="contact-form__field">
+                        <label for="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
+                            autocomplete="email"
+                            placeholder="john@example.com" />
+                    </div>
+                    <div class="contact-form__field">
+                        <label for="phone">Phone Number</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            required
+                            autocomplete="tel"
+                            placeholder="(816) 555-1234" />
+                    </div>
+                </div>
+                <div class="contact-form__field">
+                    <label for="street-address">Street Address</label>
+                    <input
+                        type="text"
+                        id="street-address"
+                        name="streetAddress"
+                        required
+                        autocomplete="street-address"
+                        placeholder="123 Main Street" />
+                </div>
+                <div class="contact-form__row contact-form__row--address">
+                    <div class="contact-form__field">
+                        <label for="city">City</label>
+                        <input
+                            type="text"
+                            id="city"
+                            name="city"
+                            required
+                            autocomplete="address-level2"
+                            placeholder="Lee's Summit" />
+                    </div>
+                    <div class="contact-form__field">
+                        <label for="state">State</label>
+                        <select id="state" name="state" required autocomplete="address-level1">
+                            <option value="">Select state...</option>
+                            <option value="MO" selected>MO</option>
+                            <option value="KS">KS</option>
+                        </select>
+                    </div>
+                    <div class="contact-form__field">
+                        <label for="zip">Zip Code</label>
+                        <input
+                            type="text"
+                            id="zip"
+                            name="zip"
+                            required
+                            autocomplete="postal-code"
+                            inputmode="numeric"
+                            placeholder="64063" />
+                    </div>
+                </div>
+                <div class="contact-form__field">
+                    <label for="message">Message</label>
+                    <textarea
+                        id="message"
+                        name="message"
+                        rows="4"
+                        placeholder="Tell us about your property, any special requests, or questions you have..."></textarea>
+                </div>
+                <button type="submit" class="button contact-form__submit">Submit Request</button>
+            </form>
+        </div>
+    </section>
 
-  {{/* ── Contact Options ── */}}
-  <section class="contact-options region" aria-label="Contact options">
-    <div class="wrapper text-center flow">
-      <p class="overline">Reach Us Directly</p>
-      <h2 data-balance>Other Ways to Connect</h2>
-      <div class="contact-options__grid grid" style="--grid-min-item-size: 16rem;">
-        <div class="contact-card flow">
-          <p class="contact-card__icon" aria-hidden="true">📞</p>
-          <p class="weight-bold">Phone</p>
-          <p><a href="tel:{{ site.Params.phone }}" class="contact-card__value">{{ site.Params.phone }}</a></p>
-          <p class="contact-card__desc">Give us a call during business hours for a quick conversation about your project.</p>
+    {{/* ── Service Area ── */}}
+    <section class="contact-areas region bg-dark" aria-label="Service area">
+        <div class="wrapper text-center flow">
+            <p class="overline">Service Area</p>
+            <h2>Do We Serve Your Neighborhood?</h2>
+            <p>
+                We proudly install holiday lighting in Lee's Summit and Raymore, Missouri. If you're nearby, we'd love
+                to help make your holidays shine.
+            </p>
+            <div class="contact-areas__grid grid" style="--grid-min-item-size: 18rem">
+                {{ range (index hugo.Data "service-areas").areas }}
+                <div class="contact-area-card flow">
+                    <p class="contact-area-card__icon" aria-hidden="true">📍</p>
+                    <h3>{{ .name }}, {{ .state }}</h3>
+                    <p>
+                        {{ if .primary }}Full coverage across all {{ .name }} neighborhoods — residential and commercial
+                        projects welcome.{{ else }}Serving the entire {{ .name }} community with the same professional
+                        quality and care.{{ end }}
+                    </p>
+                    <p><a href="/service-areas/{{ .slug }}/" class="button">→ Primary Service Area</a></p>
+                </div>
+                {{ end }}
+            </div>
+            <p class="contact-areas__note">
+                <span aria-hidden="true">ℹ️</span>
+                Not sure if you're in our service area? No worries — reach out anyway and we'll let you know if we can
+                help. We're always happy to chat.
+            </p>
         </div>
-        <div class="contact-card flow">
-          <p class="contact-card__icon" aria-hidden="true">✉️</p>
-          <p class="weight-bold">Email</p>
-          <p><a href="mailto:{{ site.Params.email }}" class="contact-card__value">{{ site.Params.email }}</a></p>
-          <p class="contact-card__desc">Send us details about your project and we'll respond within 24 hours.</p>
-        </div>
-        <div class="contact-card flow">
-          <p class="contact-card__icon" aria-hidden="true">💬</p>
-          <p class="weight-bold">Text</p>
-          <p><a href="sms:{{ site.Params.textPhone }}" class="contact-card__value">{{ site.Params.textPhone }}</a></p>
-          <p class="contact-card__desc">Prefer texting? Send us a message anytime and we'll get back to you ASAP.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  {{/* ── Estimate Form ── */}}
-  <section id="estimate-form" class="contact-form region bg-light" aria-label="Request an estimate">
-    <div class="wrapper text-center flow" style="--wrapper-max: 50rem;">
-      <p class="overline">Request an Estimate</p>
-      <h2 data-balance>Tell Us About Your Property</h2>
-      <p>Fill in a few details about your home or business and we'll put together a custom holiday lighting quote just for you.</p>
-      <form class="contact-form__card flow" action="#" method="POST" novalidate>
-        <div class="contact-form__row">
-          <div class="contact-form__field">
-            <label for="first-name">First Name</label>
-            <input type="text" id="first-name" name="firstName" required autocomplete="given-name">
-          </div>
-          <div class="contact-form__field">
-            <label for="last-name">Last Name</label>
-            <input type="text" id="last-name" name="lastName" required autocomplete="family-name">
-          </div>
+    {{/* ── Testimonials ── */}}
+    <section class="testimonials region bg-light" aria-label="Testimonials">
+        <div class="wrapper text-center flow">
+            <p class="overline">Don't Just Take Our Word</p>
+            <h2>What Our Customers Say</h2>
+            <p>Real reviews from homeowners and businesses in Lee's Summit and Raymore.</p>
+            <div class="testimonials__grid grid" style="--grid-min-item-size: 18rem">
+                {{ range hugo.Data.testimonials }}
+                <blockquote class="testimonial-card flow">
+                    <p class="testimonial-card__stars" aria-label="5 stars">★★★★★</p>
+                    <p>"{{ .quote }}"</p>
+                    <footer>
+                        <cite>{{ .name }}</cite>
+                        <p>{{ .city }}</p>
+                    </footer>
+                </blockquote>
+                {{ end }}
+            </div>
+            <div class="contact-trust cluster" style="justify-content: center">
+                <span>✓ Fully Insured</span>
+                <span>✓ Same-Week Responses</span>
+                <span>✓ 5-Star Rated</span>
+                <span>✓ 90% Return Rate</span>
+            </div>
         </div>
-        <div class="contact-form__row">
-          <div class="contact-form__field">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required autocomplete="email" placeholder="john@example.com">
-          </div>
-          <div class="contact-form__field">
-            <label for="phone">Phone Number</label>
-            <input type="tel" id="phone" name="phone" required autocomplete="tel" placeholder="(816) 555-1234">
-          </div>
-        </div>
-        <div class="contact-form__field">
-          <label for="street-address">Street Address</label>
-          <input type="text" id="street-address" name="streetAddress" required autocomplete="street-address" placeholder="123 Main Street">
-        </div>
-        <div class="contact-form__row contact-form__row--address">
-          <div class="contact-form__field">
-            <label for="city">City</label>
-            <input type="text" id="city" name="city" required autocomplete="address-level2" placeholder="Lee's Summit">
-          </div>
-          <div class="contact-form__field">
-            <label for="state">State</label>
-            <select id="state" name="state" required autocomplete="address-level1">
-              <option value="">Select state...</option>
-              <option value="MO" selected>MO</option>
-              <option value="KS">KS</option>
-            </select>
-          </div>
-          <div class="contact-form__field">
-            <label for="zip">Zip Code</label>
-            <input type="text" id="zip" name="zip" required autocomplete="postal-code" inputmode="numeric" placeholder="64063">
-          </div>
-        </div>
-        <div class="contact-form__field">
-          <label for="message">Message</label>
-          <textarea id="message" name="message" rows="4" placeholder="Tell us about your property, any special requests, or questions you have..."></textarea>
-        </div>
-        <button type="submit" class="button contact-form__submit">Submit Request</button>
-      </form>
-    </div>
-  </section>
+    </section>
 
-  {{/* ── Service Area ── */}}
-  <section class="contact-areas region bg-dark" aria-label="Service area">
-    <div class="wrapper text-center flow">
-      <p class="overline">Service Area</p>
-      <h2>Do We Serve Your Neighborhood?</h2>
-      <p>We proudly install holiday lighting in Lee's Summit and Raymore, Missouri. If you're nearby, we'd love to help make your holidays shine.</p>
-      <div class="contact-areas__grid grid" style="--grid-min-item-size: 18rem;">
-        {{ range (index hugo.Data "service-areas").areas }}
-        <div class="contact-area-card flow">
-          <p class="contact-area-card__icon" aria-hidden="true">📍</p>
-          <h3>{{ .name }}, {{ .state }}</h3>
-          <p>{{ if .primary }}Full coverage across all {{ .name }} neighborhoods — residential and commercial projects welcome.{{ else }}Serving the entire {{ .name }} community with the same professional quality and care.{{ end }}</p>
-          <p><a href="/service-areas/{{ .slug }}/" class="button">→ Primary Service Area</a></p>
+    {{/* ── Process / What Happens Next ── */}}
+    <section class="process region" aria-label="What happens next">
+        <div class="wrapper flow">
+            <p class="overline">What Happens Next</p>
+            <h2>After You Hit Submit</h2>
+            <p>We make the process simple and stress-free. Here's what to expect once your request is in.</p>
+            <div class="process__grid grid">
+                <div class="process-step flow">
+                    <p class="process-step__number">1</p>
+                    <h3 class="process-step__title">We Receive Your Request</h3>
+                    <p>Your estimate request lands in our inbox instantly. We review every submission personally.</p>
+                </div>
+                <div class="process-step flow">
+                    <p class="process-step__number">2</p>
+                    <h3 class="process-step__title">We'll Reach Out Within 48 Hours</h3>
+                    <p>
+                        We'll work up your estimate and you'll get an email and/or phone call from Angela. She's great,
+                        you'll love her.
+                    </p>
+                </div>
+                <div class="process-step flow">
+                    <p class="process-step__number">3</p>
+                    <h3 class="process-step__title">Hire us! 🤞....please</h3>
+                    <p>
+                        If you decide to hire us, email or text us and let us know. Then we'll work on getting your
+                        colors picked out, your spot scheduled, and your invoice to you.
+                    </p>
+                </div>
+                <div class="process-step flow">
+                    <p class="process-step__number">4</p>
+                    <h3 class="process-step__title">Sit Back and Enjoy</h3>
+                    <p>
+                        Once you're in, we've got it from there. We'll get your lights up and you'll never have to touch
+                        a ladder.
+                    </p>
+                </div>
+            </div>
+            <p class="contact-process__cta">
+                Questions before submitting? Call us at
+                <a href="tel:{{ site.Params.phone }}">{{ site.Params.phone }}</a>
+                — we're happy to help.
+            </p>
         </div>
-        {{ end }}
-      </div>
-      <p class="contact-areas__note"><span aria-hidden="true">ℹ️</span> Not sure if you're in our service area? No worries — reach out anyway and we'll let you know if we can help. We're always happy to chat.</p>
-    </div>
-  </section>
-
-  {{/* ── Testimonials ── */}}
-  <section class="testimonials region bg-light" aria-label="Testimonials">
-    <div class="wrapper text-center flow">
-      <p class="overline">Don't Just Take Our Word</p>
-      <h2>What Our Customers Say</h2>
-      <p>Real reviews from homeowners and businesses in Lee's Summit and Raymore.</p>
-      <div class="testimonials__grid grid" style="--grid-min-item-size: 18rem;">
-        {{ range hugo.Data.testimonials }}
-        <blockquote class="testimonial-card flow">
-          <p class="testimonial-card__stars" aria-label="5 stars">★★★★★</p>
-          <p>"{{ .quote }}"</p>
-          <footer>
-            <cite>{{ .name }}</cite>
-            <p>{{ .city }}</p>
-          </footer>
-        </blockquote>
-        {{ end }}
-      </div>
-      <div class="contact-trust cluster" style="justify-content: center;">
-        <span>✓ Fully Insured</span>
-        <span>✓ Same-Week Responses</span>
-        <span>✓ 5-Star Rated</span>
-        <span>✓ 90% Return Rate</span>
-      </div>
-    </div>
-  </section>
-
-  {{/* ── Process / What Happens Next ── */}}
-  <section class="process region" aria-label="What happens next">
-    <div class="wrapper text-center flow">
-      <p class="overline">What Happens Next</p>
-      <h2>After You Hit Submit</h2>
-      <p>We make the process simple and stress-free. Here's what to expect once your request is in.</p>
-      <div class="process__grid">
-        <div class="process-step flow">
-          <p class="process-step__number">1</p>
-          <h3 class="process-step__title">We Receive Your Request</h3>
-          <p>Your estimate request lands in our inbox instantly. We review every submission personally.</p>
-        </div>
-        <div class="process-step flow">
-          <p class="process-step__number">2</p>
-          <h3 class="process-step__title">We'll Reach Out Within 48 Hours</h3>
-          <p>A member of our team will call or email you to confirm details and schedule a convenient time to visit your property.</p>
-        </div>
-        <div class="process-step flow">
-          <p class="process-step__number">3</p>
-          <h3 class="process-step__title">Free On-Site Estimate</h3>
-          <p>We visit your property, discuss your vision, and provide a clear, no-obligation quote — no surprises, no pressure.</p>
-        </div>
-        <div class="process-step flow">
-          <p class="process-step__number">4</p>
-          <h3 class="process-step__title">Sit Back and Enjoy</h3>
-          <p>Once you approve, we handle everything — design, installation, maintenance, and takedown. You just enjoy the glow.</p>
-        </div>
-      </div>
-      <p class="contact-process__cta">Questions before submitting? Call us at <a href="tel:{{ site.Params.phone }}">{{ site.Params.phone }}</a> — we're happy to help.</p>
-    </div>
-  </section>
-
+    </section>
 </main>
 {{ end }}
