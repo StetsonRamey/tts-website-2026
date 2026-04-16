@@ -1,4 +1,6 @@
 .DS_Store
+/pen-designs/
+tts-design.pen
 
 # Hugo build output
 /public/
