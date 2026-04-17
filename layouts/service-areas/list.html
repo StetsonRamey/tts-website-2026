@@ -1,10 +1,142 @@
 {{ define "main" }}
 <main id="main-content">
-  {{ partial "breadcrumbs.html" . }}
-  <section>
-    <h1>{{ .Title }}</h1>
-    {{ .Content }}
-  </section>
-  {{ partial "cta.html" (dict "page" .) }}
+    {{ partial "breadcrumbs.html" . }} {{/* ── Hero ── */}}
+    <section class="hero region bg-light" aria-label="Service areas">
+        <div class="wrapper text-center flow">
+            <p class="overline">Where We Serve</p>
+            <h1 data-balance>Holiday Lighting Service Areas</h1>
+            <p>
+                Tis the Season Holiday Lighting is a locally operated company based in the Lee's Summit, MO area. We
+                provide full-service residential and commercial holiday lighting in Lee's Summit, Raymore, and nearby
+                communities.
+            </p>
+            <p><a href="/contact/" class="button">Get Your Free Estimate</a></p>
+        </div>
+    </section>
+
+    {{/* ── Area Cards ── */}}
+    <section class="region" aria-label="Service area cities">
+        <div class="wrapper flow">
+            <p class="overline">Our Coverage</p>
+            <h2>Cities We Serve</h2>
+            <p>
+                Click a city to learn more about our holiday lighting services in your area, including neighborhoods we
+                serve and local FAQs.
+            </p>
+            <div class="grid" style="--grid-min-item-size: 20rem">
+                {{ range (index hugo.Data "service-areas").areas }}
+                <a href="/service-areas/{{ .slug }}/" class="area-card" aria-label="{{ .name }}, {{ .state }}">
+                    <img
+                        src="https://placehold.co/600x400?text={{ .name }}"
+                        alt="Holiday lighting in {{ .name }}, {{ .state }}"
+                        width="600"
+                        height="400"
+                        loading="lazy" />
+                    <div class="area-card__overlay">
+                        <p class="area-card__pin" aria-hidden="true">📍</p>
+                        <h3>{{ .name }}, {{ .state }}</h3>
+                    </div>
+                </a>
+                {{ end }}
+            </div>
+        </div>
+    </section>
+
+    {{/* ── What's Included ── */}}
+    <section class="region bg-dark" aria-label="What is included">
+        <div class="wrapper flow">
+            <p class="overline">Same Great Service Everywhere</p>
+            <h2>What's Included in Every Area</h2>
+            <p>
+                No matter where you are in our service area, every project includes the same full-service experience.
+            </p>
+            <div class="process__grid grid">
+                {{ range hugo.Data.included }}
+                <div class="process-step flow">
+                    <p class="process-step__number">{{ .num }}</p>
+                    <h3 class="process-step__title">{{ .name }}</h3>
+                    <p>{{ .description }}</p>
+                </div>
+                {{ end }}
+            </div>
+        </div>
+    </section>
+
+    {{/* ── Neighborhoods ── */}}
+    <section class="region bg-light" aria-label="Neighborhoods">
+        <div class="wrapper flow">
+            <p class="overline">Neighborhoods</p>
+            <h2>We Know Your Neighborhood</h2>
+            <p>
+                Being local means we're familiar with HOA requirements, community guidelines, and the neighborhoods
+                where we install. Here are some of the communities we regularly serve:
+            </p>
+            <div class="grid" style="--grid-min-item-size: 18rem">
+                {{ range (index hugo.Data "service-areas").areas }}
+                <div class="feature-card flow">
+                    <p class="feature-card__icon" aria-hidden="true">📍</p>
+                    <p class="weight-bold">{{ .name }}, {{ .state }}</p>
+                    {{ if .neighborhoods }}
+                    <ul role="list">
+                        {{ range .neighborhoods }}
+                        <li>{{ . }}</li>
+                        {{ end }}
+                    </ul>
+                    {{ end }}
+                    <p><a href="/service-areas/{{ .slug }}/" class="text-link">Learn More →</a></p>
+                </div>
+                {{ end }}
+            </div>
+        </div>
+    </section>
+
+    {{/* ── Not Sure ── */}}
+    <section class="region" aria-label="Not sure if we serve you">
+        <div class="wrapper switcher">
+            <div class="flow">
+                <p class="overline">Not Sure?</p>
+                <h2 data-balance>Not Sure If You're in Our Area?</h2>
+                <p>
+                    If you're in the Lee's Summit or Raymore area and aren't sure if we cover your neighborhood, reach
+                    out. We're happy to let you know — and if we can help, we will.
+                </p>
+                <div class="cluster">
+                    <a href="/contact/" class="button">Contact Us</a>
+                    <a href="tel:{{ site.Params.phone }}" class="text-link">{{ site.Params.phone }}</a>
+                </div>
+            </div>
+            <div>
+                <img
+                    src="https://placehold.co/700x500?text=Service+Area+Map"
+                    alt="Map of holiday lighting service areas in Lee's Summit and Raymore"
+                    width="700"
+                    height="500"
+                    loading="lazy" />
+            </div>
+        </div>
+    </section>
+
+    {{/* ── Testimonials ── */}}
+    <section class="testimonials region bg-light" aria-label="Testimonials">
+        <div class="wrapper text-center flow">
+            <p class="overline">What Our Customers Say</p>
+            <h2>Trusted Across Our Service Area</h2>
+            <div class="testimonials__grid grid" style="--grid-min-item-size: 18rem">
+                {{ range hugo.Data.testimonials }}
+                <blockquote class="testimonial-card flow">
+                    <p class="testimonial-card__stars" aria-label="5 stars">★★★★★</p>
+                    <p>"{{ .quote }}"</p>
+                    <footer>
+                        <cite>{{ .name }}</cite>
+                        <p>{{ .city }}</p>
+                    </footer>
+                </blockquote>
+                {{ end }}
+            </div>
+        </div>
+    </section>
+
+    {{/* ── CTA ── */}}
+    {{ partial "cta.html" (dict "heading" "Ready to Light Up Your Home?" "text" "Get a free, no-hassle estimate — no matter where you are in our service area." "page" .) }}
 </main>
 {{ end }}
