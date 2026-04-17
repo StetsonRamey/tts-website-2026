@@ -1,12 +1,81 @@
 {{ define "main" }}
 <main id="main-content">
-  {{ partial "breadcrumbs.html" . }}
-  <article>
-    <h1>{{ .Title }}</h1>
-    <section aria-label="Photo gallery">
-      {{ .Content }}
+    {{ partial "breadcrumbs.html" . }} {{/* ── Hero ── */}}
+    <section class="hero region bg-light" aria-label="Gallery">
+        <div class="wrapper flow">
+            <p class="overline">Our Work</p>
+            <h1 data-balance>Holiday Lighting Gallery</h1>
+            <p style="max-width: 60rem;">
+                See what Tis the Season Holiday Lighting can do for your home or business. Every project below was
+                designed, installed, and maintained by our team in Lee's Summit and Raymore.
+            </p>
+        </div>
     </section>
-  </article>
-  {{ partial "cta.html" (dict "heading" "Like What You See?" "text" "Let us design a display for your home or business." "page" .) }}
+
+    {{/* ── Gallery Grid ── */}}
+    <section class="region" aria-label="Photo gallery">
+        <div class="wrapper flow">
+            <div class="gallery__grid grid" style="--grid-min-item-size: 18rem">
+                {{ range .Params.gallery_images }}
+                <figure class="gallery-card">
+                    <img
+                        src="{{ .src }}"
+                        alt="{{ .alt }}"
+                        width="800"
+                        height="600"
+                        loading="lazy" />
+                </figure>
+                {{ end }}
+            </div>
+        </div>
+    </section>
+
+    {{/* ── Trust Bar ── */}}
+    <section class="region bg-dark" aria-label="Why choose us">
+        <div class="wrapper text-center flow">
+            <p class="overline">Why Tis The Season</p>
+            <h2>Every Project Gets Our Full Attention</h2>
+            <div class="grid" style="--grid-min-item-size: 16rem">
+                <div class="why-card flow">
+                    <p class="why-card__icon" aria-hidden="true">✦</p>
+                    <p class="weight-bold">Custom Designs</p>
+                    <p>Every display is tailored to your property, style, and budget.</p>
+                </div>
+                <div class="why-card flow">
+                    <p class="why-card__icon" aria-hidden="true">✦</p>
+                    <p class="weight-bold">Commercial-Grade LEDs</p>
+                    <p>Bright, energy-efficient lights built to last the season.</p>
+                </div>
+                <div class="why-card flow">
+                    <p class="why-card__icon" aria-hidden="true">✦</p>
+                    <p class="weight-bold">Full-Service</p>
+                    <p>Design, install, maintain, takedown, and store — we handle it all.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{/* ── Testimonials ── */}}
+    <section class="testimonials region bg-light" aria-label="Testimonials">
+        <div class="wrapper text-center flow">
+            <p class="overline">What Our Customers Say</p>
+            <h2>Real Results, Real Reviews</h2>
+            <div class="testimonials__grid grid" style="--grid-min-item-size: 18rem">
+                {{ range hugo.Data.testimonials }}
+                <blockquote class="testimonial-card flow">
+                    <p class="testimonial-card__stars" aria-label="5 stars">★★★★★</p>
+                    <p>"{{ .quote }}"</p>
+                    <footer>
+                        <cite>{{ .name }}</cite>
+                        <p>{{ .city }}</p>
+                    </footer>
+                </blockquote>
+                {{ end }}
+            </div>
+        </div>
+    </section>
+
+    {{/* ── CTA ── */}}
+    {{ partial "cta.html" (dict "heading" "Like What You See?" "text" "Let us design a display for your home or business. Get a free, no-hassle estimate." "page" . "side" "center" ) }}
 </main>
 {{ end }}
