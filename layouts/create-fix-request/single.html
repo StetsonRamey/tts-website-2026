@@ -1,11 +1,89 @@
 {{ define "main" }}
 <main id="main-content">
-  {{ partial "breadcrumbs.html" . }}
-  <article>
-    <h1>{{ .Title }}</h1>
-    <section aria-label="Fix request form">
-      {{ .Content }}
+    {{ partial "breadcrumbs.html" . }} {{/* ── Hero ── */}}
+    <section class="hero region bg-light" aria-label="Fix request">
+        <div class="wrapper text-center flow">
+            <p class="overline">Current Customers</p>
+            <h1 data-balance>Create a Fix Request</h1>
+            <p>
+                Already a Tis the Season customer? If something needs attention with your holiday lighting installation,
+                let us know below and we'll get it taken care of.
+            </p>
+        </div>
     </section>
-  </article>
+
+    {{/* ── Fix Request Form Embed ── */}}
+    <section class="region" aria-label="Fix request form">
+        <div class="wrapper flow" style="--wrapper-max: 50rem">
+            <!-- TODO: Paste your Fillout form embed code here -->
+            <div
+                style="width: 100%; height: 500px"
+                data-fillout-id="5iBwN8y7vvus"
+                data-fillout-embed-type="standard"
+                data-fillout-inherit-parameters
+                data-fillout-dynamic-resize></div>
+            <script src="https://server.fillout.com/embed/v1/"></script>
+        </div>
+    </section>
+
+    {{/* ── What to Expect ── */}}
+    <section class="region bg-dark" aria-label="What to expect">
+        <div class="wrapper flow">
+            <p class="overline">What Happens Next</p>
+            <h2>What to Expect</h2>
+            <div class="process__grid grid">
+                <div class="process-step flow">
+                    <p class="process-step__number">1</p>
+                    <h3 class="process-step__title">Request Received</h3>
+                    <p>Your fix request lands in our inbox and we review it personally.</p>
+                </div>
+                <div class="process-step flow">
+                    <p class="process-step__number">2</p>
+                    <h3 class="process-step__title">We'll Reach Out</h3>
+                    <p>When we're on the way to fix the issue, you'll get a text letting you know we're on the way.</p>
+                </div>
+                <div class="process-step flow">
+                    <p class="process-step__number">3</p>
+                    <h3 class="process-step__title">We Fix It</h3>
+                    <p>In-season maintenance and repair are included with your installation — no extra charge.</p>
+                </div>
+                <div class="process-step flow">
+                    <p class="process-step__number">4</p>
+                    <h3 class="process-step__title">Non Warranty Items</h3>
+                    <p>
+                        If you're fix is from a tree, a flag, or something hitting your lights, we'll charge for the
+                        trip.
+                    </p>
+                    <small>
+                        See
+                        <a class="text-link" data-link-color="secondary" href="/terms">Terms & Conditions</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{/* ── Need Help Now ── */}}
+    <section class="region" aria-label="Need immediate help">
+        <div class="wrapper switcher">
+            <div class="flow">
+                <p class="overline">Need something else?</p>
+                <h2 data-balance>Please call or text.</h2>
+                <p>If you need immediate assistance or would rather talk to someone directly, reach out anytime.</p>
+                <div class="cluster">
+                    <a href="tel:{{ site.Params.phone }}" class="button">Call {{ site.Params.phone }}</a>
+                    <a href="sms:{{ site.Params.textPhone }}" class="text-link">Text {{ site.Params.textPhone }}</a>
+                </div>
+            </div>
+            <div>
+                <img
+                    src="https://placehold.co/700x500?text=Fix+Request"
+                    alt="Holiday lighting maintenance and repair"
+                    width="700"
+                    height="500"
+                    loading="lazy" />
+            </div>
+        </div>
+    </section>
 </main>
 {{ end }}

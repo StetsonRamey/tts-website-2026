@@ -18,6 +18,11 @@
         transition: transform 0.3s ease;
     }
 
+    .gallery-card a {
+        display: block;
+        cursor: pointer;
+    }
+
     .gallery-card:hover img {
         transform: scale(1.05);
     }

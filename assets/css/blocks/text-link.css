@@ -9,4 +9,14 @@
     .text-link:hover {
         color: var(--color-dark);
     }
+
+    /* Color overrides */
+    [data-link-color="secondary"] {
+        color: var(--color-secondary);
+        text-decoration: underline;
+    }
+
+    [data-link-color="secondary"]:hover {
+        color: var(--color-primary);
+    }
 }

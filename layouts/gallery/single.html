@@ -18,12 +18,17 @@
             <div class="gallery__grid grid" style="--grid-min-item-size: 18rem">
                 {{ range .Params.gallery_images }}
                 <figure class="gallery-card">
-                    <img
-                        src="{{ .src }}"
-                        alt="{{ .alt }}"
-                        width="800"
-                        height="600"
-                        loading="lazy" />
+                    <a href="{{ .src }}"
+                       class="glightbox"
+                       data-gallery="gallery1"
+                       data-description="{{ .caption }}">
+                        <img
+                            src="{{ .src }}"
+                            alt="{{ .alt }}"
+                            width="800"
+                            height="600"
+                            loading="lazy" />
+                    </a>
                 </figure>
                 {{ end }}
             </div>
@@ -78,4 +83,18 @@
     {{/* ── CTA ── */}}
     {{ partial "cta.html" (dict "heading" "Like What You See?" "text" "Let us design a display for your home or business. Get a free, no-hassle estimate." "page" . "side" "center" ) }}
 </main>
+
+{{/* ── GLightbox (gallery only) ── */}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css"></noscript>
+<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js" defer></script>
+<script defer>
+    document.addEventListener('DOMContentLoaded', function() {
+        GLightbox({
+            selector: '.glightbox',
+            touchNavigation: true,
+            loop: true,
+        });
+    });
+</script>
 {{ end }}
