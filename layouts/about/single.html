@@ -1,0 +1,168 @@
+{{ define "main" }}
+<main id="main-content">
+    {{ partial "breadcrumbs.html" . }} {{/* ── Hero ── */}}
+    <section class="hero region bg-light" aria-label="About us">
+        <div class="wrapper switcher">
+            <div class="flow">
+                <p class="overline">About Us</p>
+                <h1 data-balance>Locally Operated Holiday Lighting Since 2015</h1>
+                <p>
+                    Tis the Season Holiday Lighting is a locally operated holiday lighting company based in the Lee's
+                    Summit, MO area. We provide full-service holiday lighting for residential and commercial customers
+                    across Lee's Summit, Raymore, and nearby communities.
+                </p>
+                <div class="cluster">
+                    <a href="/contact/" class="button">Get Your Free Estimate</a>
+                    <a href="tel:{{ site.Params.phone }}" class="text-link">{{ site.Params.phone }}</a>
+                </div>
+            </div>
+            <div>
+                <img
+                    src="https://placehold.co/800x600?text=About+Hero"
+                    alt="Tis the Season Holiday Lighting team installing lights"
+                    width="800"
+                    height="600" />
+            </div>
+        </div>
+    </section>
+
+    {{/* ── Our Story ── */}}
+    <section class="region" aria-label="Our story">
+        <div class="wrapper switcher">
+            <div>
+                <img
+                    src="https://placehold.co/700x500?text=Our+Story"
+                    alt="Holiday lighting installation in Lee's Summit"
+                    width="700"
+                    height="500"
+                    loading="lazy" />
+            </div>
+            <div class="flow">
+                <p class="overline">Our Story</p>
+                <h2 data-balance>Built on Doing Things Right</h2>
+                <p>
+                    Since 2015, we've been helping homeowners and businesses across Lee's Summit and Raymore create
+                    beautiful, hassle-free holiday displays. What started with a handful of homes has grown to over 900
+                    installations a year — and we still treat every project like it's the first one.
+                </p>
+                <p>
+                    We handle everything from the initial design consultation through post-season storage. That means
+                    you never have to climb a ladder, untangle a strand of lights, or figure out where to store
+                    everything when the holidays are over.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    {{/* ── Our Values ── */}}
+    <section class="region" aria-label="Our values">
+        <div class="wrapper flow">
+            <p class="overline">What We Stand For</p>
+            <h2>Our Values</h2>
+            <div class="grid" style="--grid-min-item-size: 18rem">
+                <div class="feature-card flow">
+                    <p class="feature-card__icon" aria-hidden="true">✦</p>
+                    <p class="weight-bold">Reliability</p>
+                    <p>We show up when we say we will and deliver what we promise.</p>
+                </div>
+                <div class="feature-card flow">
+                    <p class="feature-card__icon" aria-hidden="true">✦</p>
+                    <p class="weight-bold">Communication</p>
+                    <p>Clear pricing, honest timelines, and responsive service.</p>
+                </div>
+                <div class="feature-card flow">
+                    <p class="feature-card__icon" aria-hidden="true">✦</p>
+                    <p class="weight-bold">Craftsmanship</p>
+                    <p>Every installation is done with care and attention to detail.</p>
+                </div>
+                <div class="feature-card flow">
+                    <p class="feature-card__icon" aria-hidden="true">✦</p>
+                    <p class="weight-bold">Convenience</p>
+                    <p>We handle everything so you can enjoy the season.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{/* ── By the Numbers ── */}}
+    <section class="region bg-dark" aria-label="By the numbers">
+        <div class="wrapper flow">
+            <p class="overline">By the Numbers</p>
+            <h2>Trusted Year After Year</h2>
+            <div class="grid" style="--grid-min-item-size: 16rem">
+                <div class="why-card flow">
+                    <p class="why-card__icon" aria-hidden="true">✦</p>
+                    <p class="weight-bold">Since 2015</p>
+                    <p>A decade of professional holiday lighting experience.</p>
+                </div>
+                <div class="why-card flow">
+                    <p class="why-card__icon" aria-hidden="true">✦</p>
+                    <p class="weight-bold">900+ Homes Annually</p>
+                    <p>Over 900 residential and commercial projects every season.</p>
+                </div>
+                <div class="why-card flow">
+                    <p class="why-card__icon" aria-hidden="true">✦</p>
+                    <p class="weight-bold">Fully Insured</p>
+                    <p>Full liability coverage on every job for your peace of mind.</p>
+                </div>
+                <div class="why-card flow">
+                    <p class="why-card__icon" aria-hidden="true">✦</p>
+                    <p class="weight-bold">Lights & Storage Included</p>
+                    <p>We provide the lights and store them off-season — no extra cost.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{/* ── Local Roots ── */}}
+    <section class="region" aria-label="Local roots">
+        <div class="wrapper switcher">
+            <div class="flow">
+                <p class="overline">Local Roots</p>
+                <h2 data-balance>Your Neighbors in Lee's Summit</h2>
+                <p>
+                    We're based in the Lee's Summit, MO area and serve Lee's Summit, Raymore, and nearby communities.
+                    Being local means we know the neighborhoods, understand HOA requirements, and can respond quickly
+                    when you need us.
+                </p>
+                <p>
+                    Whether it's Winterset Valley, Creekmoor, or anywhere in between — we're right around the corner and
+                    ready to help.
+                </p>
+                <p><a href="/service-areas/" class="button">View Our Service Areas</a></p>
+            </div>
+            <div>
+                <img
+                    src="https://placehold.co/700x500?text=Local+Roots"
+                    alt="Holiday lighting display in a Lee's Summit neighborhood"
+                    width="700"
+                    height="500"
+                    loading="lazy" />
+            </div>
+        </div>
+    </section>
+
+    {{/* ── Testimonials ── */}}
+    <section class="testimonials region bg-light" aria-label="Testimonials">
+        <div class="wrapper text-center flow">
+            <p class="overline">What Our Customers Say</p>
+            <h2>Real Reviews, Real Results</h2>
+            <div class="testimonials__grid grid" style="--grid-min-item-size: 18rem">
+                {{ range hugo.Data.testimonials }}
+                <blockquote class="testimonial-card flow">
+                    <p class="testimonial-card__stars" aria-label="5 stars">★★★★★</p>
+                    <p>"{{ .quote }}"</p>
+                    <footer>
+                        <cite>{{ .name }}</cite>
+                        <p>{{ .city }}</p>
+                    </footer>
+                </blockquote>
+                {{ end }}
+            </div>
+        </div>
+    </section>
+
+    {{/* ── CTA ── */}} 
+    {{ partial "cta.html" (dict "heading" "Ready to See What We Can Do?" "text" "Get a free, no-hassle estimate for your home or business. We'd love to help you shine this season." "page" .) }}
+</main>
+{{ end }}

@@ -3,6 +3,9 @@ languageCode = 'en-us'
 title = 'Tis The Season Holiday Lighting'
 enableRobotsTXT = true
 
+[taxonomies]
+  # Disable default taxonomies — this site doesn't use tags or categories
+
 [sitemap]
   changefreq = 'monthly'
   priority = 0.5
