@@ -116,18 +116,17 @@
     }
 
     @media (max-width: 860px) {
-        .hero__inner {
-            grid-template-rows: auto auto;
-        }
-
-        .hero__image {
-            grid-row: 1;
+        /* Force image to read as a proper card, not a squashed banner */
+        .hero__image img {
+            min-height: 14rem;
+            object-fit: cover;
         }
 
         .hero__content {
             max-width: 100%;
             grid-row: 2;
-            border: none;
+            /* Kill the desktop overlap — positive spacing instead */
+            margin-block-start: var(--space-s);
         }
 
         .hero .button {
