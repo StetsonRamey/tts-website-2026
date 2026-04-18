@@ -62,7 +62,7 @@
                 Fill in a few details about your home or business and we'll put together a custom holiday lighting quote
                 just for you.
             </p>
-            <form class="contact-form__card flow" action="#" method="POST" novalidate>
+            <form class="contact-form__card flow" action="#" method="POST" novalidate autocomplete="off" data-1p-ignore="true">
                 <div class="contact-form__row">
                     <div class="contact-form__field">
                         <label for="first-name">First Name</label>
@@ -102,7 +102,8 @@
                         id="street-address"
                         name="streetAddress"
                         required
-                        autocomplete="street-address"
+                        autocomplete="off"
+                        data-1p-ignore="true"
                         placeholder="123 Main Street" />
                 </div>
                 <div class="contact-form__row contact-form__row--address">
@@ -252,4 +253,10 @@
         </div>
     </section>
 </main>
+{{/* Google Places API — autocomplete for address field */}}
+{{ with site.Params.googleMapsApiKey }}
+<script>var initAddressAutocomplete = function(){};</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ . }}&libraries=places&callback=initAddressAutocomplete&loading=async" async defer></script>
+{{ end }}
+{{ partial "js-bundle.html" . }}
 {{ end }}

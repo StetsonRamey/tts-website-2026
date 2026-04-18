@@ -85,6 +85,8 @@
         resize: vertical;
     }
 
+
+
     .contact-form__submit {
         width: 100%;
         text-align: center;
@@ -92,13 +94,10 @@
         padding: 0.875rem 1.5rem;
     }
 
-    @media (max-width: 40rem) {
-        .contact-form__row {
-            grid-template-columns: 1fr;
-        }
-
+    @media (max-width: 50rem) {
+        .contact-form__row,
         .contact-form__row--address {
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
         }
 
         .contact-form__card {
