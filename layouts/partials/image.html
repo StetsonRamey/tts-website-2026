@@ -1,24 +1,40 @@
 {{/*
-  Reusable responsive image partial with blur-up support.
+  Responsive image partial with automatic srcset, sizes, and blur-up.
 
-  Usage:
-    {{ partial "image.html" (dict "src" "/images/originals/hero.jpg" "alt" "Description" "width" 1200 "height" 600 "lazy" true "page" .) }}
+  Parameters:
+    src       — path to image in assets/ (e.g. "images/originals/hero.jpg")
+    alt       — alt text (required for a11y)
+    width     — intrinsic width hint for external/fallback images
+    height    — intrinsic height hint for external/fallback images
+    sizes     — explicit sizes attr (default: "100vw")
+    lazy      — loading="lazy" (default: true)
+    class     — CSS class(es) on the <img>
+    page      — current page context for page-resource lookup (tried first)
 
-  For placeholder images during development, pass an external URL:
-    {{ partial "image.html" (dict "src" "https://placehold.co/1200x600" "alt" "Placeholder" "width" 1200 "height" 600 "lazy" true) }}
+  For external URLs (http/https), renders a simple <img>.
+
+  Usage (global asset):
+    {{ partial "image.html" (dict "src" "images/originals/hero.jpg" "alt" "A house with lights" "sizes" "(min-width: 1200px) 1200px, 100vw") }}
+
+  Usage (page resource — bundle image):
+    {{ partial "image.html" (dict "src" "gallery/photo.jpg" "alt" "Install" "page" . "sizes" "(min-width: 800px) 50vw, 100vw") }}
+
+  Usage (placeholder):
+    {{ partial "image.html" (dict "src" "https://placehold.co/1200x600" "alt" "Placeholder" "width" 1200 "height" 600) }}
 */}}
 
 {{- $src := .src -}}
 {{- $alt := .alt | default "" -}}
 {{- $width := .width | default nil -}}
 {{- $height := .height | default nil -}}
+{{- $sizes := .sizes | default "100vw" -}}
 {{- $lazy := .lazy | default true -}}
 {{- $class := .class | default "" -}}
 
 {{- $isExternal := or (hasPrefix $src "http://") (hasPrefix $src "https://") -}}
 
 {{- if $isExternal -}}
-  {{/* External / placeholder image — render a simple img tag */}}
+  {{/* External / placeholder — plain img */}}
   <img
     src="{{ $src }}"
     alt="{{ $alt }}"
@@ -28,34 +44,52 @@
     {{ with $class }}class="{{ . }}"{{ end }}
   >
 {{- else -}}
-  {{/* Local image — use Hugo image processing when available */}}
-  {{- $page := .page -}}
-  {{- if $page -}}
-    {{- $img := $page.Resources.GetMatch $src -}}
-    {{- if $img -}}
-      {{- $full := $img.Process "resize 1200x webp" -}}
-      {{- $small := $img.Process "resize 40x webp" -}}
-      <img
-        src="{{ $full.RelPermalink }}"
-        alt="{{ $alt }}"
-        width="{{ $full.Width }}"
-        height="{{ $full.Height }}"
-        {{ if $lazy }}loading="lazy" decoding="async"{{ else }}decoding="async"{{ end }}
-        style="background-image: url({{ $small.RelPermalink }}); background-size: cover;"
-        {{ with $class }}class="{{ . }}"{{ end }}
-      >
-    {{- else -}}
-      {{/* Fallback if resource not found */}}
-      <img
-        src="{{ $src }}"
-        alt="{{ $alt }}"
-        {{ with $width }}width="{{ . }}"{{ end }}
-        {{ with $height }}height="{{ . }}"{{ end }}
-        {{ if $lazy }}loading="lazy" decoding="async"{{ else }}decoding="async"{{ end }}
-        {{ with $class }}class="{{ . }}"{{ end }}
-      >
+  {{/* ── Try to resolve a Hugo resource ── */}}
+  {{- $img := false -}}
+
+  {{/* 1) Page resource (bundle) */}}
+  {{- with .page -}}
+    {{- $img = .Resources.GetMatch $src -}}
+  {{- end -}}
+
+  {{/* 2) Global asset */}}
+  {{- if not $img -}}
+    {{- $img = resources.Get $src -}}
+  {{- end -}}
+
+  {{- if $img -}}
+    {{/* ── Responsive processing ── */}}
+    {{- $breakpoints := slice 400 640 960 1200 1600 -}}
+    {{- $origW := $img.Width -}}
+    {{- $srcsetParts := slice -}}
+
+    {{- range $bp := $breakpoints -}}
+      {{- if le $bp $origW -}}
+        {{- $resized := $img.Process (printf "resize %dx webp" $bp) -}}
+        {{- $srcsetParts = $srcsetParts | append (printf "%s %dw" $resized.RelPermalink $bp) -}}
+      {{- end -}}
     {{- end -}}
+
+    {{/* Always include original-width version as largest srcset entry */}}
+    {{- $full := $img.Process (printf "resize %dx webp" $origW) -}}
+    {{- $srcsetParts = $srcsetParts | append (printf "%s %dw" $full.RelPermalink $origW) -}}
+
+    {{/* Low-quality placeholder for blur-up */}}
+    {{- $lqip := $img.Process "resize 40x webp" -}}
+
+    <img
+      src="{{ $full.RelPermalink }}"
+      srcset="{{ delimit $srcsetParts ", " }}"
+      sizes="{{ $sizes }}"
+      alt="{{ $alt }}"
+      width="{{ $full.Width }}"
+      height="{{ $full.Height }}"
+      {{ if $lazy }}loading="lazy" decoding="async"{{ else }}decoding="async"{{ end }}
+      style="background-image: url({{ $lqip.RelPermalink }}); background-size: cover;"
+      {{ with $class }}class="{{ . }}"{{ end }}
+    >
   {{- else -}}
+    {{/* Fallback — resource not found */}}
     <img
       src="{{ $src }}"
       alt="{{ $alt }}"

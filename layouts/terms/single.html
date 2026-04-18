@@ -1,0 +1,32 @@
+{{ define "main" }}
+<main id="main-content">
+    {{ partial "breadcrumbs.html" . }}
+
+    {{/* ── Hero ── */}}
+    <section class="hero region bg-light" aria-label="Page heading">
+        <div class="wrapper flow">
+            <h1 data-balance>{{ .Title }}</h1>
+            <p>Please read our terms of service carefully. If you have any questions, give us a call.</p>
+        </div>
+    </section>
+
+    {{/* ── Terms Content ── */}}
+    <section class="region" aria-label="Terms of service">
+        <div class="wrapper">
+            <div class="sidebar terms-layout">
+                <div class="toc">
+                    <details class="toc__details" open>
+                        <summary class="toc__toggle">On This Page</summary>
+                        {{ .TableOfContents }}
+                    </details>
+                </div>
+                <article class="prose flow">
+                    {{ .Content }}
+                </article>
+            </div>
+        </div>
+    </section>
+
+    {{ partial "cta.html" (dict "page" . "side" "center" "heading" "Have Questions About Our Terms?" "text" "We're happy to walk you through anything. Give us a call or request a free estimate." "buttonLabel" "Get a Free Estimate" "buttonURL" "/contact/") }}
+</main>
+{{ end }}

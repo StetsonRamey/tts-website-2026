@@ -4,11 +4,7 @@
     <section class="hero">
         <div class="hero__inner wrapper">
             <div class="hero__image">
-                <img
-                    src="https://placehold.co/1400x600?text=Hero+Image"
-                    alt="Professional holiday lighting installation"
-                    width="1400"
-                    height="600" />
+                {{ partial "image.html" (dict "src" "images/originals/hero.jpg" "alt" "Holiday lighting installation on a home in Lee's Summit, MO" "eager" false "sizes" "(min-width: 90rem) 90rem, 100vw") }}
             </div>
             <div class="hero__content flow">
                 <p class="overline">Professional Holiday Lighting</p>
@@ -48,24 +44,14 @@
         <div class="wrapper flow">
             <div class="services-preview__grid grid" style="--grid-min-item-size: 20rem">
                 <a href="/services/" class="service-card" aria-label="Residential Holiday Lighting">
-                    <img
-                        src="https://placehold.co/600x400?text=Residential"
-                        alt="Residential holiday lighting"
-                        width="600"
-                        height="400"
-                        loading="lazy" />
+                    {{ partial "image.html" (dict "src" "images/originals/residential-home.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                     <div class="service-card__overlay">
                         <h3>Residential</h3>
                         <p>View Services →</p>
                     </div>
                 </a>
                 <a href="/services/" class="service-card" aria-label="Commercial Holiday Lighting">
-                    <img
-                        src="https://placehold.co/600x400?text=Commercial"
-                        alt="Commercial holiday lighting"
-                        width="600"
-                        height="400"
-                        loading="lazy" />
+                    {{ partial "image.html" (dict "src" "images/originals/commercial-home.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                     <div class="service-card__overlay">
                         <h3>Commercial</h3>
                         <p>View Services →</p>
@@ -99,28 +85,13 @@
             <h2>Featured Installations</h2>
             <div class="gallery-preview__grid grid" style="--grid-min-item-size: 18rem">
                 <figure class="gallery-card">
-                    <img
-                        src="https://placehold.co/500x400?text=Install+1"
-                        alt="Holiday lighting installation example"
-                        width="500"
-                        height="400"
-                        loading="lazy" />
+                    {{ partial "image.html" (dict "src"  "images/originals/home1.jpeg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                 </figure>
                 <figure class="gallery-card">
-                    <img
-                        src="https://placehold.co/500x400?text=Install+2"
-                        alt="Holiday lighting installation example"
-                        width="500"
-                        height="400"
-                        loading="lazy" />
+                    {{ partial "image.html" (dict "src"  "images/originals/home2.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                 </figure>
                 <figure class="gallery-card">
-                    <img
-                        src="https://placehold.co/500x400?text=Install+3"
-                        alt="Holiday lighting installation example"
-                        width="500"
-                        height="400"
-                        loading="lazy" />
+                    {{ partial "image.html" (dict "src"  "images/originals/home3.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                 </figure>
             </div>
             <p><a href="/gallery/" class="text-link">View Full Gallery →</a></p>
@@ -155,12 +126,7 @@
             <div class="areas-preview__grid grid" style="--grid-min-item-size: 20rem">
                 {{ range (index hugo.Data "service-areas").areas }}
                 <a href="/service-areas/{{ .slug }}/" class="area-card" aria-label="{{ .name }}, {{ .state }}">
-                    <img
-                        src="https://placehold.co/600x400?text={{ .name }}"
-                        alt="Holiday lighting in {{ .name }}, {{ .state }}"
-                        width="600"
-                        height="400"
-                        loading="lazy" />
+                    {{ partial "image.html" (dict "src" (printf "images/originals/%s" .image) "alt" (printf "Holiday lighting in %s, %s" .name .state) "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                     <div class="area-card__overlay">
                         <p class="area-card__pin" aria-hidden="true">📍</p>
                         <h3>{{ .name }}, {{ .state }}</h3>
@@ -171,6 +137,6 @@
         </div>
     </section>
 
-    {{/* ── CTA ── */}} {{ partial "cta.html" (dict "page" .) }}
+    {{/* ── CTA ── */}} {{ partial "cta.html" (dict "page" . "side" "center") }}
 </main>
 {{ end }}

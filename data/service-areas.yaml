@@ -1,8 +1,9 @@
 areas:
-  - name: "Lee's Summit"
+  - name: Lees Summit
     state: MO
     slug: lees-summit
     primary: true
+    image: lees-summit-home.jpg
     neighborhoods:
       - Winterset Valley
 
@@ -10,5 +11,6 @@ areas:
     state: MO
     slug: raymore
     primary: false
+    image: raymore-home.jpg
     neighborhoods:
       - Creekmoor

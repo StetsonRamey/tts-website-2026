@@ -1,0 +1,79 @@
+@layer blocks {
+
+/* ── Sidebar layout overrides for terms page ── */
+.terms-layout {
+    --sidebar-width: 16rem;
+    --sidebar-content-min: 60%;
+    align-items: flex-start;
+}
+
+/* ── Table of contents ── */
+.toc {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-m));
+}
+
+.toc__details {
+    background: var(--color-light);
+    border-radius: var(--radius-m);
+    padding: var(--space-s) var(--space-m);
+}
+
+.toc__toggle {
+    font-weight: 700;
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    list-style: none;
+    padding-block-end: var(--space-xs);
+}
+
+.toc__toggle::-webkit-details-marker {
+    display: none;
+}
+
+.toc__toggle::after {
+    content: "";
+    display: block;
+    border-bottom: 1px solid var(--color-border);
+    margin-block-start: var(--space-xs);
+}
+
+/* Style Hugo's generated #TableOfContents nav */
+.toc #TableOfContents ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.toc #TableOfContents li + li {
+    margin-block-start: var(--space-3xs);
+}
+
+.toc #TableOfContents a {
+    display: block;
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    padding-block: var(--space-3xs);
+    transition: color 0.15s;
+}
+
+.toc #TableOfContents a:hover {
+    color: var(--color-dark);
+}
+
+/* ── Mobile: collapsible ── */
+@media (max-width: 48em) {
+    .toc {
+        position: static;
+    }
+
+    .toc__details:not([open]) .toc__toggle::after {
+        display: none;
+    }
+}
+
+} /* end @layer blocks */

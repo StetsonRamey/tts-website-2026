@@ -16,11 +16,7 @@
                 </div>
             </div>
             <div>
-                <img
-                    src="https://placehold.co/800x600?text=Services+Hero"
-                    alt="Professional holiday lighting installation on a home"
-                    width="800"
-                    height="600" />
+                {{ partial "image.html" (dict "src"  "images/originals/services/services-hero.JPG" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
             </div>
         </div>
     </section>
@@ -61,14 +57,8 @@
                     </div>
                 </div>
                 <div>
-                    <img
-                        src="https://placehold.co/700x500?text=Residential+Lighting"
-                        alt="Residential holiday lighting display"
-                        width="700"
-                        height="500"
-                        loading="lazy" />
+                    {{ partial "image.html" (dict "src"  "images/originals/services/residential.JPG" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                 </div>
-            </div>
         </div>
     </section>
 
@@ -86,12 +76,7 @@
             </div>
             <div class="switcher">
                 <div>
-                    <img
-                        src="https://placehold.co/700x500?text=Commercial+Lighting"
-                        alt="Commercial holiday lighting display"
-                        width="700"
-                        height="500"
-                        loading="lazy" />
+                    {{ partial "image.html" (dict "src"  "images/originals/services/commercial.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                 </div>
                 <div class="flow">
                     <div class="feature-card flow">
@@ -147,12 +132,7 @@
                 <p><a href="/holiday-lighting/" class="button">Explore Holiday Lighting →</a></p>
             </div>
             <div>
-                <img
-                    src="https://placehold.co/700x500?text=Holiday+Lighting"
-                    alt="Holiday lighting showcase"
-                    width="700"
-                    height="500"
-                    loading="lazy" />
+               {{ partial "image.html" (dict "src"  "images/originals/services/holiday-lighting.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }} 
             </div>
         </div>
     </section>
@@ -182,6 +162,6 @@
         </div>
     </section>
 
-    {{/* ── CTA ── */}} {{ partial "cta.html" (dict "page" .) }}
+    {{/* ── CTA ── */}} {{ partial "cta.html" (dict "page" . "side" "center") }}
 </main>
 {{ end }}

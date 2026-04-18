@@ -1,0 +1,49 @@
+@layer blocks {
+
+.prose {
+    --flow-space: var(--space-s);
+    max-width: 75ch;
+}
+
+.prose h2 {
+    font-size: var(--step-3);
+    margin-block-start: var(--space-xl);
+    scroll-margin-top: calc(var(--header-height) + var(--space-m));
+}
+
+.prose h3 {
+    font-size: var(--step-2);
+    margin-block-start: var(--space-l);
+    scroll-margin-top: calc(var(--header-height) + var(--space-m));
+}
+
+.prose h4 {
+    font-size: var(--step-1);
+    margin-block-start: var(--space-m);
+}
+
+.prose ul,
+.prose ol {
+    padding-inline-start: 1.5em;
+}
+
+.prose li + li {
+    margin-block-start: var(--space-2xs);
+}
+
+.prose strong {
+    font-weight: 700;
+}
+
+.prose a {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
+
+.prose hr {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin-block: var(--space-xl);
+}
+
+} /* end @layer blocks */

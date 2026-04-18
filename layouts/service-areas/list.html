@@ -26,12 +26,7 @@
             <div class="grid" style="--grid-min-item-size: 20rem">
                 {{ range (index hugo.Data "service-areas").areas }}
                 <a href="/service-areas/{{ .slug }}/" class="area-card" aria-label="{{ .name }}, {{ .state }}">
-                    <img
-                        src="https://placehold.co/600x400?text={{ .name }}"
-                        alt="Holiday lighting in {{ .name }}, {{ .state }}"
-                        width="600"
-                        height="400"
-                        loading="lazy" />
+                    {{ partial "image.html" (dict "src" (printf "images/originals/%s" .image) "alt" (printf "Holiday lighting in %s, %s" .name .state) "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                     <div class="area-card__overlay">
                         <p class="area-card__pin" aria-hidden="true">📍</p>
                         <h3>{{ .name }}, {{ .state }}</h3>
@@ -106,12 +101,7 @@
                 </div>
             </div>
             <div>
-                <img
-                    src="https://placehold.co/700x500?text=Service+Area+Map"
-                    alt="Map of holiday lighting service areas in Lee's Summit and Raymore"
-                    width="700"
-                    height="500"
-                    loading="lazy" />
+                {{ partial "image.html" (dict "src" "images/originals/ls/service-areas-dark.png" "alt" "Map of holiday lighting service areas in Lee's Summit and Raymore" "sizes" "(min-width: 90rem) 40rem, 100vw" "lazy" true "class" "") }}
             </div>
         </div>
     </section>
@@ -137,6 +127,6 @@
     </section>
 
     {{/* ── CTA ── */}}
-    {{ partial "cta.html" (dict "heading" "Ready to Light Up Your Home?" "text" "Get a free, no-hassle estimate — no matter where you are in our service area." "page" .) }}
+    {{ partial "cta.html" (dict "side" "center" "heading" "Ready to Light Up Your Home?" "text" "Get a free, no-hassle estimate — no matter where you are in our service area." "page" .) }}
 </main>
 {{ end }}
