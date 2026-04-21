@@ -1,14 +1,5 @@
-{{- $global := resources.Get "css/global.css" -}}
-{{- $composition := resources.Get "css/composition.css" -}}
-{{- $utilities := resources.Get "css/utilities.css" -}}
-{{- $exceptions := resources.Get "css/exceptions.css" -}}
-{{- $all := slice $global $composition $utilities -}}
-{{- range resources.Match "css/blocks/*.css" -}}
-  {{- $all = $all | append . -}}
-{{- end -}}
-{{- $all = $all | append $exceptions -}}
-{{- $bundle := $all | resources.Concat "css/main.css" -}}
+{{- $css := resources.Get "css/main.css" | css.Build -}}
 {{- if hugo.IsProduction -}}
-  {{- $bundle = $bundle | minify | fingerprint -}}
+  {{- $css = $css | minify | fingerprint -}}
 {{- end -}}
-<link rel="stylesheet" href="{{ $bundle.RelPermalink }}">
+<link rel="stylesheet" href="{{ $css.RelPermalink }}">

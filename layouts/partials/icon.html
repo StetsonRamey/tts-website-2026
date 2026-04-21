@@ -1,0 +1,28 @@
+{{/*
+  Inline SVG icon partial.
+  
+  Usage:
+    {{ partial "icon.html" (dict "name" "map-pin" "class" "icon-sm text-accent") }}
+  
+  Icons are stored in static/icons/ as .svg files.
+  They're inlined for zero HTTP requests and CSS color inheritance (currentColor).
+*/}}
+
+{{- $name := .name -}}
+{{- $class := .class | default "icon area-card__pin icon-sm" -}}
+{{- $variant := .variant | default "none" -}}
+{{- $ariaHidden := .aria_hidden | default nil -}}
+
+{{- if $name -}}
+  {{- $iconPath := printf "icons/%s.svg" $name -}}
+  {{- $icon := resources.Get $iconPath -}}
+  
+  {{- if $icon -}}
+    <svg class="icon {{ $class }}" data-icon-variant="{{ $variant }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" {{ with $ariaHidden }}aria-hidden="{{ . }}"{{ end }}>
+      {{ $icon.Content | safeHTML }}
+    </svg>
+  {{- else -}}
+    {{/* Fallback if icon not found */}}
+    <span class="icon-missing" title="Icon '{{ $name }}' not found"></span>
+  {{- end -}}
+{{- end -}}

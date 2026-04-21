@@ -15,13 +15,24 @@
     {{/* ── Gallery Grid ── */}}
     <section class="region" aria-label="Photo gallery">
         <div class="wrapper flow">
-            <div class="gallery__grid grid" style="--grid-min-item-size: 18rem">
-                {{ range .Params.gallery_images }}
-                <figure class="gallery-card">
-                    <a href="{{ .src }}" class="glightbox" data-gallery="gallery1" data-description="{{ .caption }}">
-                        <img src="{{ .src }}" alt="{{ .alt }}" width="800" height="600" loading="lazy" />
-                    </a>
-                </figure>
+            <div class="gallery__grid grid" style="--grid-min-item-size: 22rem; gap: 0.75rem">
+                {{ range $index, $image := .Params.gallery_images }}
+                    {{- $img := resources.Get $image.src -}}
+                    {{- if $img -}}
+                        {{- $full := $img.Process (printf "resize %dx webp" $img.Width) -}}
+                <div>
+                    <figure class="gallery-card">
+                        <a
+                            href="{{ $full.RelPermalink }}"
+                            class="glightbox"
+                            data-gallery="gallery1"
+                            data-description="{{ add $index 1 }}. {{ $image.caption }}">
+                            {{ partial "image.html" (dict "src" $image.src "alt" $image.alt "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
+                        </a>
+                    </figure>
+                    <figcaption>{{ add $index 1 }}. {{ $image.caption }}</figcaption>
+                </div>
+                    {{- end -}}
                 {{ end }}
             </div>
         </div>

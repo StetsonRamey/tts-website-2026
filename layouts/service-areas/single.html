@@ -20,11 +20,7 @@
                 </div>
             </div>
             <div>
-                <img
-                    src="https://placehold.co/800x600?text={{ $areaData.name | default "Area" }}"
-                    alt="Holiday lighting installation in {{ $areaData.name | default "your area" }}, {{ $areaData.state | default "MO" }}"
-                    width="800"
-                    height="600" />
+                {{ partial "image.html" (dict "src"  $areaData.images.hero "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
             </div>
         </div>
     </section>
@@ -89,12 +85,7 @@
                 </p>
             </div>
             <div>
-                <img
-                    src="https://placehold.co/700x500?text={{ $areaData.name }}+Neighborhoods"
-                    alt="Holiday lighting in a {{ $areaData.name }} neighborhood"
-                    width="700"
-                    height="500"
-                    loading="lazy" />
+                {{ partial "image.html" (dict "src"  $areaData.images.hoods "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
             </div>
         </div>
     </section>
@@ -104,12 +95,7 @@
     <section class="region{{ if not (and $areaData $areaData.neighborhoods) }} bg-light{{ end }}" aria-label="Residential and commercial service">
         <div class="wrapper switcher">
             <div>
-                <img
-                    src="https://placehold.co/700x500?text=Residential+%26+Commercial"
-                    alt="Residential and commercial holiday lighting in {{ $areaData.name | default "your area" }}"
-                    width="700"
-                    height="500"
-                    loading="lazy" />
+                {{ partial "image.html" (dict "src"  $areaData.images.commercial "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
             </div>
             <div class="flow">
                 <p class="overline">Homes & Businesses</p>
@@ -200,18 +186,13 @@
         <div class="wrapper flow">
             <p class="overline">Nearby Areas</p>
             <h2>We Also Serve</h2>
-            <div class="grid" style="--grid-min-item-size: 20rem">
+            <div class="grid" style="max-width: 50rem; margin-inline: auto;">
                 {{ range (index hugo.Data "service-areas").areas }}
                 {{ if ne .slug ($.File.ContentBaseName) }}
                 <a href="/service-areas/{{ .slug }}/" class="area-card" aria-label="{{ .name }}, {{ .state }}">
-                    <img
-                        src="https://placehold.co/600x400?text={{ .name }}"
-                        alt="Holiday lighting in {{ .name }}, {{ .state }}"
-                        width="600"
-                        height="400"
-                        loading="lazy" />
+                    {{ partial "image.html" (dict "src"  $areaData.images.map "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                     <div class="area-card__overlay">
-                        <p class="area-card__pin" aria-hidden="true">📍</p>
+                        {{ partial "icon.html" (dict "name" "map" "class" "icon icon-sm area-card__pin" "variant" "secondary") }}
                         <h3>{{ .name }}, {{ .state }}</h3>
                     </div>
                 </a>
@@ -222,6 +203,6 @@
     </section>
 
     {{/* ── CTA ── */}}
-    {{ partial "cta.html" (dict "heading" (printf "Ready to Light Up Your %s Home?" ($areaData.name | default "")) "page" .) }}
+    {{ partial "cta.html" (dict "side" "center" "heading" (printf "Ready to Light Up Your %s Home?" ($areaData.name | default "")) "page" .) }}
 </main>
 {{ end }}

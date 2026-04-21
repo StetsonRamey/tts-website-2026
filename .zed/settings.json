@@ -1,0 +1,18 @@
+{
+  "file_scan_exclusions": [
+    "**/public",
+    "**/resources/_gen",
+    "**/.hugo_build.lock",
+    "**/node_modules",
+    "**/pen-designs",
+    "**/designs",
+  ],
+  "languages": {
+    "HTML": {
+      "language_servers": ["tailwindcss-language-server", "emmet-language-server", "!vtsls", "!eslint"],
+    },
+    "Markdown": {
+      "language_servers": ["!vtsls", "!eslint"],
+    },
+  },
+}

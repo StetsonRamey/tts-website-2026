@@ -7,9 +7,9 @@
                 <p class="overline">About Us</p>
                 <h1 data-balance>Locally Operated Holiday Lighting Since 2015</h1>
                 <p>
-                    Tis the Season Holiday Lighting is a locally operated holiday lighting company based in the Lee's
-                    Summit, MO area. We provide full-service holiday lighting for residential and commercial customers
-                    across Lee's Summit, Raymore, and nearby communities.
+                    👋. Stetson, Ryan, and Angela from Tis the Season Holiday Lighting. We've been operating in the
+                    Lee's Summit, MO area since 2015. We provide full-service holiday lighting for residential and
+                    commercial customers across Lee's Summit, Raymore, and nearby communities.
                 </p>
                 <div class="cluster">
                     <a href="/contact/" class="button">Get Your Free Estimate</a>
@@ -17,11 +17,7 @@
                 </div>
             </div>
             <div>
-                <img
-                    src="https://placehold.co/800x600?text=About+Hero"
-                    alt="Tis the Season Holiday Lighting team installing lights"
-                    width="800"
-                    height="600" />
+                {{ partial "image.html" (dict "src" "images/originals/about/team.JPG" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
             </div>
         </div>
     </section>
@@ -30,16 +26,11 @@
     <section class="region" aria-label="Our story">
         <div class="wrapper switcher">
             <div>
-                <img
-                    src="https://placehold.co/700x500?text=Our+Story"
-                    alt="Holiday lighting installation in Lee's Summit"
-                    width="700"
-                    height="500"
-                    loading="lazy" />
+                {{ partial "image.html" (dict "src"  "images/originals/about/ladders.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
             </div>
             <div class="flow">
                 <p class="overline">Our Story</p>
-                <h2 data-balance>Built on Doing Things Right</h2>
+                <h2 data-balance>We climb the ladders so you don't have to</h2>
                 <p>
                     Since 2015, we've been helping homeowners and businesses across Lee's Summit and Raymore create
                     beautiful, hassle-free holiday displays. What started with a handful of homes has grown to over 900
@@ -47,8 +38,7 @@
                 </p>
                 <p>
                     We handle everything from the initial design consultation through post-season storage. That means
-                    you never have to climb a ladder, untangle a strand of lights, or figure out where to store
-                    everything when the holidays are over.
+                    you never have to climb a ladder, untangle a strand of lights, or figure out where you put the lights when it's time to hang them up again.
                 </p>
             </div>
         </div>
@@ -63,7 +53,7 @@
                 <div class="feature-card flow">
                     <p class="feature-card__icon" aria-hidden="true">✦</p>
                     <p class="weight-bold">Reliability</p>
-                    <p>We show up when we say we will and deliver what we promise.</p>
+                    <p>We show up when we say we will.</p>
                 </div>
                 <div class="feature-card flow">
                     <p class="feature-card__icon" aria-hidden="true">✦</p>
@@ -72,8 +62,8 @@
                 </div>
                 <div class="feature-card flow">
                     <p class="feature-card__icon" aria-hidden="true">✦</p>
-                    <p class="weight-bold">Craftsmanship</p>
-                    <p>Every installation is done with care and attention to detail.</p>
+                    <p class="weight-bold">Efficiency</p>
+                    <p>We optimize every aspect of the installation to save you time and money.</p>
                 </div>
                 <div class="feature-card flow">
                     <p class="feature-card__icon" aria-hidden="true">✦</p>
@@ -126,18 +116,13 @@
                     when you need us.
                 </p>
                 <p>
-                    Whether it's Winterset Valley, Creekmoor, or anywhere in between — we're right around the corner and
+                    Whether it's Winterset Valley, Creekmoor, Paddocks, or Eagle Creek — we're right around the corner and
                     ready to help.
                 </p>
                 <p><a href="/service-areas/" class="button">View Our Service Areas</a></p>
             </div>
             <div>
-                <img
-                    src="https://placehold.co/700x500?text=Local+Roots"
-                    alt="Holiday lighting display in a Lee's Summit neighborhood"
-                    width="700"
-                    height="500"
-                    loading="lazy" />
+                {{ partial "image.html" (dict "src"  "images/originals/hero.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
             </div>
         </div>
     </section>
@@ -162,7 +147,6 @@
         </div>
     </section>
 
-    {{/* ── CTA ── */}} 
-    {{ partial "cta.html" (dict "heading" "Ready to See What We Can Do?" "text" "Get a free, no-hassle estimate for your home or business. We'd love to help you shine this season." "page" .) }}
+    {{/* ── CTA ── */}} {{ partial "cta.html" (dict "side" "center" "heading" "Ready to See What We Can Do?" "text" "Get a free, no-hassle estimate for your home or business. We'd love to help you shine this season." "page" .) }}
 </main>
 {{ end }}

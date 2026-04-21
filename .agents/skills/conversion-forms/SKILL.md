@@ -1,5 +1,5 @@
 ---
-name: forms-for-conversion
+name: conversion-forms
 description: This skill gives the agents guidance for creating high converting forms
 ---
 

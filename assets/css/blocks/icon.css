@@ -1,0 +1,61 @@
+@layer blocks {
+  /* SVG icon base styles */
+  .icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+    color: currentColor;
+  }
+
+  /* Icon size modifiers */
+  .icon-sm {
+    width: 0.875em;
+    height: 0.875em;
+  }
+
+  .icon-md {
+    width: 1.25em;
+    height: 1.25em;
+  }
+
+  .icon-lg {
+    width: 1.5em;
+    height: 1.5em;
+  }
+
+  .icon-xl {
+    width: 2em;
+    height: 2em;
+  }
+
+  /* Icon fallback when not found */
+  .icon-missing {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-color: var(--color-accent);
+    opacity: 0.3;
+  }
+
+  /* Area card pin icon */
+  .area-card__pin {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Icon color modifiers */
+  .icon[data-icon-variant="default"] {
+    color: currentColor;
+  }
+  
+  .icon[data-icon-variant="primary"] {
+    color: var(--color-primary);
+  }
+
+  .icon[data-icon-variant="secondary"] {
+    color: var(--color-secondary);
+  }
+}

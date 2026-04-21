@@ -1,11 +1,5 @@
-{{- $files := slice -}}
-{{- range resources.Match "js/*.js" -}}
-  {{- $files = $files | append . -}}
+{{- $js := resources.Get "js/main.js" | js.Build -}}
+{{- if hugo.IsProduction -}}
+  {{- $js = $js | minify | fingerprint -}}
 {{- end -}}
-{{- if $files -}}
-  {{- $bundle := $files | resources.Concat "js/main.js" -}}
-  {{- if hugo.IsProduction -}}
-    {{- $bundle = $bundle | minify | fingerprint -}}
-  {{- end -}}
-  <script src="{{ $bundle.RelPermalink }}" defer></script>
-{{- end -}}
+<script src="{{ $js.RelPermalink }}" defer></script>

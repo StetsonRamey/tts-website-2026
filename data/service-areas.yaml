@@ -6,6 +6,11 @@ areas:
     image: lees-summit-home.jpg
     neighborhoods:
       - Winterset Valley
+    images:
+      hero: "/images/originals/ls/ls-hero.jpg"
+      hoods: "/images/originals/ls/ls-hoods.JPG"
+      commercial: "/images/originals/ls/ls-commercial.jpg"
+      map: "/images/originals/ray/service-area-dark.png"
 
   - name: Raymore
     state: MO
@@ -14,3 +19,8 @@ areas:
     image: raymore-home.jpg
     neighborhoods:
       - Creekmoor
+    images:
+      hero: "/images/originals/ray/raymore-hero.jpg"
+      hoods: "/images/originals/ray/raymore-hoods.jpg"
+      commercial: "/images/originals/ray/raymore-commercial.jpg"
+      map: "/images/originals/ls/service-areas-dark.png"
