@@ -472,26 +472,26 @@ These are reusable layout classes (inspired by Every Layout):
 - [x] Commit changes
 - [x] Update PLAN.md
 
-### Phase 5: Forms + Minimal JS ✦ CURRENT
+### Phase 5: Forms + Minimal JS ✓ COMPLETE
 - [x] Build progressive-enhancement JS for phone formatting (`(XXX) XXX-XXXX`)
 - [x] Integrate Google Maps Places autocomplete for address entry
-- [ ] Add client-side validation on input and on submit
-- [ ] Add matching server-side validation in the Val Town endpoint
-- [ ] Wire contact form submission to Val Town
-- [ ] Use PRG (`POST` → `303` redirect → thank-you page) to avoid duplicate submissions on refresh
-- [ ] Reuse the form shell on `/create-fix-request/` with the new site chrome
-- [ ] Commit changes
-- [ ] Update PLAN.md
+- [x] Add client-side validation on input and on submit
+- [x] Add matching server-side validation in the Val Town endpoint
+- [x] Wire contact form submission to Val Town
+- [x] Use PRG (`POST` → `303` redirect → thank-you page) to avoid duplicate submissions on refresh
+- [x] Reuse the form shell on `/create-fix-request/` with the new site chrome
+- [x] Commit changes
+- [x] Update PLAN.md
 
-### Phase 6: Gallery + Image Pipeline ✓ MOSTLY COMPLETE
+### Phase 6: Gallery + Image Pipeline ✓ COMPLETE
 - [x] Build gallery page with Hugo-processed responsive images
 - [x] Support a strong browsing experience without requiring a heavy JS lightbox at launch
 - [x] Use blur-up placeholders for gallery thumbnails and major editorial images
 - [x] Confirm image output sizes, lazy loading, and CLS-safe rendering
 - [x] Add GLightbox for image modal viewing
-- [ ] Final image asset swap (placeholders → real photos)
-- [ ] Commit changes
-- [ ] Update PLAN.md
+- [x] Final image asset swap (placeholders → real photos)
+- [x] Commit changes
+- [x] Update PLAN.md
 
 ### Phase 7: Custom Analytics (Post-Launch)
 - [ ] **Lightweight tracker** (`analytics.js`) — no third-party dependencies
