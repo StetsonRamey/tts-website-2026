@@ -1,0 +1,95 @@
+@layer blocks {
+  /* ── Thank You Hero ── */
+  .thank-you-hero {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .thank-you__icon {
+    font-size: var(--step-4);
+    color: var(--color-success, #2d8a4e);
+    font-weight: 700;
+    line-height: 1;
+    margin-block-end: var(--space-m);
+  }
+
+  .thank-you__subtitle {
+    font-size: var(--step-1);
+    color: var(--color-text-muted);
+    line-height: 1.6;
+  }
+
+  /* ── Thank You Steps ── */
+  .thank-you-steps {
+    --flow-space: var(--space-l);
+  }
+
+  .thank-you-step {
+    text-align: left;
+    padding: var(--space-m);
+    background: var(--color-bg-accent);
+    border-radius: var(--radius-s);
+    border-left: 4px solid var(--color-primary);
+  }
+
+  .thank-you-step__number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: var(--color-primary);
+    color: var(--color-white);
+    font-weight: 700;
+    margin-block-end: var(--space-xs);
+    font-size: var(--step-1);
+  }
+
+  .thank-you-step h3 {
+    color: var(--color-dark);
+    font-size: var(--step-2);
+    margin-block-end: var(--space-2xs);
+  }
+
+  .thank-you-step p {
+    color: var(--color-text-muted);
+    font-size: var(--step--1);
+  }
+
+  /* ── Thank You Nav ── */
+  .thank-you-nav {
+    margin-block-start: var(--space-m);
+  }
+
+  .thank-you-nav .button {
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  /* ── Thank You Contact ── */
+  .thank-you-contact__text {
+    font-size: var(--step-1);
+    color: var(--color-text-muted);
+    margin-block-end: var(--space-m);
+  }
+
+  /* Responsive */
+  @media (max-width: 50rem) {
+    .thank-you-hero {
+      min-height: 50vh;
+    }
+
+    .thank-you-step {
+      text-align: center;
+      border-left: none;
+      border-top: 4px solid var(--color-primary);
+      padding-block-start: var(--space-m);
+    }
+
+    .thank-you-step__number {
+      margin-inline: auto;
+    }
+  }
+}

@@ -5,7 +5,7 @@
         <div class="wrapper flow">
             <p class="overline">Get in Touch</p>
             <h1 data-balance>Let's Light Up Your Holidays</h1>
-            <p style="max-width: 80ch;">
+            <p style="max-width: 80ch">
                 Whether you're a homeowner in Lee's Summit or a business in Raymore, we'd love to help you shine this
                 season. Get a free, no-obligation estimate for professional holiday lighting.
             </p>
@@ -52,15 +52,34 @@
                 Fill in a few details about your home or business and we'll put together a custom holiday lighting quote
                 just for you.
             </p>
-            <form class="contact-form__card flow" action="#" method="POST" novalidate autocomplete="off" data-1p-ignore="true">
+            <form
+                class="contact-form__card flow"
+                action="https://stetson-tts-contact-form.val.run/"
+                method="POST"
+                autocomplete="off"
+                data-1p-ignore="true">
                 <div class="contact-form__row">
                     <div class="contact-form__field">
                         <label for="first-name">First Name</label>
-                        <input type="text" id="first-name" name="firstName" required autocomplete="given-name" />
+                        <input
+                            type="text"
+                            id="first-name"
+                            name="firstName"
+                            required
+                            autocomplete="given-name"
+                            minlength="2" />
+                        <span class="field-error" role="alert"></span>
                     </div>
                     <div class="contact-form__field">
                         <label for="last-name">Last Name</label>
-                        <input type="text" id="last-name" name="lastName" required autocomplete="family-name" />
+                        <input
+                            type="text"
+                            id="last-name"
+                            name="lastName"
+                            required
+                            autocomplete="family-name"
+                            minlength="2" />
+                        <span class="field-error" role="alert"></span>
                     </div>
                 </div>
                 <div class="contact-form__row">
@@ -73,6 +92,7 @@
                             required
                             autocomplete="email"
                             placeholder="john@example.com" />
+                        <span class="field-error" role="alert"></span>
                     </div>
                     <div class="contact-form__field">
                         <label for="phone">Phone Number</label>
@@ -82,7 +102,12 @@
                             name="phone"
                             required
                             autocomplete="tel"
-                            placeholder="(816) 555-1234" />
+                            placeholder="(816) 555-1234"
+                            inputmode="tel"
+                            minlength="10"
+                            maxlength="14"
+                            title="Enter a 10-digit phone number" />
+                        <span class="field-error" role="alert"></span>
                     </div>
                 </div>
                 <div class="contact-form__field">
@@ -94,7 +119,9 @@
                         required
                         autocomplete="off"
                         data-1p-ignore="true"
-                        placeholder="123 Main Street" />
+                        placeholder="123 Main Street"
+                        minlength="5" />
+                    <span class="field-error" role="alert"></span>
                 </div>
                 <div class="contact-form__row contact-form__row--address">
                     <div class="contact-form__field">
@@ -105,7 +132,9 @@
                             name="city"
                             required
                             autocomplete="address-level2"
-                            placeholder="Lee's Summit" />
+                            placeholder="Lee's Summit"
+                            minlength="2" />
+                        <span class="field-error" role="alert"></span>
                     </div>
                     <div class="contact-form__field">
                         <label for="state">State</label>
@@ -114,6 +143,7 @@
                             <option value="MO" selected>MO</option>
                             <option value="KS">KS</option>
                         </select>
+                        <span class="field-error" role="alert"></span>
                     </div>
                     <div class="contact-form__field">
                         <label for="zip">Zip Code</label>
@@ -124,7 +154,11 @@
                             required
                             autocomplete="postal-code"
                             inputmode="numeric"
-                            placeholder="64063" />
+                            placeholder="64063"
+                            minlength="5"
+                            maxlength="10"
+                            title="Enter a 5 or 9 digit zip code" />
+                        <span class="field-error" role="alert"></span>
                     </div>
                 </div>
                 <div class="contact-form__field">
@@ -243,10 +277,12 @@
         </div>
     </section>
 </main>
-{{/* Google Places API — autocomplete for address field */}}
-{{ with site.Params.googleMapsApiKey }}
-<script>var initAddressAutocomplete = function(){};</script>
-<script src="https://maps.googleapis.com/maps/api/js?key={{ . }}&libraries=places&callback=initAddressAutocomplete&loading=async" async defer></script>
-{{ end }}
-{{ partial "js-bundle.html" . }}
-{{ end }}
+{{/* Google Places API — autocomplete for address field */}} {{ with site.Params.googleMapsApiKey }}
+<script>
+    var initAddressAutocomplete = function () {};
+</script>
+<script
+    src="https://maps.googleapis.com/maps/api/js?key={{ . }}&libraries=places&callback=initAddressAutocomplete&loading=async"
+    async
+    defer></script>
+{{ end }} {{ partial "js-bundle.html" . }} {{ end }}

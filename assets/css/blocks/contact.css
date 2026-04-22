@@ -85,7 +85,33 @@
         resize: vertical;
     }
 
+    /* ── Validation States (only apply after user interaction) ── */
+    .contact-form__field.touched input:invalid,
+    .contact-form__field.touched select:invalid,
+    .contact-form__field.touched textarea:invalid {
+        border-color: var(--color-error, #d32f2f);
+        background-color: rgba(211, 47, 47, 0.02);
+    }
 
+    .contact-form__field.touched input:valid,
+    .contact-form__field.touched textarea:valid {
+        border-color: var(--color-success, #388e3c);
+    }
+
+    .field-error {
+        display: block;
+        font-size: var(--step--2);
+        color: var(--color-error, #d32f2f);
+        margin-block-start: 0.25rem;
+        min-height: 1.2em;
+        line-height: 1.2;
+    }
+
+    /* Alias for custom validation class */
+    .is-invalid {
+        border-color: var(--color-error, #d32f2f) !important;
+        background-color: rgba(211, 47, 47, 0.02) !important;
+    }
 
     .contact-form__submit {
         width: 100%;

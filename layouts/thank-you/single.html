@@ -1,0 +1,73 @@
+{{ define "main" }}
+<main id="main-content">
+    <!-- What happens next section -->
+    <section class="thank-you-next region" aria-label="Next steps">
+        <div class="wrapper flow" style="--wrapper-max: 50rem">
+            <h1 data-balance>Thank you for your interest in our lighting!</h1>
+            <p>Your request is in our inbox and we're probably already planning your installation. 🎄</p>
+            <h2>What Happens Next</h2>
+            <div class="thank-you-steps flow">
+                <div class="thank-you-step">
+                    <span class="thank-you-step__number">1</span>
+                    <h3>We Review Your Request</h3>
+                    <p>We'll carefully review all the details you provided about your property and project.</p>
+                </div>
+                <div class="thank-you-step">
+                    <span class="thank-you-step__number">2</span>
+                    <h3>We'll Reach Out Within 48 Hours</h3>
+                    <p>Angela will contact you by phone and/or email with your custom estimate and next steps.</p>
+                </div>
+                <div class="thank-you-step">
+                    <span class="thank-you-step__number">3</span>
+                    <h3>Book Your Installation</h3>
+                    <p>
+                        If you love the estimate, we'll get you in the scheduling queue and get you an invoice and
+                        schedule as soon as we can!
+                    </p>
+                    <p style="margin-block-start: 1rem;">
+                        You'll also want to check out our
+                        <a href="/gallery/">gallery</a>
+                        to get an idea of what color combination you're going to want.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick links section -->
+    <section class="thank-you-links region bg-light" aria-label="Quick links">
+        <div class="wrapper text-center flow" style="--wrapper-max: 50rem">
+            <h2>In the Meantime</h2>
+            <p>Check out our work and learn more about what we do:</p>
+            <div class="thank-you-nav cluster" style="justify-content: center; --cluster-space: var(--space-s)">
+                <a href="/gallery/" class="button">See Our Work</a>
+                <a href="/services/" class="button">See Our Services</a>
+                <a href="/faq/" class="button">Read FAQ</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact fallback -->
+    <section class="thank-you-contact region" aria-label="Contact options">
+        <div class="wrapper text-center flow" style="--wrapper-max: 50rem">
+            <p class="thank-you-contact__text">Have a question right now? We're happy to help.</p>
+            <div class="contact-options__grid grid" style="--grid-min-item-size: 16rem">
+                <div class="contact-card flow">
+                    <p class="contact-card__icon" aria-hidden="true">📞</p>
+                    <p class="weight-bold">Call Us</p>
+                    <p><a href="tel:{{ site.Params.phone }}" class="contact-card__value">{{ site.Params.phone }}</a></p>
+                </div>
+                <div class="contact-card flow">
+                    <p class="contact-card__icon" aria-hidden="true">💬</p>
+                    <p class="weight-bold">Text Us</p>
+                    <p>
+                        <a href="sms:{{ site.Params.textPhone }}" class="contact-card__value">
+                            {{ site.Params.textPhone }}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{{ end }}
