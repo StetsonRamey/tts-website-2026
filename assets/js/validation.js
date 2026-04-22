@@ -22,6 +22,7 @@
     email: {
       valueMissing: "Email is required",
       typeMismatch: "Please enter a valid email address",
+      patternMismatch: "Please enter a valid email address with a domain",
     },
     phone: {
       valueMissing: "Phone number is required",

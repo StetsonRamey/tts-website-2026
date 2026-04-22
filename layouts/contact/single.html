@@ -91,7 +91,10 @@
                             name="email"
                             required
                             autocomplete="email"
-                            placeholder="john@example.com" />
+                            placeholder="john@example.com"
+                            pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                            aria-describedby="email-hint" />
+                        <small style="font-size: 0.875rem" id="email-hint">e.g., john@example.com</small>
                         <span class="field-error" role="alert"></span>
                     </div>
                     <div class="contact-form__field">
@@ -106,7 +109,9 @@
                             inputmode="tel"
                             minlength="10"
                             maxlength="14"
-                            title="Enter a 10-digit phone number" />
+                            title="Enter a 10-digit phone number"
+                            aria-describedby="phone-hint" />
+                        <small style="font-size: 0.875rem" id="phone-hint">e.g., (816) 555-1234 or 8165551234</small>
                         <span class="field-error" role="alert"></span>
                     </div>
                 </div>
