@@ -415,66 +415,66 @@ These are reusable layout classes (inspired by Every Layout):
 
 ## Build Phases
 
-### Phase 0: Project Setup ✦ CURRENT
-- [ x ] Install Hugo
-- [ x ] Scaffold Hugo project (`hugo new site`)
-- [ x ] Create `Makefile` with `dev`, `build`, `build-prod`, and `clean` as the canonical local interface
-- [ x ] Set up `hugo.toml` with baseURL, menus, params
-- [ x ] Add `README.md` with setup steps, workflow conventions, and canonical Make targets
-- [ x ] Keep the repo free of `package.json`/Bun unless future JS tooling creates a real need
-- [ x ] Add Cloudflare Pages support files (`static/_redirects`, optional `_headers`)
-- [ x ] Create CSS file structure (global, composition, utilities, blocks, exceptions)
-- [ x ] Create design tokens (colors, spacing, typography custom properties)
-- [ x ] Set up Hugo Pipes to bundle CSS
-- [ x ] Commit changes
+### Phase 0: Project Setup ✓ COMPLETE
+- [x] Install Hugo
+- [x] Scaffold Hugo project (`hugo new site`)
+- [x] Create `Makefile` with `dev`, `build`, `build-prod`, and `clean` as the canonical local interface
+- [x] Set up `hugo.toml` with baseURL, menus, params
+- [x] Add `README.md` with setup steps, workflow conventions, and canonical Make targets
+- [x] Keep the repo free of `package.json`/Bun unless future JS tooling creates a real need
+- [x] Add Cloudflare Pages support files (`static/_redirects`, optional `_headers`)
+- [x] Create CSS file structure (global, composition, utilities, blocks, exceptions)
+- [x] Create design tokens (colors, spacing, typography custom properties)
+- [x] Set up Hugo Pipes to bundle CSS
+- [x] Commit changes
 
-### Phase 1: Raw Pages (Content + Minimal Templates)
-- [ x ] Create `baseof.html` with HTML shell
-- [ x ] Create content `.md` files for all pages with front matter (SEO meta, structured data)
-- [ x ] Create bare-minimum `single.html` / `home.html` templates
-- [ x ] Add page shells for `holiday-lighting`, `service-areas`, `gallery`, and `create-fix-request`
-- [ x ] Use `placehold.co` image slots so page structure and styling can be built before final asset selection
-- [ x ] Pages render with content, zero styling
-- [ x ] Verify all routes work (`make dev`)
-- [ x ] Commit changes
-- [ x ] Update PLAN.md
+### Phase 1: Raw Pages (Content + Minimal Templates) ✓ COMPLETE
+- [x] Create `baseof.html` with HTML shell
+- [x] Create content `.md` files for all pages with front matter (SEO meta, structured data)
+- [x] Create bare-minimum `single.html` / `home.html` templates
+- [x] Add page shells for `holiday-lighting`, `service-areas`, `gallery`, and `create-fix-request`
+- [x] Use `placehold.co` image slots so page structure and styling can be built before final asset selection
+- [x] Pages render with content, zero styling
+- [x] Verify all routes work (`make dev`)
+- [x] Commit changes
+- [x] Update PLAN.md
 
-### Phase 2: Reusable Components (Partials)
-- [ ] `head.html` — full `<head>` with SEO meta tags, OG tags, canonical, favicon
-- [ ] `schema.html` — JSON-LD structured data (LocalBusiness, Service, FAQPage)
-- [ ] `header.html` — logo and compact horizontal nav
-- [ ] `footer.html` — approved contact info, service-area language, links, copyright
-- [ ] `cta.html` — reusable "Get a Free Quote" call-to-action
-- [ ] `image.html` — reusable responsive image partial with blur-up support
-- [ ] Navigation menu from `hugo.toml` menu config
-- [ ] Commit changes
-- [ ] Update PLAN.md
+### Phase 2: Reusable Components (Partials) ✓ COMPLETE
+- [x] `head.html` — full `<head>` with SEO meta tags, OG tags, canonical, favicon
+- [x] `schema.html` — JSON-LD structured data (LocalBusiness, Service, FAQPage)
+- [x] `header.html` — logo and compact horizontal nav
+- [x] `footer.html` — approved contact info, service-area language, links, copyright
+- [x] `cta.html` — reusable "Get a Free Quote" call-to-action
+- [x] `image.html` — reusable responsive image partial with blur-up support
+- [x] Navigation menu from `hugo.toml` menu config
+- [x] Commit changes
+- [x] Update PLAN.md
 
-### Phase 3: Semantic HTML Scaffolding (SEO-first markup)
-- [ ] All pages use proper semantic elements (`<header>`, `<main>`, `<article>`, `<section>`, `<footer>`)
-- [ ] Proper heading hierarchy per page (single H1, logical H2-H4 flow)
-- [ ] Landmark roles where needed
-- [ ] Skip-to-content link
-- [ ] Image elements with proper `alt`, `width`, `height`, `loading="lazy"`
-- [ ] Internal links between pages (every page → Contact)
-- [ ] Breadcrumbs partial (optional, good for SEO)
-- [ ] Commit changes
-- [ ] Update PLAN.md
+### Phase 3: Semantic HTML Scaffolding (SEO-first markup) ✓ COMPLETE
+- [x] All pages use proper semantic elements (`<header>`, `<main>`, `<article>`, `<section>`, `<footer>`)
+- [x] Proper heading hierarchy per page (single H1, logical H2-H4 flow)
+- [x] Landmark roles where needed
+- [x] Skip-to-content link
+- [x] Image elements with proper `alt`, `width`, `height`, `loading="lazy"`
+- [x] Internal links between pages (every page → Contact)
+- [x] Breadcrumbs partial (optional, good for SEO)
+- [x] Commit changes
+- [x] Update PLAN.md
 
-### Phase 4: Styling (CUBE CSS)
-- [ ] `global.css` — reset/normalize, custom properties, base element styles, global typography
-- [ ] `composition.css` — flow, wrapper, grid, cluster, sidebar, switcher, cover, region
-- [ ] `utilities.css` — color, spacing, typography, visibility utilities from tokens
-- [ ] `blocks.css` — nav, hero, card, button, footer, form, gallery-grid
-- [ ] `exceptions.css` — data-attribute states (active nav, reversed card, etc.)
-- [ ] Responsive behavior via fluid type/space (no breakpoint-heavy media queries)
-- [ ] Test across viewport sizes, with the nav staying usable as a horizontal list on mobile
-- [ ] Commit changes
-- [ ] Update PLAN.md
+### Phase 4: Styling (CUBE CSS) ✓ COMPLETE
+- [x] `global.css` — reset/normalize, custom properties, base element styles, global typography
+- [x] `composition.css` — flow, wrapper, grid, cluster, sidebar, switcher, cover, region
+- [x] `utilities.css` — color, spacing, typography, visibility utilities from tokens
+- [x] `blocks.css` — nav, hero, card, button, footer, form, gallery-grid
+- [x] `exceptions.css` — data-attribute states (active nav, reversed card, etc.)
+- [x] Responsive behavior via fluid type/space (no breakpoint-heavy media queries)
+- [x] Test across viewport sizes, with the nav staying usable as a horizontal list on mobile
+- [x] Commit changes
+- [x] Update PLAN.md
 
-### Phase 5: Forms + Minimal JS
-- [ ] Build progressive-enhancement JS for phone formatting (`(XXX) XXX-XXXX`)
-- [ ] Integrate Google Maps Places autocomplete for address entry
+### Phase 5: Forms + Minimal JS ✦ CURRENT
+- [x] Build progressive-enhancement JS for phone formatting (`(XXX) XXX-XXXX`)
+- [x] Integrate Google Maps Places autocomplete for address entry
 - [ ] Add client-side validation on input and on submit
 - [ ] Add matching server-side validation in the Val Town endpoint
 - [ ] Wire contact form submission to Val Town
@@ -483,11 +483,13 @@ These are reusable layout classes (inspired by Every Layout):
 - [ ] Commit changes
 - [ ] Update PLAN.md
 
-### Phase 6: Gallery + Image Pipeline
-- [ ] Build gallery page with Hugo-processed responsive images
-- [ ] Support a strong browsing experience without requiring a heavy JS lightbox at launch
-- [ ] Use blur-up placeholders for gallery thumbnails and major editorial images
-- [ ] Confirm image output sizes, lazy loading, and CLS-safe rendering
+### Phase 6: Gallery + Image Pipeline ✓ MOSTLY COMPLETE
+- [x] Build gallery page with Hugo-processed responsive images
+- [x] Support a strong browsing experience without requiring a heavy JS lightbox at launch
+- [x] Use blur-up placeholders for gallery thumbnails and major editorial images
+- [x] Confirm image output sizes, lazy loading, and CLS-safe rendering
+- [x] Add GLightbox for image modal viewing
+- [ ] Final image asset swap (placeholders → real photos)
 - [ ] Commit changes
 - [ ] Update PLAN.md
 

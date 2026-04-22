@@ -4,7 +4,7 @@
     <section class="hero">
         <div class="hero__inner wrapper">
             <div class="hero__image">
-                {{ partial "image.html" (dict "src" "images/originals/hero.jpg" "alt" "Holiday lighting installation on a home in Lee's Summit, MO" "eager" false "sizes" "(min-width: 90rem) 90rem, 100vw") }}
+                {{ partial "image.html" (dict "src" "images/originals/hero.jpg" "alt" "Holiday lighting installation on a home in Lee's Summit, MO" "lazy" false "sizes" "(min-width: 90rem) 90rem, 100vw") }}
             </div>
             <div class="hero__content flow">
                 <p class="overline">Professional Holiday Lighting</p>
@@ -50,7 +50,7 @@
                         <p>View Services →</p>
                     </div>
                 </a>
-                <a href="/services/" class="service-card" aria-label="Commercial Holiday Lighting">
+                <a href="/services/#commercial" class="service-card" aria-label="Commercial Holiday Lighting">
                     {{ partial "image.html" (dict "src" "images/originals/commercial-home.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                     <div class="service-card__overlay">
                         <h3>Commercial</h3>
@@ -85,13 +85,13 @@
             <h2>Featured Installations</h2>
             <div class="gallery-preview__grid grid" style="--grid-min-item-size: 18rem">
                 <figure class="gallery-card">
-                    {{ partial "image.html" (dict "src"  "images/originals/home1.jpeg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
+                    {{ partial "image.html" (dict "src" "images/originals/home1.jpeg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                 </figure>
                 <figure class="gallery-card">
-                    {{ partial "image.html" (dict "src"  "images/originals/home2.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
+                    {{ partial "image.html" (dict "src" "images/originals/home2.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                 </figure>
                 <figure class="gallery-card">
-                    {{ partial "image.html" (dict "src"  "images/originals/home3.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
+                    {{ partial "image.html" (dict "src" "images/originals/home3.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                 </figure>
             </div>
             <p><a href="/gallery/" class="text-link">View Full Gallery →</a></p>

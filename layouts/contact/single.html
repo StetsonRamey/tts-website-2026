@@ -2,10 +2,10 @@
 <main id="main-content">
     {{ partial "breadcrumbs.html" . }} {{/* ── Hero ── */}}
     <section class="hero region bg-light" aria-label="Contact hero">
-        <div class="wrapper text-center flow">
+        <div class="wrapper flow">
             <p class="overline">Get in Touch</p>
             <h1 data-balance>Let's Light Up Your Holidays</h1>
-            <p>
+            <p style="max-width: 80ch;">
                 Whether you're a homeowner in Lee's Summit or a business in Raymore, we'd love to help you shine this
                 season. Get a free, no-obligation estimate for professional holiday lighting.
             </p>
@@ -25,16 +25,6 @@
                     <p><a href="tel:{{ site.Params.phone }}" class="contact-card__value">{{ site.Params.phone }}</a></p>
                     <p class="contact-card__desc">
                         Give us a call during business hours for a quick conversation about your project.
-                    </p>
-                </div>
-                <div class="contact-card flow">
-                    <p class="contact-card__icon" aria-hidden="true">✉️</p>
-                    <p class="weight-bold">Email</p>
-                    <p>
-                        <a href="mailto:{{ site.Params.email }}" class="contact-card__value">{{ site.Params.email }}</a>
-                    </p>
-                    <p class="contact-card__desc">
-                        Send us details about your project and we'll respond within 24 hours.
                     </p>
                 </div>
                 <div class="contact-card flow">

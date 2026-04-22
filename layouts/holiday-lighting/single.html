@@ -4,7 +4,7 @@
     <section class="hero bg-light" aria-label="Holiday Lighting">
         <div class="hero__inner wrapper">
             <div class="hero__image">
-                {{ partial "image.html" (dict "src"  "images/originals/residential-home.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
+                {{ partial "image.html" (dict "src"  "images/originals/residential-home.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" false "class" "") }}
             </div>
             <div class="hero__content flow">
                 <p class="overline">Holiday Lighting</p>
@@ -35,7 +35,7 @@
                         <p>Rooflines and wreaths to make your home shine.</p>
                     </div>
                 </a>
-                <a href="/services/" class="service-card" aria-label="Commercial Holiday Lighting">
+                <a href="/services/#commercial" class="service-card" aria-label="Commercial Holiday Lighting">
                     {{ partial "image.html" (dict "src"  "images/originals/summitparkchurch4.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                     <div class="service-card__overlay">
                         <h3>Commercial</h3>
