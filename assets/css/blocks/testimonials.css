@@ -2,9 +2,13 @@
     /* ── Testimonials ── */
     .testimonials__grid {
         margin-block-start: var(--space-l);
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .testimonial-card {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: var(--space-s);
         --flow-space: var(--space-2xs);
         background: var(--color-white);
         border-radius: var(--radius-l);
@@ -33,5 +37,21 @@
     .testimonial-card footer p {
         font-size: var(--step--1);
         color: var(--color-text-muted);
+    }
+    
+    .testimonial-card__rating {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+    }
+    
+    .testimonial-card__logo {
+        width: 20px;
+        height: 20px;
+        opacity: 0.7;
+    }
+    
+    .testimonial-card__stars {
+        margin: 0;
     }
 }

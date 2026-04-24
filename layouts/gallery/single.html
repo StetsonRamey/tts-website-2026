@@ -71,7 +71,10 @@
             <div class="testimonials__grid grid" style="--grid-min-item-size: 18rem">
                 {{ range hugo.Data.testimonials }}
                 <blockquote class="testimonial-card flow">
-                    <p class="testimonial-card__stars" aria-label="5 stars">★★★★★</p>
+                    <div class="testimonial-card__rating">
+                        <p class="testimonial-card__stars" aria-label="5 stars">★★★★★</p>
+                        <img src="/images/google.svg" alt="Google Brand Logo" width="24" height="24" class="testimonial-card__logo" />
+                    </div>
                     <p>"{{ .quote }}"</p>
                     <footer>
                         <cite>{{ .name }}</cite>
