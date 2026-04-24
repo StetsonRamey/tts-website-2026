@@ -2,7 +2,7 @@
     /* ── Testimonials ── */
     .testimonials__grid {
         margin-block-start: var(--space-l);
-        grid-template-columns: repeat(2, 1fr);
+        --grid-min-item-size: 20rem;
     }
 
     .testimonial-card {

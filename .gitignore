@@ -11,3 +11,6 @@ tts-design.pen
 *.swp
 *.swo
 *~
+
+# Hugo generated files
+/assets/jsconfig.json

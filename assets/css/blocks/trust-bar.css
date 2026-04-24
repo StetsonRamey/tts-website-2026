@@ -10,6 +10,12 @@
         align-items: start;
     }
 
+    @media (max-width: 860px) {
+        .trust-bar__grid {
+            --grid-min-item-size: 100%;
+        }
+    }
+
     .trust-item {
         --flow-space: var(--space-2xs);
         display: grid;
