@@ -1,6 +1,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+{{/* Favicon */}}
+<link rel="icon" href="/favicon.png" type="image/png">
+
 {{/* Title */}}
 <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} | {{ site.Title }}{{ end }}</title>
 
@@ -17,6 +20,8 @@
 <meta property="og:url" content="{{ .Permalink }}">
 {{ with .Params.seo.og_image -}}
 <meta property="og:image" content="{{ . | absURL }}">
+{{- else -}}
+<meta property="og:image" content="{{ site.Params.ogImage | absURL }}">
 {{- end }}
 <meta property="og:site_name" content="{{ site.Title }}">
 
