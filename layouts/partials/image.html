@@ -1,5 +1,5 @@
 {{/*
- 
+
 
   Parameters:
     src       — path to image in assets/ (e.g. "images/originals/hero.jpg")
@@ -8,6 +8,7 @@
     height    — intrinsic height hint for external/fallback images
     sizes     — explicit sizes attr (default: "100vw")
     lazy      — loading="lazy" (default: true)
+    fetchpriority — fetch priority (default: "auto")
     class     — CSS class(es) on the <img>
     page      — current page context for page-resource lookup (tried first)
 
@@ -29,6 +30,7 @@
 {{- $height := .height | default nil -}}
 {{- $sizes := .sizes | default "100vw" -}}
 {{- $lazy := .lazy | default true -}}
+{{- $fetchpriority := .fetchpriority | default "auto" -}}
 {{- $class := .class | default "" -}}
 
 {{- $isExternal := or (hasPrefix $src "http://") (hasPrefix $src "https://") -}}
@@ -41,6 +43,7 @@
     {{ with $width }}width="{{ . }}"{{ end }}
     {{ with $height }}height="{{ . }}"{{ end }}
     {{ if $lazy }}loading="lazy" decoding="async"{{ else }}decoding="async"{{ end }}
+    {{ with $fetchpriority }}fetchpriority="{{ . }}"{{ end }}
     {{ with $class }}class="{{ . }}"{{ end }}
   >
 {{- else -}}
@@ -85,6 +88,7 @@
       width="{{ $full.Width }}"
       height="{{ $full.Height }}"
       {{ if $lazy }}loading="lazy" decoding="async"{{ else }}decoding="async"{{ end }}
+      {{ with $fetchpriority }}fetchpriority="{{ . }}"{{ end }}
       style="background-image: url({{ $lqip.RelPermalink }}); background-size: cover;"
       {{ with $class }}class="{{ . }}"{{ end }}
     >
@@ -96,6 +100,7 @@
       {{ with $width }}width="{{ . }}"{{ end }}
       {{ with $height }}height="{{ . }}"{{ end }}
       {{ if $lazy }}loading="lazy" decoding="async"{{ else }}decoding="async"{{ end }}
+      {{ with $fetchpriority }}fetchpriority="{{ . }}"{{ end }}
       {{ with $class }}class="{{ . }}"{{ end }}
     >
   {{- end -}}

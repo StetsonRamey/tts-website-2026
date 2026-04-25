@@ -1,5 +1,7 @@
 {{- $css := resources.Get "css/main.css" | css.Build -}}
 {{- if hugo.IsProduction -}}
-  {{- $css = $css | minify | fingerprint -}}
+  {{- $css = $css | minify -}}
+  <style>{{ $css.Content | safeCSS }}</style>
+{{- else -}}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}">
 {{- end -}}
-<link rel="stylesheet" href="{{ $css.RelPermalink }}">
