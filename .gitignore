@@ -4,7 +4,7 @@ tts-design.pen
 
 # Hugo build output
 /public/
-/resources/_gen/
+# /resources/_gen/ don't ignore this -- this is the caching of image builds
 /.hugo_build.lock
 
 # Local editor temp files
