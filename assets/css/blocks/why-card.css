@@ -4,8 +4,9 @@
         --flow-space: var(--space-2xs);
         background: rgba(255, 255, 255, 0.05);
         border-radius: var(--radius-l);
-        padding: var(--space-m);
+        padding: var(--space-s);
         text-align: left;
+        border: 1px dashed var(--color-secondary);
     }
 
     .why-card__icon {

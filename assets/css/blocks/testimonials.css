@@ -2,7 +2,9 @@
     /* ── Testimonials ── */
     .testimonials__grid {
         margin-block-start: var(--space-l);
-        --grid-min-item-size: 20rem;
+        display: block;
+        columns: 18rem;
+        column-gap: var(--gutter);
     }
 
     .testimonial-card {
@@ -14,8 +16,9 @@
         border-radius: var(--radius-l);
         padding: var(--space-m);
         text-align: left;
-        margin: 0;
+        margin-block-end: var(--gutter);
         border: none;
+        break-inside: avoid;
     }
 
     .testimonial-card__stars {

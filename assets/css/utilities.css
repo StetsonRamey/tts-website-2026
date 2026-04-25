@@ -31,6 +31,11 @@
   flex-direction: column;
 }
 
+.m-0 {
+    max-width: max-content;
+    margin-inline: auto;
+}
+
 .flex-stretch > *:not(:last-child) {
   flex-grow: 1;
 }

@@ -18,6 +18,7 @@
 
     .trust-item {
         --flow-space: var(--space-2xs);
+        padding: var(--space-s);
         display: grid;
         grid-row: span 3;
         gap: var(--space-2xs);
@@ -25,8 +26,7 @@
 
     .trust-item:nth-child(even) {
         background-color: var(--color-bg-accent);
-        margin-block-start: var(--space-l);
-        padding: var(--space-s);
+        margin-block-start: var(--space-xl);
         border-radius: var(--radius-s);
     }
 

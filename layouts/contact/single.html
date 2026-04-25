@@ -15,10 +15,10 @@
 
     {{/* ── Contact Options ── */}}
     <section class="contact-options region" aria-label="Contact options">
-        <div class="wrapper text-center flow">
+        <div class="wrapper flow">
             <p class="overline">Reach Us Directly</p>
             <h2 data-balance>Other Ways to Connect</h2>
-            <div class="contact-options__grid grid" style="--grid-min-item-size: 16rem">
+            <div class="contact-options__grid grid" style="--grid-min-item-size: 16rem; max-width: 80ch; margin-inline: auto;">
                 <div class="contact-card flow">
                     <p class="contact-card__icon" aria-hidden="true">📞</p>
                     <p class="weight-bold">Phone</p>
@@ -191,7 +191,7 @@
             <div class="contact-areas__grid grid" style="--grid-min-item-size: 18rem">
                 {{ range (index hugo.Data "service-areas").areas }}
                 <div class="contact-area-card flow">
-                    <p class="contact-area-card__icon" aria-hidden="true">📍</p>
+                    {{ partial "icon.html" (dict "name" "map" "class" "text-center" "variant" "" "aria_hidden" "true") }}
                     <h3>{{ .name }}, {{ .state }}</h3>
                     <p>
                         {{ if .primary }}Full coverage across all {{ .name }} neighborhoods — residential and commercial

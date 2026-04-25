@@ -68,7 +68,7 @@
             <h2 class="">Simple from Start to Finish</h2>
             <div class="process__grid grid">
                 {{ range hugo.Data.included }}
-                <div class="process-step flow">
+                <div class="process-step ">
                     <p class="process-step__number">{{ .num }}</p>
                     <h3 class="process-step__title">{{ .name }}</h3>
                     <p>{{ .description }}</p>
@@ -94,7 +94,7 @@
                     {{ partial "image.html" (dict "src" "images/originals/home3.jpg" "alt" "Descriptive alt text" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                 </figure>
             </div>
-            <p><a href="/gallery/" class="text-link">View Full Gallery →</a></p>
+            <p style="margin-block-start: 2rem;"><a href="/gallery/" class="text-link">View Full Gallery →</a></p>
         </div>
     </section>
 

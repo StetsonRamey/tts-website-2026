@@ -1,10 +1,15 @@
 @layer blocks {
     /* ── Feature Card (Services page) ── */
     .feature-card {
-        --flow-space: var(--space-3xs);
         background: var(--color-bg-accent);
-        border-radius: var(--radius-l);
-        padding: var(--space-m);
+        border-radius: var(--radius-m);
+        padding-block: var(--space-xs);
+        padding-inline: var(--space-s);
+        border-bottom: 3px solid var(--color-primary);
+    }
+
+    .feature-card > * + * {
+        --flow-space: var(--space-3xs);
     }
 
     .feature-card__icon {

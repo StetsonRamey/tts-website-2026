@@ -96,7 +96,7 @@ We are only responsible for storing items that fit in your Rubbermaid totes. Thi
 
 ## Damage Claims
 
-We've installed hundreds of thousands of feet of lighting in the 7+ years we've been in business and our installation and removal method is non-damaging to anything on your home. If in some way we damage something on your home, we will notify you about it and correct it at our cost.
+We've installed hundreds of thousands of feet of lighting in the 10+ years we've been in business and our installation and removal method is non-damaging to anything on your home. If in some way we damage something on your home, we will notify you about it and correct it at our cost.
 
 If you believe we damaged something on your home and we did not notify you about it, we ask that you communicate with us. We'll request that you provide evidence that the damaged item was not damaged prior to our installing or removing your lights. If you can provide that evidence, we will cover the cost to repair whatever was damaged.
 
