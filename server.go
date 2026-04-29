@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"html"
+	"io"
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -24,6 +27,12 @@ type FormData struct {
 
 var emailRe = regexp.MustCompile(`^[^\s@]+@[^\s@]+\.[^\s@]+$`)
 var digitsRe = regexp.MustCompile(`\D`)
+
+const (
+	airtableProxy   = "https://airtable.int.exe.xyz"
+	airtableBaseID  = "appg9012rLh2diVLq"
+	airtableTableID = "tblui0E6mBFkHGWvZ"
+)
 
 func validate(d FormData) []string {
 	var errs []string
@@ -111,17 +120,121 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Log the submission (Airtable integration goes here later)
 	log.Printf("Contact submission: %s %s <%s> %s | %s, %s, %s %s | msg: %s",
 		fd.FirstName, fd.LastName, fd.Email, fd.Phone,
 		fd.StreetAddress, fd.City, fd.State, fd.Zip, fd.Message)
+
+	go func() {
+		if err := sendToAirtable(fd); err != nil {
+			log.Printf("Airtable error: %v", err)
+		}
+	}()
 
 	if isForm {
 		http.Redirect(w, r, "/thank-you/", http.StatusSeeOther)
 		return
 	}
+	// If request accepts HTML (htmx-style), return the thank-you fragment
+	accept := r.Header.Get("Accept")
+	if strings.Contains(accept, "text/html") {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		fmt.Fprint(w, thankYouHTML())
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]any{"success": true, "message": "Form submitted successfully"})
+}
+
+func thankYouHTML() string {
+	return `<div class="flow" style="--wrapper-max: 50rem">
+    <section id="thank-you-next" class="thank-you-next region" aria-label="Next steps" style="scroll-margin-top: 6rem">
+        <div class="wrapper flow" style="--wrapper-max: 50rem">
+            <h2 data-balance>Thank you for your interest in our lighting!</h2>
+            <p>Your request is in our inbox and we're probably already planning your installation. 🎄</p>
+            <h3>What Happens Next</h3>
+            <div class="thank-you-steps flow">
+                <div class="thank-you-step">
+                    <span class="thank-you-step__number">1</span>
+                    <h4>We Review Your Request</h4>
+                    <p>We'll carefully review all the details you provided about your property and project.</p>
+                </div>
+                <div class="thank-you-step">
+                    <span class="thank-you-step__number">2</span>
+                    <h4>We'll Reach Out Within 48 Hours</h4>
+                    <p>Angela will contact you by phone and/or email with your custom estimate and next steps.</p>
+                </div>
+                <div class="thank-you-step">
+                    <span class="thank-you-step__number">3</span>
+                    <h4>Book Your Installation</h4>
+                    <p>If you love the estimate, we'll get you in the scheduling queue and get you an invoice and schedule as soon as we can!</p>
+                    <p style="margin-block-start: 1rem;">You'll also want to check out our <a href="/gallery/">gallery</a> to get an idea of what color combination you're going to want.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="thank-you-links region bg-light" aria-label="Quick links">
+        <div class="wrapper text-center flow" style="--wrapper-max: 50rem">
+            <h3>In the Meantime</h3>
+            <p>Check out our work and learn more about what we do:</p>
+            <div class="thank-you-nav cluster" style="justify-content: center; --cluster-space: var(--space-s)">
+                <a href="/gallery/" class="button">See Our Work</a>
+                <a href="/services/" class="button">See Our Services</a>
+                <a href="/faq/" class="button">Read FAQ</a>
+            </div>
+        </div>
+    </section>
+</div>`
+}
+
+func sendToAirtable(fd FormData) error {
+	// Parse zip as integer for Airtable number field
+	zipDigits := digitsRe.ReplaceAllString(fd.Zip, "")
+	zipNum, _ := strconv.Atoi(zipDigits)
+
+	payload := map[string]any{
+		"records": []map[string]any{
+			{
+				"fields": map[string]any{
+					"Which Form":     "Main Contact",
+					"First Name":     fd.FirstName,
+					"Last Name":      fd.LastName,
+					"Email":          fd.Email,
+					"Phone":          fd.Phone,
+					"Street Address": fd.StreetAddress,
+					"City":           fd.City,
+					"State":          fd.State,
+					"Zip Code":       zipNum,
+					"Comments":       fd.Message,
+				},
+			},
+		},
+	}
+
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("marshal: %w", err)
+	}
+
+	url := fmt.Sprintf("%s/v0/%s/%s", airtableProxy, airtableBaseID, airtableTableID)
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("new request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("do request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		respBody, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("airtable returned %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	log.Printf("Airtable record created for %s %s", fd.FirstName, fd.LastName)
+	return nil
 }
 
 func errorHTML(d FormData, errs []string) string {

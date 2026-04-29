@@ -41,26 +41,33 @@
       // Send to Val Town endpoint
       const response = await fetch(ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Accept": "text/html" },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      if (result.success) {
-        // Redirect to thank-you page
-        window.location.href = "/thank-you/";
-      } else {
-        // Handle validation errors from server
-        console.error("Form errors:", result.errors);
+        // Try to parse as JSON for validation errors
+        try {
+          const result = await response.json();
+          console.error("Form errors:", result.errors);
+        } catch (_) {}
         submitBtn.disabled = false;
         submitBtn.textContent = originalText;
-        // Optionally show error message to user
+        return;
       }
+
+      const html = await response.text();
+      var section = form.closest(".contact-form");
+      if (section) {
+        section.outerHTML = html;
+      } else {
+        form.outerHTML = html;
+      }
+
+      setTimeout(function () {
+        var target = document.getElementById("thank-you-next");
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
     } catch (error) {
       console.error("Form submission error:", error);
       // Restore button state
