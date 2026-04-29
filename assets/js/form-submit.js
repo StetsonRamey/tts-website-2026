@@ -9,7 +9,7 @@
   const form = document.querySelector(".contact-form__card");
   if (!form) return;
 
-  const VAL_TOWN_ENDPOINT = "https://stetson-tts-contact-form.val.run/";
+  const ENDPOINT = "/contact";
 
   form.addEventListener("submit", async (e) => {
     // Only hijack if form is valid (validation.js has already run)
@@ -39,7 +39,7 @@
       submitBtn.textContent = "Submitting...";
 
       // Send to Val Town endpoint
-      const response = await fetch(VAL_TOWN_ENDPOINT, {
+      const response = await fetch(ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
