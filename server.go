@@ -11,28 +11,69 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 type FormData struct {
-	FirstName     string `json:"firstName"`
-	LastName      string `json:"lastName"`
-	Email         string `json:"email"`
-	Phone         string `json:"phone"`
-	StreetAddress string `json:"streetAddress"`
-	City          string `json:"city"`
-	State         string `json:"state"`
-	Zip           string `json:"zip"`
-	Message       string `json:"message"`
+	FirstName     string  `json:"firstName"`
+	LastName      string  `json:"lastName"`
+	Email         string  `json:"email"`
+	Phone         string  `json:"phone"`
+	StreetAddress string  `json:"streetAddress"`
+	City          string  `json:"city"`
+	State         string  `json:"state"`
+	Zip           string  `json:"zip"`
+	Message       string  `json:"message"`
+	FillTime      float64 `json:"_fillTime"`
 }
 
 var emailRe = regexp.MustCompile(`^[^\s@]+@[^\s@]+\.[^\s@]+$`)
 var digitsRe = regexp.MustCompile(`\D`)
 
 const (
-	airtableProxy   = "https://airtable.int.exe.xyz"
-	airtableBaseID  = "appg9012rLh2diVLq"
-	airtableTableID = "tblui0E6mBFkHGWvZ"
+	airtableProxy      = "https://airtable.int.exe.xyz"
+	airtableBaseID     = "appg9012rLh2diVLq"
+	leadsTableID       = "tblui0E6mBFkHGWvZ"
+	logTableID         = "tbltosRhDRyIs2xZS"
+	minFillTimeSeconds = 4.0
+	maxSubmitsPerHour  = 3
 )
+
+// ── Rate Limiter ──
+
+type rateLimiter struct {
+	mu      sync.Mutex
+	windows map[string][]time.Time
+}
+
+var limiter = &rateLimiter{windows: make(map[string][]time.Time)}
+
+func (rl *rateLimiter) allow(ip string) bool {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+
+	now := time.Now()
+	cutoff := now.Add(-1 * time.Hour)
+
+	// Prune old entries
+	var recent []time.Time
+	for _, t := range rl.windows[ip] {
+		if t.After(cutoff) {
+			recent = append(recent, t)
+		}
+	}
+
+	if len(recent) >= maxSubmitsPerHour {
+		rl.windows[ip] = recent
+		return false
+	}
+
+	rl.windows[ip] = append(recent, now)
+	return true
+}
+
+// ── Validation ──
 
 func validate(d FormData) []string {
 	var errs []string
@@ -70,6 +111,24 @@ func validate(d FormData) []string {
 	return errs
 }
 
+// ── Client IP ──
+
+func clientIP(r *http.Request) string {
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		// Take the last IP (closest to exe.dev proxy)
+		parts := strings.Split(xff, ",")
+		return strings.TrimSpace(parts[len(parts)-1])
+	}
+	// Strip port
+	addr := r.RemoteAddr
+	if i := strings.LastIndex(addr, ":"); i != -1 {
+		return addr[:i]
+	}
+	return addr
+}
+
+// ── Contact Handler ──
+
 func handleContact(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, `{"error":"method not allowed"}`, http.StatusMethodNotAllowed)
@@ -92,6 +151,11 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, `{"error":"invalid form data"}`, http.StatusBadRequest)
 			return
 		}
+		// Compute fill time from _loaded timestamp for no-JS submissions
+		var fillTime float64
+		if loaded, err := strconv.ParseInt(r.FormValue("_loaded"), 10, 64); err == nil && loaded > 0 {
+			fillTime = float64(time.Now().UnixMilli()-loaded) / 1000.0
+		}
 		fd = FormData{
 			FirstName:     strings.TrimSpace(r.FormValue("firstName")),
 			LastName:      strings.TrimSpace(r.FormValue("lastName")),
@@ -102,8 +166,32 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 			State:         strings.TrimSpace(r.FormValue("state")),
 			Zip:           strings.TrimSpace(r.FormValue("zip")),
 			Message:       strings.TrimSpace(r.FormValue("message")),
+			FillTime:      fillTime,
 		}
 	}
+
+	ip := clientIP(r)
+
+	// ── Spam checks ──
+
+	// Timing check
+	if fd.FillTime > 0 && fd.FillTime < minFillTimeSeconds {
+		log.Printf("REJECTED too_fast (%.1fs) from %s: %s %s", fd.FillTime, ip, fd.FirstName, fd.LastName)
+		go logSubmission(fd, ip, "too_fast", fmt.Sprintf("filled in %.1fs", fd.FillTime))
+		// Still return success to not tip off bots
+		respondSuccess(w, r)
+		return
+	}
+
+	// Rate limit check
+	if !limiter.allow(ip) {
+		log.Printf("REJECTED rate_limited from %s: %s %s", ip, fd.FirstName, fd.LastName)
+		go logSubmission(fd, ip, "rate_limited", fmt.Sprintf(">%d submissions/hour", maxSubmitsPerHour))
+		respondSuccess(w, r)
+		return
+	}
+
+	// ── Validation ──
 
 	errs := validate(fd)
 
@@ -120,22 +208,32 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Contact submission: %s %s <%s> %s | %s, %s, %s %s | msg: %s",
+	// ── Accepted ──
+
+	log.Printf("Contact submission: %s %s <%s> %s | %s, %s, %s %s | msg: %s (%.1fs from %s)",
 		fd.FirstName, fd.LastName, fd.Email, fd.Phone,
-		fd.StreetAddress, fd.City, fd.State, fd.Zip, fd.Message)
+		fd.StreetAddress, fd.City, fd.State, fd.Zip, fd.Message,
+		fd.FillTime, ip)
 
 	go func() {
 		if err := sendToAirtable(fd); err != nil {
 			log.Printf("Airtable error: %v", err)
 		}
 	}()
+	go logSubmission(fd, ip, "accepted", "")
+
+	respondSuccess(w, r)
+}
+
+func respondSuccess(w http.ResponseWriter, r *http.Request) {
+	ct := r.Header.Get("Content-Type")
+	isForm := strings.Contains(ct, "application/x-www-form-urlencoded")
+	accept := r.Header.Get("Accept")
 
 	if isForm {
 		http.Redirect(w, r, "/thank-you/", http.StatusSeeOther)
 		return
 	}
-	// If request accepts HTML (htmx-style), return the thank-you fragment
-	accept := r.Header.Get("Accept")
 	if strings.Contains(accept, "text/html") {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, thankYouHTML())
@@ -144,6 +242,8 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]any{"success": true, "message": "Form submitted successfully"})
 }
+
+// ── Thank You HTML ──
 
 func thankYouHTML() string {
 	return `<div class="flow" style="--wrapper-max: 50rem">
@@ -186,25 +286,27 @@ func thankYouHTML() string {
 </div>`
 }
 
+// ── Airtable: Create Lead ──
+
 func sendToAirtable(fd FormData) error {
-	// Parse zip as integer for Airtable number field
 	zipDigits := digitsRe.ReplaceAllString(fd.Zip, "")
 	zipNum, _ := strconv.Atoi(zipDigits)
 
 	payload := map[string]any{
+		"typecast": true,
 		"records": []map[string]any{
 			{
 				"fields": map[string]any{
-					"Which Form":     "Main Contact",
-					"First Name":     fd.FirstName,
-					"Last Name":      fd.LastName,
-					"Email":          fd.Email,
-					"Phone":          fd.Phone,
-					"Street Address": fd.StreetAddress,
-					"City":           fd.City,
-					"State":          fd.State,
-					"Zip Code":       zipNum,
-					"Comments":       fd.Message,
+					"fldZWX56UF9UNbZOW": "Main Contact",  // Which Form
+					"fldplXExIaztUlnVf": fd.FirstName,     // First Name
+					"fldiVRdwdOumpsrCh": fd.LastName,      // Last Name
+					"fldsvJF0WoUqKWOtq": fd.Email,         // Email
+					"fldGCBMLm7Ks1KD6N": fd.Phone,         // Phone
+					"flduHz8NtmIzaTakp": fd.StreetAddress, // Street Address
+					"fldRHrzLnl0dIEScW": fd.City,          // City
+					"flddThKQZrXUkq2LD": fd.State,         // State
+					"fldSe1UzJLxSb5yWW": zipNum,           // Zip Code
+					"fldGhAjDinMRV827I": fd.Message,       // Comments
 				},
 			},
 		},
@@ -215,7 +317,7 @@ func sendToAirtable(fd FormData) error {
 		return fmt.Errorf("marshal: %w", err)
 	}
 
-	url := fmt.Sprintf("%s/v0/%s/%s", airtableProxy, airtableBaseID, airtableTableID)
+	url := fmt.Sprintf("%s/v0/%s/%s", airtableProxy, airtableBaseID, leadsTableID)
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("new request: %w", err)
@@ -233,9 +335,65 @@ func sendToAirtable(fd FormData) error {
 		return fmt.Errorf("airtable returned %d: %s", resp.StatusCode, string(respBody))
 	}
 
-	log.Printf("Airtable record created for %s %s", fd.FirstName, fd.LastName)
+	log.Printf("Airtable lead created for %s %s", fd.FirstName, fd.LastName)
 	return nil
 }
+
+// ── Airtable: Log Submission ──
+
+func logSubmission(fd FormData, ip, status, reason string) {
+	payload := map[string]any{
+		"typecast": true,
+		"records": []map[string]any{
+			{
+				"fields": map[string]any{
+					"fldi3M07M8XzEdfDD": time.Now().UTC().Format(time.RFC3339), // Timestamp
+					"fld5n4yX9VN3USNnH": ip,                                   // IP
+					"fldEUrVMiJTBtyNnq": fd.FirstName,                         // First Name
+					"fldpXJarQJ6fJD2EB": fd.LastName,                          // Last Name
+					"fldoQv9Y8pkU2gYkE": fd.Email,                             // Email
+					"fldt4QvDtl5rsUVKj": fd.Phone,                             // Phone
+					"fldeB18affBf7eZER": fd.StreetAddress,                     // Street Address
+					"fldRYgmzZvxbIUH9S": fd.City,                              // City
+					"fldFUE3CyNQnp3N2j": fd.State,                             // State
+					"fldDVWQ86NqW0Qobq": fd.Zip,                               // Zip
+					"fldkHpBAQg67Ld1CM": fd.Message,                           // Message
+					"fld0HcH3I7kqxUmI5": status,                               // Status
+					"fldNklj8CcWdUuii4": reason,                               // Rejection Reason
+					"fldXmciOEUg3mc0m8": fd.FillTime,                          // Fill Time Seconds
+				},
+			},
+		},
+	}
+
+	body, err := json.Marshal(payload)
+	if err != nil {
+		log.Printf("Log marshal error: %v", err)
+		return
+	}
+
+	url := fmt.Sprintf("%s/v0/%s/%s", airtableProxy, airtableBaseID, logTableID)
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		log.Printf("Log request error: %v", err)
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("Log send error: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		respBody, _ := io.ReadAll(resp.Body)
+		log.Printf("Log airtable error %d: %s", resp.StatusCode, string(respBody))
+	}
+}
+
+// ── Error HTML ──
 
 func errorHTML(d FormData, errs []string) string {
 	var errItems strings.Builder
@@ -285,7 +443,9 @@ btn:hover,button[type=submit]:hover{background:#52a89e}
 <div><label for="state">State</label><select id="state" name="state" required><option value="">Select...</option><option value="MO" %s>MO</option><option value="KS" %s>KS</option></select></div>
 <div><label for="zip">Zip Code</label><input type="text" id="zip" name="zip" required value="%s"></div></div>
 <div><label for="message">Message</label><textarea id="message" name="message">%s</textarea></div>
+<input type="hidden" name="_loaded" id="_loaded" value="">
 <button type="submit">Submit Request</button>
+<script>document.getElementById('_loaded').value = Date.now();</script>
 <a href="/contact/" class="bl">← Back to Contact Form</a>
 </form></div></body></html>`,
 		errItems.String(),
@@ -302,8 +462,9 @@ btn:hover,button[type=submit]:hover{background:#52a89e}
 	)
 }
 
+// ── Main + Static Serving ──
+
 func main() {
-	// Static file server with cache headers
 	fs := http.FileServer(http.Dir("public"))
 
 	mux := http.NewServeMux()

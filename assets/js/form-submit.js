@@ -29,6 +29,10 @@
     // Collect form data
     const formData = new FormData(form);
     const data = Object.fromEntries(formData);
+    // Compute fill time in seconds and swap out the raw timestamp
+    var loaded = parseInt(data._loaded) || 0;
+    data._fillTime = loaded ? (Date.now() - loaded) / 1000 : 0;
+    delete data._loaded;
 
     const submitBtn = form.querySelector(".contact-form__submit");
     const originalText = submitBtn.textContent;
