@@ -15,3 +15,6 @@ tts-design.pen
 # Hugo generated files
 /assets/jsconfig.json
 tts-server
+
+# Airtable schema exports
+*_schema.json
