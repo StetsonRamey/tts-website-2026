@@ -18,22 +18,16 @@
 {{/* Open Graph */}}
 <meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }}{{ end }}">
 <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
-<meta property="og:type" content="{{ with .Params.seo.og_type }}{{ . }}{{ else }}website{{ end }}">
+<meta property="og:type" content="website">
 <meta property="og:url" content="{{ .Permalink }}">
-{{ with .Params.seo.og_image -}}
-<meta property="og:image" content="{{ . | absURL }}">
-{{- else -}}
-<meta property="og:image" content="{{ site.Params.ogImage | absURL }}">
-{{- end }}
+<meta property="og:image" content="{{ "/images/og/social.png" | absURL }}">
 <meta property="og:site_name" content="{{ site.Title }}">
 
 {{/* Twitter Card */}}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }}{{ end }}">
 <meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
-{{ with .Params.seo.og_image -}}
-<meta name="twitter:image" content="{{ . | absURL }}">
-{{- end }}
+<meta name="twitter:image" content="{{ "/images/og/social.png" | absURL }}">
 
 {{/* Preload hints */}}
 {{ partial "css-bundle.html" . }}
