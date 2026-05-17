@@ -464,6 +464,19 @@ btn:hover,button[type=submit]:hover{background:#52a89e}
 
 // ── Main + Static Serving ──
 
+// wwwRedirect redirects www.tistheseasonkc.com → tistheseasonkc.com
+func wwwRedirect(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		host := r.Host
+		if strings.HasPrefix(host, "www.") {
+			target := "https://" + strings.TrimPrefix(host, "www.") + r.URL.RequestURI()
+			http.Redirect(w, r, target, http.StatusMovedPermanently)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	fs := http.FileServer(http.Dir("public"))
 
@@ -472,7 +485,7 @@ func main() {
 	mux.Handle("/", cacheMiddleware(fs))
 
 	log.Println("Serving on :8000")
-	log.Fatal(http.ListenAndServe(":8000", mux))
+	log.Fatal(http.ListenAndServe(":8000", wwwRedirect(mux)))
 }
 
 func cacheMiddleware(next http.Handler) http.Handler {
