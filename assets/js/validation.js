@@ -26,8 +26,9 @@
     },
     phone: {
       valueMissing: "Phone number is required",
-      tooShort: "Phone number must be at least 10 digits",
+      tooShort: "Phone number must be 10 digits",
       tooLong: "Phone number is too long",
+      patternMismatch: "Phone number must be 10 digits",
     },
     streetAddress: {
       valueMissing: "Street address is required",
