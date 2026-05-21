@@ -127,6 +127,31 @@ func clientIP(r *http.Request) string {
 	return addr
 }
 
+// ── GeoIP Lookup ──
+
+func countryForIP(ip string) (string, error) {
+	url := fmt.Sprintf("http://ip-api.com/json/%s?fields=status,countryCode,message", ip)
+	client := &http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Get(url)
+	if err != nil {
+		return "", fmt.Errorf("request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var result struct {
+		Status      string `json:"status"`
+		CountryCode string `json:"countryCode"`
+		Message     string `json:"message"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", fmt.Errorf("decode: %w", err)
+	}
+	if result.Status != "success" {
+		return "", fmt.Errorf("ip-api: %s", result.Message)
+	}
+	return result.CountryCode, nil
+}
+
 // ── Contact Handler ──
 
 func handleContact(w http.ResponseWriter, r *http.Request) {
@@ -174,11 +199,21 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 
 	// ── Spam checks ──
 
-	// Timing check
-	if fd.FillTime > 0 && fd.FillTime < minFillTimeSeconds {
+	// Timing check (0 means JS never ran — bot; <4s means filled too fast)
+	if fd.FillTime < minFillTimeSeconds {
 		log.Printf("REJECTED too_fast (%.1fs) from %s: %s %s", fd.FillTime, ip, fd.FirstName, fd.LastName)
 		go logSubmission(fd, ip, "too_fast", fmt.Sprintf("filled in %.1fs", fd.FillTime))
 		// Still return success to not tip off bots
+		respondSuccess(w, r)
+		return
+	}
+
+	// Geo-IP check: reject non-US IPs
+	if country, err := countryForIP(ip); err != nil {
+		log.Printf("GeoIP lookup failed for %s: %v (allowing)", ip, err)
+	} else if country != "US" {
+		log.Printf("REJECTED non_us_ip from %s (country=%s): %s %s", ip, country, fd.FirstName, fd.LastName)
+		go logSubmission(fd, ip, "non_us_ip", fmt.Sprintf("country=%s", country))
 		respondSuccess(w, r)
 		return
 	}
