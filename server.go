@@ -13,6 +13,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"tts-server/services"
 )
 
 type FormData struct {
@@ -513,10 +515,22 @@ func wwwRedirect(next http.Handler) http.Handler {
 }
 
 func main() {
+	// Load config — reads APP_ENV and Stripe keys, logs active mode
+	cfg := services.LoadConfig()
+
 	fs := http.FileServer(http.Dir("public"))
 
 	mux := http.NewServeMux()
+
+	// Existing routes
 	mux.HandleFunc("/contact", handleContact)
+
+	// Payment services
+	mux.HandleFunc("/pay", services.CheckoutHandler(cfg))
+	mux.HandleFunc("/stripe/webhook", services.WebhookHandler(cfg))
+	mux.HandleFunc("/status", services.StatusHandler(cfg))
+
+	// Static site (catch-all — must be last)
 	mux.Handle("/", cacheMiddleware(fs))
 
 	log.Println("Serving on :8000")
