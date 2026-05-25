@@ -20,15 +20,16 @@ The server runs as a persistent systemd service (`tts.service`) on this VM.
 ```
 TTS/
 ├── server.go                    ← main entry point, registers all routes
-├── go.mod                       ← Go dependencies
+├── go.mod                       ← Go module (zero external dependencies)
 ├── .env.example                 ← documents every required env var (no secrets)
 ├── services/
-│   ├── airtable.go              ← shared Airtable API client
+│   ├── config.go                ← LoadConfig(), env var validation, error emails
+│   ├── airtable.go              ← shared Airtable API client, typed structs
 │   ├── checkout.go              ← Stripe checkout page handler
 │   ├── webhook.go               ← Stripe webhook handler
-│   ├── estimate.go              ← estimate email sender
+│   ├── estimate.go              ← estimate email sender (not yet built)
 │   └── email_templates/
-│       └── estimate.html        ← Go HTML template for estimate email
+│       └── estimate.html        ← Go HTML template for estimate email (not yet built)
 └── SERVICES.md                  ← this file
 ```
 
@@ -42,8 +43,8 @@ The server is controlled by a single `APP_ENV` flag:
 
 | Value | Behavior |
 |-------|----------|
-| `dev` | Uses Stripe sandbox keys, logs verbosely |
-| `prod` | Uses Stripe live keys, minimal logs |
+| `dev` | Uses Stripe sandbox proxy, Stripe TEST product IDs from Airtable |
+| `prod` | Uses Stripe live proxy, live Stripe product IDs from Airtable |
 
 The server logs the active mode unmistakably on startup:
 ```
@@ -52,168 +53,130 @@ The server logs the active mode unmistakably on startup:
 ```
 or
 ```
-⚡ TTS Server starting  
+⚡ TTS Server starting
 🟢 STRIPE MODE: LIVE (prod)
 ```
 
-To switch modes: change `APP_ENV` in the systemd environment file and restart
-the service. No code changes needed.
+To switch modes: change `APP_ENV` in the systemd unit and restart. No code changes needed.
 
 ### Required Environment Variables
 
-See `.env.example` for the full list. Summary:
+See `.env.example` for the full list. These live in `/etc/systemd/system/tts.service`
+under `[Service]` as `Environment=` lines.
 
 ```
-# Environment selector — the only thing you change to switch modes
-APP_ENV=dev                         # or: prod
+APP_ENV=dev                              # or: prod
 
-# Stripe — both sets of keys always present, server picks based on APP_ENV
-STRIPE_SECRET_KEY_DEV=sk_test_...
-STRIPE_WEBHOOK_SECRET_DEV=whsec_...
-STRIPE_SECRET_KEY_PROD=sk_live_...
-STRIPE_WEBHOOK_SECRET_PROD=whsec_...
+# Stripe webhook signing secrets (outbound Stripe calls use exe.dev proxy — no keys needed)
+STRIPE_WEBHOOK_SECRET_DEV=whsec_...      # from Stripe Dashboard → Webhooks (sandbox)
+STRIPE_WEBHOOK_SECRET_PROD=whsec_...     # from Stripe Dashboard → Webhooks (live) — add when going live
 
-# Airtable
-AIRTABLE_API_KEY=pat...
-AIRTABLE_BASE_ID=app...
-
-# Gmail API (Google Workspace service account)
-GMAIL_SERVICE_ACCOUNT_JSON='{...}'  # full JSON key contents as a single env var
-GMAIL_SEND_AS=hello@tistheseasonkc.com
+# Gmail SMTP (for estimate emails and server error alerts)
+GMAIL_SEND_AS=stetson@tts.lighting
+GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx   # 16-char Google App Password
 ```
+
+**Note:** Stripe API calls go through `stripe-test-mode.int.exe.xyz` (dev) and
+`stripe-live-mode.int.exe.xyz` (prod) — exe.dev proxy integrations inject the keys,
+so no Stripe secret key is ever stored on this VM.
+
+Airtable calls go through `airtable.int.exe.xyz` — same deal, no Airtable PAT on VM.
 
 ### How to Update Environment Variables
 
 ```bash
-# Edit the environment file
 sudo systemctl edit tts.service
-
-# Restart to pick up changes
-sudo systemctl restart tts.service
-
-# Confirm it started correctly
-sudo journalctl -u tts.service -n 30
+# add/change Environment= lines under [Service], save
+sudo systemctl daemon-reload && sudo systemctl restart tts.service
+journalctl -u tts.service -n 5
 ```
 
 ---
 
 ## Services
 
-### 1. Stripe Checkout Page
+### 1. Airtable Client
 
-**Route:** `GET /pay/{recID}`  
-**Public URL:** `payments.tistheseasonkc.com/{recID}` (DNS points here)
+**File:** `services/airtable.go`
+**Status:** ✅ Done — tested
 
-**What it does:**
-1. Extracts the Airtable record ID from the URL
-2. Fetches the customer record from Airtable
-3. If already paid → shows a "payment already received" page
-4. If not paid → reads line items from Airtable, creates a Stripe Checkout
-   Session, redirects customer to Stripe's hosted checkout page
-5. On success, Stripe redirects customer to a confirmation page
-
-**File:** `services/checkout.go`  
-**Status:** 🟡 Built — needs Stripe keys + end-to-end test
-
-**Open questions — YOU need to answer these before we build:**
-- [ ] What Airtable table holds customer records? What's it called?
-- [ ] What field indicates a customer is already paid? (checkbox? field name?)
-- [ ] Where do the line items / products come from? Same record? A linked table?
-- [ ] What fields make up a line item? (name, price, quantity?)
-- [ ] What URL should Stripe redirect to on success? (e.g. a thank-you page)
-- [ ] What URL on cancel/back?
-- [ ] Is the Stripe price created dynamically (from Airtable dollar amounts) or
-      do you have fixed Stripe Price IDs that you reference?
-
-**Your task when ready:**
-- Fill in the Airtable field names in `services/airtable.go`
-- Test a checkout flow end-to-end against Stripe sandbox
+Shared client used by all other services. Key details:
+- All requests include `returnFieldsByFieldId=true` so map keys are stable field IDs (not names)
+- Field ID constants defined at top of file for both Customers and Yearly Invoicing tables
+- `GetCustomerByRecordID()` — fetch by Airtable record ID (used by checkout)
+- `GetCustomerByStripeID()` — fetch by Stripe `cus_` ID (used by webhook)
+- `GetCurrentYearLineItems()` — fetch Yearly Invoicing rows for a customer, selects dev or prod Stripe product ID field based on `APP_ENV`
+- `MarkCustomerPaid()` — PATCH: sets `Paid? = "Paid"` and clears `Review Discount?` checkbox
 
 ---
 
-### 2. Stripe Webhook
+### 2. Stripe Checkout
 
-**Route:** `POST /stripe/webhook`  
-**Configured in:** Stripe Dashboard → Webhooks
+**Route:** `GET /pay?q={airtableRecordID}`
+**Status:** ✅ Done — tested end-to-end
 
-**What it does:**
-1. Receives event from Stripe
-2. Verifies the `Stripe-Signature` header (prevents spoofing)
-3. On `checkout.session.completed` event:
-   - Reads the Airtable record ID from the session metadata
-   - Updates the Airtable customer record to mark as paid
-4. Returns `200 OK` to Stripe quickly (Stripe retries if it gets anything else)
+What it does:
+1. Reads `?q=` record ID, fetches customer from Airtable
+2. If already paid → returns a friendly "already paid" message
+3. Fetches current-year line items from Yearly Invoicing table
+4. Builds a Stripe Checkout Session via the exe.dev proxy (form-encoded POST)
+5. If `Review Discount?` is checked on the customer → applies coupon `wdxZW6X2`
+6. Redirects customer to Stripe-hosted checkout page
+7. Stripe redirects to `https://tistheseasonkc.com/payment-success` on success
 
-**File:** `services/webhook.go`  
-**Status:** 🟡 Built — needs webhook URL registered in Stripe + test
-
-**Open questions — YOU need to answer these before we build:**
-- [ ] What Airtable field(s) do you update when a payment completes?
-      (e.g. a "Paid" checkbox, a "Payment Date" date field, a "Stripe Session ID"
-      text field — tell me all of them)
-- [ ] Do you want an email notification to yourself when a payment comes in?
-
-**Your task when ready:**
-- Register the webhook URL in Stripe Dashboard (both sandbox + live endpoints)
-- Copy the webhook signing secrets into your env vars
-- Run a test payment through Stripe sandbox and confirm Airtable updates
+**File:** `services/checkout.go`
 
 ---
 
-### 3. Estimate Email
+### 3. Stripe Webhook
 
-**Route:** `POST /estimate/send`  
-**Auth:** Bearer token (internal use only — called from your tools, not public)
+**Route:** `POST /stripe/webhook`
+**Status:** ✅ Done — tested end-to-end
 
-**What it does:**
-1. Accepts an Airtable record ID in the request body
-2. Fetches customer data and line items from Airtable
-3. Renders `services/email_templates/estimate.html` with that data
-4. Sends the HTML email via Gmail API as your business address
-5. Customer receives a normal email → replies land in your Gmail inbox
-   naturally → you can reply from your Sent folder
+What it does:
+1. Receives `checkout.session.completed` event from Stripe
+2. Verifies `Stripe-Signature` header with HMAC-SHA256 (manual — no stripe-go SDK)
+3. Looks up customer in Airtable by Stripe `cus_` ID
+4. Patches Airtable: `Paid? = "Paid"` + `Review Discount? = false`
 
-**Sending:** Gmail API with a Google Workspace service account. No Resend,
-no SMTP, no third-party email service. Keeps deliverability strong and
-everything in your existing Gmail.
+**Stripe Dashboard setup:**
+- Sandbox endpoint: `https://pi-vm.exe.xyz:8000/stripe/webhook` ✅ registered
+- Live endpoint: `https://tistheseasonkc.com/stripe/webhook` — add when going live
+- Event: `checkout.session.completed` only
 
-**File:** `services/estimate.go` + `services/email_templates/estimate.html`  
+**File:** `services/webhook.go`
+
+---
+
+### 4. Payment Success Page
+
+**URL:** `https://tistheseasonkc.com/payment-success`
+**Status:** ✅ Done
+
+Hugo static page. Customers land here after completing Stripe checkout.
+Layout: `layouts/payment-success/single.html`
+Content: `content/payment-success/index.md`
+
+---
+
+### 5. Estimate Email
+
+**Route:** `POST /estimate/send`
 **Status:** 🔴 Not started
 
-**Open questions — YOU need to answer these before we build:**
-- [ ] What Airtable fields go into the estimate email?
-      (customer name, address, line items, prices, totals, deposit amount,
-      install date estimate, anything else?)
-- [ ] What should the email subject line be?
-- [ ] Does the email need a "pay now" link? (pointing to `/pay/{recID}`)
-- [ ] Any legal/terms language at the bottom?
-- [ ] What's the "from" name? (e.g. "Tis The Season KC" vs your personal name)
-- [ ] Does this endpoint need to be callable from a simple script/tool you run,
-      or do you want a minimal internal web UI to trigger it from?
+What it will do:
+1. Accept an Airtable record ID
+2. Fetch customer + line items from Airtable
+3. Render `services/email_templates/estimate.html`
+4. Send via Gmail SMTP as `stetson@tts.lighting`
 
-**Your task when ready:**
-- Set up Gmail API: create a Google Cloud project, enable Gmail API, create a
-  service account, grant domain-wide delegation (there's a step-by-step in the
-  Gmail Setup section below)
-- Design the estimate email template (we'll do this together)
+**To build this, still needed:**
+- `GMAIL_APP_PASSWORD` added to systemd env
+- Decide: what fields go in the estimate email (line items, total, pay link, etc.)
+- Decide: does it include the `/pay?q=` link?
+- Design the email template
 
----
-
-## Gmail API Setup (Do This Once)
-
-This is the one-time setup to let the server send email as your Gmail address.
-I'll walk you through each step when we get here, but the high-level sequence is:
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project (e.g. "TTS Backend")
-3. Enable the **Gmail API**
-4. Create a **Service Account**
-5. Download the service account JSON key
-6. In **Google Workspace Admin** → grant the service account
-   domain-wide delegation with scope `https://mail.google.com/`
-7. Put the JSON key contents into your `GMAIL_SERVICE_ACCOUNT_JSON` env var
-
-**Status:** 🔴 Not done yet
+**File:** `services/estimate.go` + `services/email_templates/estimate.html`
 
 ---
 
@@ -221,82 +184,33 @@ I'll walk you through each step when we get here, but the high-level sequence is
 
 | Method | Path | Service | Public? |
 |--------|------|---------|--------|
-| GET | `/pay/{recID}` | Stripe Checkout | Yes — customer-facing |
-| POST | `/stripe/webhook` | Stripe Webhook | Yes — Stripe only (verified by signature) |
-| POST | `/estimate/send` | Estimate Email | No — internal, bearer token required |
-| POST | `/contact` | Contact Form | Yes — existing, already live |
+| GET | `/pay` | Stripe Checkout | Yes — customer-facing |
+| POST | `/stripe/webhook` | Stripe Webhook | Yes — Stripe only (sig verified) |
+| POST | `/estimate/send` | Estimate Email | Internal only |
+| POST | `/contact` | Contact Form | Yes — existing, live |
 
 ---
 
-## Build Order & Task Ownership
+## Remaining Work
 
-We build in this order so each piece is testable before the next depends on it.
-
-### Step 1 — Airtable Client
-**Owner: Shelley builds skeleton → You fill in field names**
-
-- [x] Shelley: create `services/airtable.go` with typed structs and fetch functions
-- [x] Field names confirmed via Airtable API schema pull (exe.dev integration)
-- [x] Airtable accessed via exe.dev HTTP proxy — no API keys in env needed
-- [ ] Test: visit `/status` after server restarts to confirm it boots
-
-### Step 2 — Stripe Checkout
-**Owner: You add keys + test**
-
-- [x] Shelley: created `services/checkout.go` and `services/config.go`
-- [ ] You: add Stripe keys to systemd env (see `.env.example`)
-- [ ] You: `sudo systemctl restart tts.service`
-- [ ] You: confirm 🟡 SANDBOX log line appears (`journalctl -u tts.service -n 5`)
-- [ ] You: visit `https://pi-vm.exe.xyz:8000/pay?q={a real customer recID}` and complete a test payment
-- [ ] Confirm Airtable `Paid?` field updates to "Paid" after webhook fires
-
-### Step 3 — Stripe Webhook
-**Owner: You register in Stripe Dashboard**
-
-- [x] Shelley: created `services/webhook.go`
-- [ ] You: in Stripe Dashboard (sandbox) → Webhooks → Add endpoint
-        URL: `https://payments.tistheseasonkc.com/stripe/webhook`
-        Event: `checkout.session.completed`
-- [ ] You: copy the webhook signing secret → add as `STRIPE_WEBHOOK_SECRET_DEV` in env
-- [ ] You: repeat for live endpoint with `STRIPE_WEBHOOK_SECRET_PROD`
-- [ ] Test: trigger test event from Stripe Dashboard, confirm Airtable updates
-
-### Step 4 — Gmail Setup
-**Owner: You do the Google Cloud setup → Shelley helps if you get stuck**
-
-- [ ] You: follow the Gmail API Setup steps above
-- [ ] You: add `GMAIL_SERVICE_ACCOUNT_JSON` and `GMAIL_SEND_AS` to env
-- [ ] Test: send a test email to yourself
-
-### Step 5 — Estimate Email
-**Owner: Build together**
-
-- [ ] You: answer the open questions above (what goes in the email)
-- [ ] Shelley: create `services/estimate.go` and `estimate.html` template skeleton
-- [ ] You: review and adjust the email design/content
-- [ ] Test: call `POST /estimate/send` with a real record ID and check your inbox
-
-### Step 6 — DNS Cutover
-**Owner: You**
-
-- [ ] Repoint `payments.tistheseasonkc.com` DNS to this VM (same as main site)
-- [ ] Confirm `/pay/{recID}` is reachable from that domain
-- [ ] Remove Val.town endpoints one by one as each service goes live
+- [ ] **Estimate email** — build `services/estimate.go` + HTML template
+- [ ] **Gmail App Password** — add `GMAIL_SEND_AS` + `GMAIL_APP_PASSWORD` to systemd env
+- [ ] **Live Stripe webhook** — register `https://tistheseasonkc.com/stripe/webhook` in Stripe live dashboard + add `STRIPE_WEBHOOK_SECRET_PROD`
+- [ ] **DNS cutover** — point `payments.tistheseasonkc.com` to this VM
+- [ ] **Flip to prod** — change `APP_ENV=prod` when ready for real customers
+- [ ] **Archive `tts-contact-form/`** — old Val.town TypeScript, safe to remove once everything is live
 
 ---
 
 ## Seasonal Startup Checklist (Every September)
 
-Coming back after the off-season? Run through this:
-
 ```
-□ Check server is running:     systemctl status tts.service
-□ Check logs look clean:       journalctl -u tts.service -n 50
-□ Confirm APP_ENV is correct:  grep APP_ENV in your env (should be prod)
-□ Verify Stripe keys are live: look for 🟢 LIVE in the startup log
-□ Test a sandbox payment:      flip APP_ENV=dev, test, flip back
-□ Confirm Airtable is current: open base, check any schema changes from off-season
-□ Confirm Gmail API still works: POST /estimate/send with a test record
+□ Check server is running:      systemctl status tts.service
+□ Check logs look clean:        journalctl -u tts.service -n 50
+□ Confirm APP_ENV is correct:   should be prod
+□ Verify Stripe mode is live:   look for 🟢 LIVE in the startup log
+□ Test a sandbox payment:       flip APP_ENV=dev, test, flip back to prod
+□ Confirm Airtable is current:  check for any schema changes from off-season
 □ Rotate any keys that are >1 year old
 ```
 
@@ -311,27 +225,9 @@ systemctl status tts.service
 # View live logs
 journalctl -u tts.service -f
 
-# Restart (after env changes or deploys)
-sudo systemctl restart tts.service
+# Rebuild + restart
+go build -o tts-server . && sudo systemctl restart tts.service
 
-# Build new server binary
-go build -o tts-server .
-
-# Switch to sandbox mode
-# → change APP_ENV=dev in systemd env, then restart
-
-# Switch to production mode  
-# → change APP_ENV=prod in systemd env, then restart
+# Edit env vars
+sudo systemctl edit tts.service
 ```
-
----
-
-## Dependencies (Go packages to add)
-
-| Package | Purpose |
-|---------|--------|
-| `github.com/stripe/stripe-go/v82` | Stripe API client |
-| `google.golang.org/api/gmail/v1` | Gmail API |
-| `golang.org/x/oauth2/google` | Google service account auth |
-
-All added to `go.mod` as we build each service.

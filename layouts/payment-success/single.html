@@ -1,0 +1,69 @@
+{{ define "main" }}
+<main id="main-content">
+
+    <section class="thank-you-next region" aria-label="Payment confirmed">
+        <div class="wrapper flow" style="--wrapper-max: 50rem">
+            <h1 data-balance>Payment Received — You're All Set! 🎄</h1>
+            <p>We got your payment and your spot on the schedule is locked in. We'll be in touch before your installation date with any final details.</p>
+
+            <h2>What Happens Next</h2>
+            <div class="thank-you-steps flow">
+                <div class="thank-you-step">
+                    <span class="thank-you-step__number">1</span>
+                    <h3>We Prepare Your Install</h3>
+                    <p>If you haven't received your installation date yet, we're on it.  We're building our routes and you'll get it soon.</p>
+                </div>
+                <div class="thank-you-step">
+                    <span class="thank-you-step__number">2</span>
+                    <h3>We'll remind you, no surprises</h3>
+                    <p>We'll send a reminder text the day before your installation.</p>
+                </div>
+                <div class="thank-you-step">
+                    <span class="thank-you-step__number">3</span>
+                    <h3>If anything changes, we'll communicate</h3>
+                    <p>If there are any changes, we get held up by weather or anything else, we'll communicate with you and get a new date ASAP.</p>
+                </div>
+                <div class="thank-you-step">
+                    <span class="thank-you-step__number">4</span>
+                    <h3>Sit Back and Enjoy</h3>
+                    <p>We handle everything — install, maintenance, takedown, and storage. All you have to do is enjoy the lights.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="thank-you-links region bg-light" aria-label="Quick links">
+        <div class="wrapper text-center flow" style="--wrapper-max: 50rem">
+            <h2>While You Wait</h2>
+            <p>Check out what your neighbors are doing this season:</p>
+            <div class="thank-you-nav cluster" style="justify-content: center; --cluster-space: var(--space-s)">
+                <a href="/gallery/" class="button">See Our Work</a>
+                <a href="/faq/" class="button">Read FAQ</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="thank-you-contact region" aria-label="Contact options">
+        <div class="wrapper text-center flow" style="--wrapper-max: 50rem">
+            <p class="thank-you-contact__text">Questions about your installation? We're happy to help.</p>
+            <div class="contact-options__grid grid" style="--grid-min-item-size: 16rem">
+                <div class="contact-card flow">
+                    <p class="contact-card__icon" aria-hidden="true">📞</p>
+                    <p class="weight-bold">Call Us</p>
+                    <p><a href="tel:{{ site.Params.phone }}" class="contact-card__value">{{ site.Params.phone }}</a></p>
+                </div>
+                <div class="contact-card flow">
+                    <p class="contact-card__icon" aria-hidden="true">💬</p>
+                    <p class="weight-bold">Text Us</p>
+                    <p>
+                        <a href="sms:{{ site.Params.textPhone }}" class="contact-card__value">
+                            {{ site.Params.textPhone }}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+{{ end }}
