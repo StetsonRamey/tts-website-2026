@@ -82,13 +82,39 @@ so no Stripe secret key is ever stored on this VM.
 
 Airtable calls go through `airtable.int.exe.xyz` — same deal, no Airtable PAT on VM.
 
-### How to Update Environment Variables
+### Where Secrets Live
+
+Secrets are stored in a dedicated environment file, separate from the service config:
+
+```
+/etc/tts/secrets.env
+```
+
+- Owned by `root`, mode `600` — only root can read it
+- Never commit this file or its contents to git
+- The service config (`/etc/systemd/system/tts.service`) references it via `EnvironmentFile=` — it contains no secrets itself
+
+### How to Add or Rotate a Secret
 
 ```bash
-sudo systemctl edit tts.service
-# add/change Environment= lines under [Service], save
+# Edit the secrets file
+sudo nano /etc/tts/secrets.env
+
+# Reload and restart to pick up changes
 sudo systemctl daemon-reload && sudo systemctl restart tts.service
+
+# Confirm it started correctly
 journalctl -u tts.service -n 5
+```
+
+### Adding Secrets for Future Services
+
+When adding Gmail or the live Stripe webhook secret, append to `/etc/tts/secrets.env`:
+
+```
+GMAIL_SEND_AS=stetson@tts.lighting
+GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
+STRIPE_WEBHOOK_SECRET_PROD=whsec_...
 ```
 
 ---
