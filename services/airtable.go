@@ -33,31 +33,32 @@ const (
 	// Yearly Invoicing view: pre-filtered to current season only
 	viewCurrentYear = "viwL8vbspkSX75DS3"
 
-	// ── Customers table field IDs ────────────────────────────────────────────
-	fieldCustomerFullName      = "fldw8mz8mEc3gVnaj" // formula
-	fieldCustomerFirstName     = "fldkDGECRoNhY5PsR" // singleLineText
-	fieldCustomerLastName      = "fldy5NPZ5ttw3y1GZ" // singleLineText
-	fieldCustomerEmail         = "fldri14MY0YKwnPFw" // singleLineText
-	fieldCustomerRecordID      = "fldgfXPisSW52URiL" // formula — RECORD_ID()
-	fieldCustomerStripeID      = "fldOI8Qnn58hqTIDh" // singleLineText  e.g. cus_xxx
-	fieldCustomerPaid          = "fldeQz412DaIiDeVN" // singleSelect    "Paid" | empty
-	fieldCustomerReviewDiscount = "fldzCeTrLy9gdFD3m" // checkbox
+	// ── Customers table field names ──────────────────────────────────────────
+	// NOTE: Airtable REST API returns field *names* as keys, not field IDs.
+	fieldCustomerFullName       = "Full Name"       // formula
+	fieldCustomerFirstName      = "First Name"      // singleLineText
+	fieldCustomerLastName       = "Last Name"       // singleLineText
+	fieldCustomerEmail          = "Email"           // singleLineText
+	fieldCustomerRecordID       = "Record ID"       // formula — RECORD_ID()
+	fieldCustomerStripeID       = "Stripe ID"       // singleLineText  e.g. cus_xxx
+	fieldCustomerPaid           = "Paid?"           // singleSelect    "Paid" | empty
+	fieldCustomerReviewDiscount = "Review Discount?" // checkbox
 
-	// ── Yearly Invoicing table field IDs ─────────────────────────────────────
+	// ── Yearly Invoicing table field names ───────────────────────────────────
 	// (lookup fields return arrays — take index [0])
-	fieldInvStripeCustomerID  = "fldFgPy59G2zB9JxJ" // lookup: Stripe ID from Customer
-	fieldInvCustomerRecordID  = "fldNVumkFtJzdUKXR" // lookup: Record ID from Customer
+	fieldInvStripeCustomerID    = "Stripe ID (from Customer Link)"          // lookup
+	fieldInvCustomerRecordID    = "Record ID (from Customer Link)"          // lookup
 	// Product ID fields — two versions, selected at runtime based on APP_ENV
 	// dev  → Stripe TEST IDs (from Services Link)
 	// prod → Stripe Product ID (from Services Link)
-	fieldInvStripeProductIDProd = "fldliqzb96m5kYXjp" // lookup: Stripe Product ID (prod)
-	fieldInvStripeProductIDDev  = "fldosP4xnAl4b6Hkr" // lookup: Stripe TEST IDs (dev/sandbox)
-	fieldInvFinalValue        = "fldh8BoGKbwvdVxAq" // formula: quantity (linear feet or custom)
-	fieldInvUnitCost          = "fldNUT5jTfj4CcN8y" // currency: price per unit
-	fieldInvDescription       = "fldMGQd6Ggh8IZxD0" // singleLineText: line item description
-	fieldInvStripeCouponID    = "fldDNR9C3fPdUwg3k" // singleLineText: optional Stripe coupon
-	fieldInvTotalPrice        = "fldSTxRJQD5P449jv" // formula: total
-	fieldInvLineItemDetail    = "fldSQkAsz0TULhHr7" // formula: human-readable summary
+	fieldInvStripeProductIDProd = "Stripe Product ID (from Services Link)" // lookup: prod
+	fieldInvStripeProductIDDev  = "Stripe TEST IDs (from Services Link)"   // lookup: dev/sandbox
+	fieldInvFinalValue          = "Final Value"      // formula: quantity (linear feet or custom)
+	fieldInvUnitCost            = "Unit Cost"        // currency: price per unit
+	fieldInvDescription         = "Description"      // singleLineText: line item description
+	fieldInvStripeCouponID      = "Stripe Coupon ID" // singleLineText: optional Stripe coupon
+	fieldInvTotalPrice          = "Total Price"      // formula: total
+	fieldInvLineItemDetail      = "Line Item Detail" // formula: human-readable summary
 )
 
 // ── Structs ───────────────────────────────────────────────────────────────────
