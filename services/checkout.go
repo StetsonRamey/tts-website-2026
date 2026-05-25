@@ -2,28 +2,26 @@ package services
 
 // Stripe Checkout handler — GET /pay?q={customerRecordID}
 //
+// Calls Stripe via the exe.dev HTTP proxy integration — no API keys on server.
+//
 // Flow:
 //   1. Read customer record ID from query string
 //   2. Fetch customer from Airtable — check if already paid
 //   3. Fetch their current-year line items from Yearly Invoicing
-//   4. Build Stripe Checkout session with dynamic pricing
-//   5. Apply review discount coupon if Review Discount? is checked
+//   4. POST to Stripe /v1/checkout/sessions via proxy
+//   5. Apply review discount coupon if Review Discount? checkbox is set
 //   6. Redirect customer to Stripe-hosted checkout page
-//
-// The Review Discount? checkbox is NOT cleared here — it is cleared
-// by the webhook handler when payment actually completes. This means
-// the customer can open their link multiple times without losing the
-// discount before they pay.
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
+	"math"
 	"net/http"
+	"net/url"
 	"strings"
-
-	stripe "github.com/stripe/stripe-go/v82"
-	"github.com/stripe/stripe-go/v82/checkout/session"
 )
 
 // CheckoutHandler returns an http.HandlerFunc for GET /pay
@@ -44,13 +42,13 @@ func CheckoutHandler(cfg *Config) http.HandlerFunc {
 			return
 		}
 
-		// ── 2. Already paid? ────────────────────────────────────────
+		// ── 2. Already paid? ──────────────────────────────────────
 		if customer.Paid {
 			renderAlreadyPaid(w)
 			return
 		}
 
-		// ── 3. Fetch line items ─────────────────────────────────────
+		// ── 3. Fetch line items ───────────────────────────────────
 		items, err := GetCurrentYearLineItems(recordID, cfg.Env)
 		if err != nil {
 			log.Printf("[checkout] GetLineItems(%s): %v", recordID, err)
@@ -65,64 +63,82 @@ func CheckoutHandler(cfg *Config) http.HandlerFunc {
 			return
 		}
 
-		// ── 4. Build Stripe line items ───────────────────────────────
-		var lineItems []*stripe.CheckoutSessionLineItemParams
-		for _, item := range items {
-			// Skip negative amounts — these are old-style discounts no longer used
-			if item.UnitCost < 0 {
-				continue
-			}
-			if item.StripeProductID == "" {
-				log.Printf("[checkout] skipping line item with no Stripe product ID: %s", item.Description)
-				continue
-			}
-			lineItems = append(lineItems, &stripe.CheckoutSessionLineItemParams{
-				Quantity: stripe.Int64(int64(item.FinalValue)),
-				PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
-					Currency:   stripe.String("usd"),
-					UnitAmount: stripe.Int64(int64(item.UnitCost * 100)), // cents
-					Product:    stripe.String(item.StripeProductID),
-				},
-			})
-		}
-		if len(lineItems) == 0 {
-			log.Printf("[checkout] all line items filtered out for %s", recordID)
-			cfg.sendErrorEmail(fmt.Sprintf("checkout: all line items filtered for %s (%s)", customer.FullName, recordID))
-			http.Error(w, checkoutErrorMsg, http.StatusInternalServerError)
-			return
-		}
-
-		// ── 5. Build session params ─────────────────────────────────
-		params := &stripe.CheckoutSessionParams{
-			Customer:   stripe.String(customer.StripeID),
-			LineItems:  lineItems,
-			Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
-			SuccessURL: stripe.String("https://tistheseasonkc.com/payment-success"),
-		}
-
-		// Apply review discount coupon if the checkbox is checked
-		if customer.ReviewDiscount {
-			params.Discounts = []*stripe.CheckoutSessionDiscountParams{
-				{Coupon: stripe.String(cfg.ReviewCouponID)},
-			}
-			log.Printf("[checkout] applying review discount to %s", customer.FullName)
-		}
-
-		// ── 6. Create session and redirect ───────────────────────────
-		sess, err := session.New(params)
+		// ── 4. Create Stripe Checkout session via proxy ───────────────
+		sessURL, err := createCheckoutSession(cfg, customer, items)
 		if err != nil {
-			log.Printf("[checkout] Stripe session.New(%s): %v", recordID, err)
-			cfg.sendErrorEmail(fmt.Sprintf("checkout: Stripe session.New for %s (%s): %v", customer.FullName, recordID, err))
+			log.Printf("[checkout] createCheckoutSession(%s): %v", recordID, err)
+			cfg.sendErrorEmail(fmt.Sprintf("checkout: Stripe session failed for %s (%s): %v", customer.FullName, recordID, err))
 			http.Error(w, checkoutErrorMsg, http.StatusInternalServerError)
 			return
 		}
 
-		log.Printf("[checkout] created session %s for %s (env=%s)", sess.ID, customer.FullName, cfg.Env)
-		http.Redirect(w, r, sess.URL, http.StatusSeeOther)
+		log.Printf("[checkout] session created for %s (env=%s)", customer.FullName, cfg.Env)
+		http.Redirect(w, r, sessURL, http.StatusSeeOther)
 	}
 }
 
-// ── Already-paid page ─────────────────────────────────────────────────
+// createCheckoutSession POSTs to Stripe via the exe.dev proxy.
+// Stripe's checkout.sessions.create uses form-encoded body params.
+func createCheckoutSession(cfg *Config, customer *Customer, items []InvoiceLineItem) (string, error) {
+	params := url.Values{}
+	params.Set("customer", customer.StripeID)
+	params.Set("mode", "payment")
+	params.Set("success_url", "https://tistheseasonkc.com/payment-success")
+
+	// Line items — Stripe uses indexed form params for arrays
+	i := 0
+	for _, item := range items {
+		if item.UnitCost < 0 || item.StripeProductID == "" {
+			continue // skip negative/empty (old-style discounts)
+		}
+		prefix := fmt.Sprintf("line_items[%d]", i)
+		params.Set(prefix+"[quantity]", fmt.Sprintf("%d", int64(item.FinalValue)))
+		params.Set(prefix+"[price_data][currency]", "usd")
+		params.Set(prefix+"[price_data][product]", item.StripeProductID)
+		params.Set(prefix+"[price_data][unit_amount]", fmt.Sprintf("%d", int64(math.Round(item.UnitCost*100))))
+		i++
+	}
+	if i == 0 {
+		return "", fmt.Errorf("no valid line items after filtering")
+	}
+
+	// Review discount coupon
+	if customer.ReviewDiscount && cfg.ReviewCouponID != "" {
+		params.Set("discounts[0][coupon]", cfg.ReviewCouponID)
+		log.Printf("[checkout] applying review discount coupon to %s", customer.FullName)
+	}
+
+	resp, err := http.Post(
+		cfg.StripeBaseURL+"/v1/checkout/sessions",
+		"application/x-www-form-urlencoded",
+		strings.NewReader(params.Encode()),
+	)
+	if err != nil {
+		return "", fmt.Errorf("POST /v1/checkout/sessions: %w", err)
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+
+	if resp.StatusCode != 200 {
+		return "", fmt.Errorf("stripe %d: %s", resp.StatusCode, string(body))
+	}
+
+	var sess struct {
+		URL string `json:"url"`
+		ID  string `json:"id"`
+	}
+	if err := json.Unmarshal(body, &sess); err != nil {
+		return "", fmt.Errorf("decode session response: %w", err)
+	}
+	if sess.URL == "" {
+		return "", fmt.Errorf("stripe returned empty session URL")
+	}
+
+	log.Printf("[checkout] session %s created", sess.ID)
+	return sess.URL, nil
+}
+
+// ── Already-paid page ────────────────────────────────────────────────
 
 var alreadyPaidTmpl = template.Must(template.New("paid").Parse(`<!DOCTYPE html>
 <html lang="en">
@@ -147,10 +163,7 @@ var alreadyPaidTmpl = template.Must(template.New("paid").Parse(`<!DOCTYPE html>
     }
     h1 { color: #2d8a4e; font-size: 1.75rem; margin-bottom: 1rem; }
     p { color: #4a4a5a; line-height: 1.6; margin-bottom: 1.5rem; }
-    a {
-      display: inline-block; color: #69C4BB;
-      text-decoration: none; font-weight: 600;
-    }
+    a { display: inline-block; color: #69C4BB; text-decoration: none; font-weight: 600; }
     a:hover { text-decoration: underline; }
   </style>
 </head>
