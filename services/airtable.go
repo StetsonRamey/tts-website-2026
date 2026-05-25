@@ -33,32 +33,32 @@ const (
 	// Yearly Invoicing view: pre-filtered to current season only
 	viewCurrentYear = "viwL8vbspkSX75DS3"
 
-	// ── Customers table field names ──────────────────────────────────────────
-	// NOTE: Airtable REST API returns field *names* as keys, not field IDs.
-	fieldCustomerFullName       = "Full Name"       // formula
-	fieldCustomerFirstName      = "First Name"      // singleLineText
-	fieldCustomerLastName       = "Last Name"       // singleLineText
-	fieldCustomerEmail          = "Email"           // singleLineText
-	fieldCustomerRecordID       = "Record ID"       // formula — RECORD_ID()
-	fieldCustomerStripeID       = "Stripe ID"       // singleLineText  e.g. cus_xxx
-	fieldCustomerPaid           = "Paid?"           // singleSelect    "Paid" | empty
-	fieldCustomerReviewDiscount = "Review Discount?" // checkbox
+	// ── Customers table field IDs ────────────────────────────────────────────
+	// returnFieldsByFieldId=true is added in atURL() so keys are always IDs.
+	fieldCustomerFullName       = "fldw8mz8mEc3gVnaj" // formula
+	fieldCustomerFirstName      = "fldkDGECRoNhY5PsR" // singleLineText
+	fieldCustomerLastName       = "fldy5NPZ5ttw3y1GZ" // singleLineText
+	fieldCustomerEmail          = "fldri14MY0YKwnPFw" // singleLineText
+	fieldCustomerRecordID       = "fldgfXPisSW52URiL" // formula — RECORD_ID()
+	fieldCustomerStripeID       = "fldOI8Qnn58hqTIDh" // singleLineText  e.g. cus_xxx
+	fieldCustomerPaid           = "fldeQz412DaIiDeVN" // singleSelect    "Paid" | empty
+	fieldCustomerReviewDiscount = "fldzCeTrLy9gdFD3m" // checkbox
 
-	// ── Yearly Invoicing table field names ───────────────────────────────────
+	// ── Yearly Invoicing table field IDs ─────────────────────────────────────
 	// (lookup fields return arrays — take index [0])
-	fieldInvStripeCustomerID    = "Stripe ID (from Customer Link)"          // lookup
-	fieldInvCustomerRecordID    = "Record ID (from Customer Link)"          // lookup
+	fieldInvStripeCustomerID    = "fldFgPy59G2zB9JxJ" // lookup: Stripe ID from Customer
+	fieldInvCustomerRecordID    = "fldNVumkFtJzdUKXR" // lookup: Record ID from Customer
 	// Product ID fields — two versions, selected at runtime based on APP_ENV
 	// dev  → Stripe TEST IDs (from Services Link)
 	// prod → Stripe Product ID (from Services Link)
-	fieldInvStripeProductIDProd = "Stripe Product ID (from Services Link)" // lookup: prod
-	fieldInvStripeProductIDDev  = "Stripe TEST IDs (from Services Link)"   // lookup: dev/sandbox
-	fieldInvFinalValue          = "Final Value"      // formula: quantity (linear feet or custom)
-	fieldInvUnitCost            = "Unit Cost"        // currency: price per unit
-	fieldInvDescription         = "Description"      // singleLineText: line item description
-	fieldInvStripeCouponID      = "Stripe Coupon ID" // singleLineText: optional Stripe coupon
-	fieldInvTotalPrice          = "Total Price"      // formula: total
-	fieldInvLineItemDetail      = "Line Item Detail" // formula: human-readable summary
+	fieldInvStripeProductIDProd = "fldliqzb96m5kYXjp" // lookup: Stripe Product ID (prod)
+	fieldInvStripeProductIDDev  = "fldosP4xnAl4b6Hkr" // lookup: Stripe TEST IDs (dev/sandbox)
+	fieldInvFinalValue          = "fldh8BoGKbwvdVxAq" // formula: quantity (linear feet or custom)
+	fieldInvUnitCost            = "fldNUT5jTfj4CcN8y" // currency: price per unit
+	fieldInvDescription         = "fldMGQd6Ggh8IZxD0" // singleLineText: line item description
+	fieldInvStripeCouponID      = "fldDNR9C3fPdUwg3k" // singleLineText: optional Stripe coupon
+	fieldInvTotalPrice          = "fldSTxRJQD5P449jv" // formula: total
+	fieldInvLineItemDetail      = "fldSQkAsz0TULhHr7" // formula: human-readable summary
 )
 
 // ── Structs ───────────────────────────────────────────────────────────────────
@@ -109,7 +109,7 @@ type atErrorResponse struct {
 }
 
 func atURL(table string) string {
-	return fmt.Sprintf("%s/%s/%s", airtableBase, baseID, table)
+	return fmt.Sprintf("%s/%s/%s?returnFieldsByFieldId=true", airtableBase, baseID, table)
 }
 
 // atGet performs a GET request to the Airtable proxy.
@@ -245,8 +245,8 @@ func GetCurrentYearLineItems(customerRecordID string, env string) ([]InvoiceLine
 // Called by the Stripe webhook handler on checkout.session.completed.
 func MarkCustomerPaid(airtableRecordID string) error {
 	return atPatch(tableCustomers, airtableRecordID, map[string]interface{}{
-		"Paid?":            "Paid",
-		"Review Discount?": false,
+		fieldCustomerPaid:           "Paid",
+		fieldCustomerReviewDiscount: false,
 	})
 }
 
