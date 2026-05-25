@@ -109,7 +109,15 @@ type atErrorResponse struct {
 }
 
 func atURL(table string) string {
-	return fmt.Sprintf("%s/%s/%s?returnFieldsByFieldId=true", airtableBase, baseID, table)
+	return fmt.Sprintf("%s/%s/%s", airtableBase, baseID, table)
+}
+
+// atParams returns a url.Values pre-seeded with returnFieldsByFieldId=true.
+// All callers should use this instead of url.Values{} directly.
+func atParams() url.Values {
+	v := url.Values{}
+	v.Set("returnFieldsByFieldId", "true")
+	return v
 }
 
 // atGet performs a GET request to the Airtable proxy.
@@ -162,7 +170,7 @@ func atPatch(table, recordID string, fields map[string]interface{}) error {
 // GetCustomerByRecordID fetches a single Customer record by its Airtable Record ID
 // (the rec... string stored in the Record ID formula field and used in payment URLs).
 func GetCustomerByRecordID(recordID string) (*Customer, error) {
-	params := url.Values{}
+	params := atParams()
 	params.Set("filterByFormula", fmt.Sprintf("{Record ID} = '%s'", recordID))
 	params.Set("fields[]", fieldCustomerFullName)
 	params.Add("fields[]", fieldCustomerFirstName)
@@ -187,7 +195,7 @@ func GetCustomerByRecordID(recordID string) (*Customer, error) {
 // GetCustomerByStripeID fetches a Customer by their Stripe customer ID (cus_...).
 // Used by the webhook handler to identify who just paid.
 func GetCustomerByStripeID(stripeCustomerID string) (*Customer, error) {
-	params := url.Values{}
+	params := atParams()
 	params.Set("filterByFormula", fmt.Sprintf("{Stripe ID} = '%s'", stripeCustomerID))
 	params.Set("fields[]", fieldCustomerFullName)
 	params.Add("fields[]", fieldCustomerRecordID)
@@ -216,7 +224,7 @@ func GetCurrentYearLineItems(customerRecordID string, env string) ([]InvoiceLine
 		productIDField = fieldInvStripeProductIDDev
 	}
 
-	params := url.Values{}
+	params := atParams()
 	params.Set("view", viewCurrentYear)
 	params.Set("filterByFormula", fmt.Sprintf("{Record ID (from Customer Link)} = '%s'", customerRecordID))
 	params.Set("fields[]", fieldInvStripeCustomerID)
