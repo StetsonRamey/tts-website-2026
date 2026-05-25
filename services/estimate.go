@@ -112,7 +112,7 @@ func EstimateHandler(cfg *Config) http.HandlerFunc {
 		}
 
 		// ── 5. Download photos → disk → public URLs ────────────────────────────
-		publicURLs, err := stagePhotos(lead.Photos) // TODO: pass lead.Photos
+		publicURLs, err := stagePhotos(lead.Photos, lead.FirstName+" "+lead.LastName)
 		if err != nil {
 			// Non-fatal: log and continue with no photos rather than failing
 			log.Printf("[estimate] photo staging failed: %v", err)
@@ -160,7 +160,7 @@ func EstimateHandler(cfg *Config) http.HandlerFunc {
 
 // stagePhotos downloads each photo from its temporary Airtable URL, saves it
 // to photoDir with a content-hash filename, and returns the permanent public URLs.
-func stagePhotos(photos []LeadPhoto) ([]string, error) {
+func stagePhotos(photos []LeadPhoto, fullName string) ([]string, error) {
 	if err := os.MkdirAll(photoDir, 0755); err != nil {
 		return nil, fmt.Errorf("create photo dir: %w", err)
 	}
@@ -182,8 +182,7 @@ func stagePhotos(photos []LeadPhoto) ([]string, error) {
 			log.Printf("[estimate] photo read failed: %v", err)
 			continue
 		}
-		hash := sha256.Sum256(bodyBytes)
-		filename := fmt.Sprintf("%x%s", hash[:8], filepath.Ext(photo.Filename))
+		filename := photoFilename(bodyBytes, photo.Filename, fullName)
 
 		// ── Save to disk ───────────────────────────────────────────────────────
 		// TODO: os.WriteFile(filepath.Join(photoDir, filename), data, 0644)
@@ -223,16 +222,21 @@ func sendHTMLEmail(to, subject, htmlBody string) error {
 	return smtp.SendMail("smtp.gmail.com:587", auth, from, []string{to}, buf.Bytes())
 }
 
-// photoFilename builds a stable filename for a downloaded photo:
-// first 16 hex chars of sha256(data) + original extension.
-// Exported so stagePhotos can use it; also useful in tests.
-func photoFilename(data []byte, originalName string) string {
+// photoFilename builds a stable, human-readable filename for a downloaded photo:
+// "{slug}-{hash16}{ext}" e.g. "angela-smith-a3f2b1c4d5e6f7a8.jpg"
+func photoFilename(data []byte, originalName, fullName string) string {
 	hash := sha256.Sum256(data)
 	ext := filepath.Ext(originalName)
 	if ext == "" {
-		ext = ".jpg" // safe fallback
+		ext = ".jpg"
 	}
-	return fmt.Sprintf("%x", hash[:8]) + ext
+	return fmt.Sprintf("%s-%x%s", slugify(fullName), hash[:8], ext)
+}
+
+// slugify converts a name to a lowercase hyphenated slug: "Angela Smith" → "angela-smith"
+func slugify(s string) string {
+	s = strings.ToLower(strings.TrimSpace(s))
+	return strings.NewReplacer(" ", "-", "'", "", ".", "").Replace(s)
 }
 
 // PhotoHandler serves files from photoDir.

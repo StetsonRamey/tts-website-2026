@@ -19,6 +19,7 @@ const (
 
 	// ── 2026 Leads (forward) field IDs ───────────────────────────────────────
 	fieldLeadFirstName   = "fldplXExIaztUlnVf" // singleLineText
+	fieldLeadLastName    = "fldLzoRuhDQ01XUCZ" // singleLineText
 	fieldLeadEmail       = "fldsvJF0WoUqKWOtq" // singleLineText
 	fieldLeadFeet        = "fldelBDSYukmjqNbo" // number
 	fieldLeadPriceLED    = "fld5LWFylybQBCArw" // formula
@@ -32,6 +33,7 @@ type Lead struct {
 	AirtableID  string // Airtable record ID (rec...)
 	RecordID    string // same value, from the RECORD_ID() formula field
 	FirstName   string
+	LastName    string
 	Email       string
 	Feet        float64
 	PriceLED    float64
@@ -65,6 +67,7 @@ func GetLeadByRecordID(recordID string) (*Lead, error) {
 	// TODO: request only the fields we need — add each fieldLead* constant
 	// hint: first field uses params.Set("fields[]", ...), rest use params.Add
 	params.Set("fields[]", fieldLeadFirstName)
+	params.Add("fields[]", fieldLeadLastName)
 	params.Add("fields[]", fieldLeadEmail)
 	params.Add("fields[]", fieldLeadFeet)
 	params.Add("fields[]", fieldLeadPriceLED)
@@ -90,6 +93,7 @@ func parseLead(r atRecord) *Lead {
 		AirtableID:  r.ID,
 		RecordID:    str(f[fieldLeadRecordID]),
 		FirstName:   str(f[fieldLeadFirstName]),
+		LastName:    str(f[fieldLeadLastName]),
 		Email:       str(f[fieldLeadEmail]),
 		Feet:        numField(f[fieldLeadFeet]),
 		PriceLED:    numField(f[fieldLeadPriceLED]),
