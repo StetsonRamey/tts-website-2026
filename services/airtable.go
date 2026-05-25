@@ -47,7 +47,11 @@ const (
 	// (lookup fields return arrays — take index [0])
 	fieldInvStripeCustomerID  = "fldFgPy59G2zB9JxJ" // lookup: Stripe ID from Customer
 	fieldInvCustomerRecordID  = "fldNVumkFtJzdUKXR" // lookup: Record ID from Customer
-	fieldInvStripeProductID   = "fldliqzb96m5kYXjp" // lookup: Stripe Product ID from Services
+	// Product ID fields — two versions, selected at runtime based on APP_ENV
+	// dev  → Stripe TEST IDs (from Services Link)
+	// prod → Stripe Product ID (from Services Link)
+	fieldInvStripeProductIDProd = "fldliqzb96m5kYXjp" // lookup: Stripe Product ID (prod)
+	fieldInvStripeProductIDDev  = "fldosP4xnAl4b6Hkr" // lookup: Stripe TEST IDs (dev/sandbox)
 	fieldInvFinalValue        = "fldh8BoGKbwvdVxAq" // formula: quantity (linear feet or custom)
 	fieldInvUnitCost          = "fldNUT5jTfj4CcN8y" // currency: price per unit
 	fieldInvDescription       = "fldMGQd6Ggh8IZxD0" // singleLineText: line item description
@@ -203,13 +207,20 @@ func GetCustomerByStripeID(stripeCustomerID string) (*Customer, error) {
 
 // GetCurrentYearLineItems returns all Yearly Invoicing rows for a given customer
 // in the current season (uses the "Current Year" view which pre-filters by year).
-func GetCurrentYearLineItems(customerRecordID string) ([]InvoiceLineItem, error) {
+// env should be "dev" or "prod" — selects the correct Stripe product ID field.
+func GetCurrentYearLineItems(customerRecordID string, env string) ([]InvoiceLineItem, error) {
+	// Pick sandbox or live product ID field based on environment
+	productIDField := fieldInvStripeProductIDProd
+	if env == "dev" {
+		productIDField = fieldInvStripeProductIDDev
+	}
+
 	params := url.Values{}
 	params.Set("view", viewCurrentYear)
 	params.Set("filterByFormula", fmt.Sprintf("{Record ID (from Customer Link)} = '%s'", customerRecordID))
 	params.Set("fields[]", fieldInvStripeCustomerID)
 	params.Add("fields[]", fieldInvCustomerRecordID)
-	params.Add("fields[]", fieldInvStripeProductID)
+	params.Add("fields[]", productIDField) // dev=TEST IDs, prod=live IDs
 	params.Add("fields[]", fieldInvFinalValue)
 	params.Add("fields[]", fieldInvUnitCost)
 	params.Add("fields[]", fieldInvDescription)
@@ -257,10 +268,15 @@ func parseCustomer(r atRecord) *Customer {
 
 func parseLineItem(r atRecord) InvoiceLineItem {
 	f := r.Fields
+	// One of these two fields will be populated depending on which was requested
+	productID := lookupFirst(f[fieldInvStripeProductIDProd])
+	if productID == "" {
+		productID = lookupFirst(f[fieldInvStripeProductIDDev])
+	}
 	return InvoiceLineItem{
 		AirtableID:       r.ID,
 		StripeCustomerID: lookupFirst(f[fieldInvStripeCustomerID]),
-		StripeProductID:  lookupFirst(f[fieldInvStripeProductID]),
+		StripeProductID:  productID,
 		FinalValue:       numField(f[fieldInvFinalValue]),
 		UnitCost:         numField(f[fieldInvUnitCost]),
 		TotalPrice:       numField(f[fieldInvTotalPrice]),

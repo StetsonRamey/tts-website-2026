@@ -51,7 +51,7 @@ func CheckoutHandler(cfg *Config) http.HandlerFunc {
 		}
 
 		// ── 3. Fetch line items ─────────────────────────────────────
-		items, err := GetCurrentYearLineItems(recordID)
+		items, err := GetCurrentYearLineItems(recordID, cfg.Env)
 		if err != nil {
 			log.Printf("[checkout] GetLineItems(%s): %v", recordID, err)
 			cfg.sendErrorEmail(fmt.Sprintf("checkout: GetLineItems(%s) customer=%s: %v", recordID, customer.FullName, err))
