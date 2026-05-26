@@ -532,6 +532,7 @@ func main() {
 
 	// Estimate email (internal — protected by WEBHOOK_AUTH_KEY)
 	mux.HandleFunc("/estimate/send", services.EstimateHandler(cfg))
+	mux.HandleFunc("/confirmation/send", services.ConfirmationHandler(cfg))
 
 	// Serve downloaded estimate photos (permanent URLs embedded in emails)
 	mux.HandleFunc("/photos/", services.PhotoHandler())
