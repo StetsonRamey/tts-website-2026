@@ -202,10 +202,14 @@ func stagePhotos(photos []LeadPhoto, fullName string) ([]string, error) {
 }
 
 // sendHTMLEmail sends an HTML email via Gmail SMTP.
-// Credentials come from GMAIL_SEND_AS and GMAIL_APP_PASSWORD env vars.
+// GMAIL_USER authenticates; GMAIL_SEND_AS is the From alias (e.g. hello@tts.lighting).
 func sendHTMLEmail(to, subject, htmlBody string) error {
+	user := os.Getenv("GMAIL_USER")
 	from := os.Getenv("GMAIL_SEND_AS")
 	pass := os.Getenv("GMAIL_APP_PASSWORD")
+	if user == "" {
+		user = from // backward compat
+	}
 	if from == "" || pass == "" {
 		return fmt.Errorf("GMAIL_SEND_AS or GMAIL_APP_PASSWORD not set")
 	}
@@ -219,7 +223,7 @@ func sendHTMLEmail(to, subject, htmlBody string) error {
 	buf.WriteString("\r\n")
 	buf.WriteString(htmlBody)
 
-	auth := smtp.PlainAuth("", from, pass, "smtp.gmail.com")
+	auth := smtp.PlainAuth("", user, pass, "smtp.gmail.com")
 	return smtp.SendMail("smtp.gmail.com:587", auth, from, []string{to}, buf.Bytes())
 }
 
