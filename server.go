@@ -530,6 +530,12 @@ func main() {
 	mux.HandleFunc("/stripe/webhook", services.WebhookHandler(cfg))
 	mux.HandleFunc("/status", services.StatusHandler(cfg))
 
+	// Estimate email (internal — protected by WEBHOOK_AUTH_KEY)
+	mux.HandleFunc("/estimate/send", services.EstimateHandler(cfg))
+
+	// Serve downloaded estimate photos (permanent URLs embedded in emails)
+	mux.HandleFunc("/photos/", services.PhotoHandler())
+
 	// Static site (catch-all — must be last)
 	mux.Handle("/", cacheMiddleware(fs))
 
