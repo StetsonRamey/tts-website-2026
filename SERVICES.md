@@ -274,8 +274,13 @@ curl -X POST https://tistheseasonkc.com/estimate/send \
 
 ## Remaining Work
 
-- [ ] **Additional email templates** — other transactional emails (routes + templates TBD)
-- [ ] **Airtable automation** — wire up Airtable script to call `/estimate/send` with `WEBHOOK_AUTH_KEY`
+- [ ] **Switch email sending to Angela's account** — blocked on Angela enabling 2FA on `angela@tts.lighting`
+  - Once 2FA is on: generate App Password at myaccount.google.com/apppasswords
+  - Verify `hello@tts.lighting` as a Send-As alias in Angela's Gmail settings
+  - Update `/etc/tts/secrets.env`: `GMAIL_USER=angela@tts.lighting`, `GMAIL_SEND_AS=hello@tts.lighting`, new `GMAIL_APP_PASSWORD`
+  - `sudo systemctl restart tts.service`
+  - **Currently:** sending from `stetson@tts.lighting` for testing
+- [ ] **Airtable automation** — wire up Airtable scripts to call `/estimate/send`, `/confirmation/send`, `/oos/send` with `WEBHOOK_AUTH_KEY`
 - [ ] **Live Stripe webhook** — register `https://tistheseasonkc.com/stripe/webhook` in Stripe live dashboard + add `STRIPE_WEBHOOK_SECRET_PROD`
 - [ ] **DNS cutover** — point `payments.tistheseasonkc.com` to this VM
 - [ ] **Flip to prod** — change `APP_ENV=prod` when ready for real customers
