@@ -19,7 +19,7 @@ const (
 
 	// ── 2026 Leads (forward) field IDs ───────────────────────────────────────
 	fieldLeadFirstName   = "fldplXExIaztUlnVf" // singleLineText
-	fieldLeadLastName    = "fldLzoRuhDQ01XUCZ" // singleLineText
+	fieldLeadLastName    = "fldiVRdwdOumpsrCh" // singleLineText
 	fieldLeadEmail       = "fldsvJF0WoUqKWOtq" // singleLineText
 	fieldLeadFeet        = "fldelBDSYukmjqNbo" // number
 	fieldLeadPriceLED    = "fld5LWFylybQBCArw" // formula

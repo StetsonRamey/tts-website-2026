@@ -25,11 +25,15 @@ TTS/
 ├── services/
 │   ├── config.go                ← LoadConfig(), env var validation, error emails
 │   ├── airtable.go              ← shared Airtable API client, typed structs
+│   ├── leads.go                 ← Airtable client for LEADS base (2026 Leads table)
 │   ├── checkout.go              ← Stripe checkout page handler
 │   ├── webhook.go               ← Stripe webhook handler
-│   ├── estimate.go              ← estimate email sender (not yet built)
+│   ├── estimate.go              ← estimate email sender ✅
 │   └── email_templates/
-│       └── estimate.html        ← Go HTML template for estimate email (not yet built)
+│       └── estimate.html        ← Go HTML template for estimate email ✅
+├── static/
+│   └── images/
+│       └── tts-logo.png         ← logo served at /images/tts-logo.png (Hugo static)
 └── SERVICES.md                  ← this file
 ```
 
@@ -73,7 +77,10 @@ STRIPE_WEBHOOK_SECRET_PROD=whsec_...     # from Stripe Dashboard → Webhooks (l
 
 # Gmail SMTP (for estimate emails and server error alerts)
 GMAIL_SEND_AS=stetson@tts.lighting
-GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx   # 16-char Google App Password
+GMAIL_APP_PASSWORD="xxxx xxxx xxxx xxxx"  # 16-char Google App Password (quote it — has spaces)
+
+# Webhook auth — shared with Airtable automation scripts
+WEBHOOK_AUTH_KEY=<random>                # generate: openssl rand -base64 32 | tr '+/' '-_' | tr -d '='
 ```
 
 **Note:** Stripe API calls go through `stripe-test-mode.int.exe.xyz` (dev) and
@@ -109,11 +116,9 @@ journalctl -u tts.service -n 5
 
 ### Adding Secrets for Future Services
 
-When adding Gmail or the live Stripe webhook secret, append to `/etc/tts/secrets.env`:
+When adding the live Stripe webhook secret, append to `/etc/tts/secrets.env`:
 
 ```
-GMAIL_SEND_AS=stetson@tts.lighting
-GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
 STRIPE_WEBHOOK_SECRET_PROD=whsec_...
 ```
 
@@ -185,24 +190,73 @@ Content: `content/payment-success/index.md`
 
 ---
 
-### 5. Estimate Email
+### 5. Leads Airtable Client
+
+**File:** `services/leads.go`
+**Status:** ✅ Done — tested
+
+Reads from the **LEADS base** (`appg9012rLh2diVLq`), table **2026 Leads (forward)** (`tblui0E6mBFkHGWvZ`).
+
+- `GetLeadByRecordID(recordID)` — fetch a single lead by Airtable record ID
+- `Lead` struct: `AirtableID`, `RecordID`, `FirstName`, `LastName`, `Email`, `Feet`, `PriceLED`, `PriceRehang`, `Photos []LeadPhoto`
+- `LeadPhoto` struct: `ID`, `URL` (temporary Airtable CDN link), `Filename`
+- Uses `returnFieldsByFieldId=true` — field ID constants at top of file
+
+**Field IDs (2026 Leads):**
+
+| Field | ID |
+|-------|----|---|
+| First Name | `fldplXExIaztUlnVf` |
+| Last Name | `fldiVRdwdOumpsrCh` |
+| Email | `fldsvJF0WoUqKWOtq` |
+| Feet | `fldelBDSYukmjqNbo` |
+| Price LED | `fld5LWFylybQBCArw` |
+| Price Rehang | `fldC1G0g2nhXxXvc5` |
+| Photo | `fldPT5nBi1q8NsaoR` |
+| RecordID formula | `fldjMi3L50dNSg2bV` |
+
+---
+
+### 6. Estimate Email
 
 **Route:** `POST /estimate/send`
-**Status:** 🔴 Not started
+**Status:** ✅ Done — tested end-to-end
 
-What it will do:
-1. Accept an Airtable record ID
-2. Fetch customer + line items from Airtable
-3. Render `services/email_templates/estimate.html`
-4. Send via Gmail SMTP as `stetson@tts.lighting`
+What it does:
+1. Verifies `Authorization: Bearer WEBHOOK_AUTH_KEY` header
+2. Parses JSON body: `{"recordId": "recXXX"}`
+3. Fetches lead from 2026 Leads table via `GetLeadByRecordID()`
+4. Downloads photos from Airtable CDN → saves to `/var/lib/tts/photos/`
+5. Photo filenames: `{first-last}-{sha256[:16]}.{ext}` e.g. `stetson-ramey-748bd896badeb589.png`
+6. Renders `services/email_templates/estimate.html` with lead data + public photo URLs
+7. Sends via Gmail SMTP (`smtp.gmail.com:587`, STARTTLS) as `stetson@tts.lighting`
 
-**To build this, still needed:**
-- `GMAIL_APP_PASSWORD` added to systemd env
-- Decide: what fields go in the estimate email (line items, total, pay link, etc.)
-- Decide: does it include the `/pay?q=` link?
-- Design the email template
+**Photo serving:**
+- Stored at: `/var/lib/tts/photos/`
+- Served at: `GET /photos/{filename}` → `https://tistheseasonkc.com/photos/{filename}`
+- Photos are permanent (downloaded from expiring Airtable CDN links at send time)
 
-**File:** `services/estimate.go` + `services/email_templates/estimate.html`
+**Email template data (`EstimateEmailData`):**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `FirstName` | string | Lead's first name |
+| `Feet` | float64 | Estimated linear feet |
+| `PriceLED` | float64 | This year's LED price |
+| `PriceRehang` | float64 | Next year's rehang price |
+| `PhotoURLs` | []string | Public permanent photo URLs |
+
+**Template func:** `{{formatCurrency .PriceLED}}` → `$425.00`
+
+**To trigger (from Airtable automation or curl):**
+```bash
+curl -X POST https://tistheseasonkc.com/estimate/send \
+  -H "Authorization: Bearer YOUR_WEBHOOK_AUTH_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"recordId": "recXXXXXXXXXXXXXX"}'
+```
+
+**Files:** `services/estimate.go`, `services/leads.go`, `services/email_templates/estimate.html`
 
 ---
 
@@ -212,15 +266,16 @@ What it will do:
 |--------|------|---------|--------|
 | GET | `/pay` | Stripe Checkout | Yes — customer-facing |
 | POST | `/stripe/webhook` | Stripe Webhook | Yes — Stripe only (sig verified) |
-| POST | `/estimate/send` | Estimate Email | Internal only |
+| POST | `/estimate/send` | Estimate Email | Internal — Bearer token required |
+| GET | `/photos/{filename}` | Photo serving | Yes — linked from estimate emails |
 | POST | `/contact` | Contact Form | Yes — existing, live |
 
 ---
 
 ## Remaining Work
 
-- [ ] **Estimate email** — build `services/estimate.go` + HTML template
-- [ ] **Gmail App Password** — add `GMAIL_SEND_AS` + `GMAIL_APP_PASSWORD` to systemd env
+- [ ] **Additional email templates** — other transactional emails (routes + templates TBD)
+- [ ] **Airtable automation** — wire up Airtable script to call `/estimate/send` with `WEBHOOK_AUTH_KEY`
 - [ ] **Live Stripe webhook** — register `https://tistheseasonkc.com/stripe/webhook` in Stripe live dashboard + add `STRIPE_WEBHOOK_SECRET_PROD`
 - [ ] **DNS cutover** — point `payments.tistheseasonkc.com` to this VM
 - [ ] **Flip to prod** — change `APP_ENV=prod` when ready for real customers

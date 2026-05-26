@@ -103,6 +103,7 @@ func EstimateHandler(cfg *Config) http.HandlerFunc {
 		// TODO: return 500 on error
 		lead, err := GetLeadByRecordID(req.RecordID)
 		if err != nil {
+			log.Printf("[estimate] fetch lead failed: %v", err)
 			http.Error(w, "failed to fetch lead", http.StatusInternalServerError)
 			return
 		}
