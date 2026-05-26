@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+  <meta name="x-apple-disable-message-reformatting"/>
+</head>
+
+{{/* Preview text — hidden in email client, shown as snippet */}}
+<div style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0">
+  Holiday Lighting Estimate for {{.FirstName}} - {{formatCurrency .PriceLED}}
+</div>
+
+<body style="max-width:600px;margin:0 auto;background-color:#ffffff;font-family:-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif;font-size:16px;line-height:1.5;color:#333333">
+<table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="max-width:600px;margin:0 auto">
+<tbody><tr style="width:100%"><td>
+
+  {{/* ── Header / Logo ── */}}
+  <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="padding:32px 24px;text-align:center;background-color:#ffffff;border-bottom:1px solid #e9ecef">
+  <tbody><tr><td>
+    <div style="margin:0 auto;text-align:center">
+      <a href="https://tistheseasonkc.com" target="_blank" rel="noopener noreferrer">
+        <img alt="Tis the Season KC Logo" height="200" src="https://tistheseasonkc.com/images/tts-logo.png"
+          style="display:block;outline:none;border:none;text-decoration:none;margin:0 auto;border-radius:8px" width="200"/>
+      </a>
+    </div>
+  </td></tr></tbody></table>
+
+  {{/* ── Main content ── */}}
+  <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="padding:32px 24px;background-color:#ffffff">
+  <tbody><tr><td>
+
+    <p style="font-size:18px;line-height:1.5;margin:16px 0;font-weight:500;color:#333333;margin-bottom:24px">
+      Hi {{.FirstName}}. Thanks for contacting us for a holiday lighting estimate!
+    </p>
+
+    <p style="font-size:16px;line-height:1.625;margin:16px 0;color:#333333;margin-bottom:16px">
+      Please see the photo(s) of your home where I marked up where we would install the lights.
+      We can always make changes if you want something different.
+    </p>
+
+    <p style="font-size:16px;line-height:1.625;margin:16px 0;color:#333333;margin-bottom:16px">
+      I estimate it will take about <strong>{{printf "%.0f" .Feet}} feet</strong> of lights to light up
+      your home as marked up in the photo(s). We charge <strong>$4.25 per foot</strong> for LED bulbs.
+    </p>
+
+    {{/* Price box */}}
+    <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation"
+      style="background-color:#f8f9fa;border:2px solid #69C4BB;border-radius:8px;padding:24px;margin:24px 0;text-align:center">
+    <tbody><tr><td>
+      <div style="font-size:24px;font-weight:bold;color:#69C4BB;text-align:center">
+        &#127876; <span>This year&#x27;s cost: <strong>{{formatCurrency .PriceLED}}</strong></span>
+      </div>
+    </td></tr></tbody></table>
+
+    <p style="font-size:16px;line-height:1.625;margin:16px 0;color:#333333;margin-bottom:16px">
+      That price <strong>includes</strong> purchase of the lights, custom fitting them to your home,
+      replacing bulbs if they go out during the season, removal of lights in January and storing
+      the lights (optional).
+    </p>
+
+    {{/* Next year box */}}
+    <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation"
+      style="background-color:#f5f5f5;border-radius:8px;padding:24px;margin:24px 0">
+    <tbody><tr><td>
+      <p style="font-size:16px;line-height:1.625;margin:16px 0;color:#333333;margin-bottom:16px">
+        <strong>Next year</strong>, your price will be $2.25 per foot to re-install or roughly
+        <strong>{{formatCurrency .PriceRehang}}</strong> (depending on exact bulb count).
+        Once we get your lights installed we will get the exact lineal feet and that will be
+        used for your next year price.
+      </p>
+    </td></tr></tbody></table>
+
+    {{/* Gutter guard note */}}
+    <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation"
+      style="background-color:#f8f9fa;border-left:4px solid #F066A1;padding:16px;margin:24px 0">
+    <tbody><tr><td>
+      <p style="font-size:14px;line-height:1.625;margin:0;color:#666666;margin-bottom:16px">
+        &#9758; <strong>Note:</strong> if your home has gutter guards we add $50 (average size house)
+        to the above pricing each year.
+      </p>
+    </td></tr></tbody></table>
+
+    <p style="font-size:16px;line-height:1.625;margin:16px 0;color:#333333;margin-bottom:16px">
+      You can reply to this email or call me if you have any questions about color options
+      or if you&#x27;re ready to get in our schedule!
+    </p>
+
+  </td></tr></tbody></table>
+
+  {{/* ── Photos ── */}}
+  {{if .PhotoURLs}}
+  <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation" style="margin:32px 0;text-align:center">
+  <tbody><tr><td>
+    <h1 style="font-size:20px;font-weight:600;color:#333333;margin-bottom:24px;text-align:center">Photo(s) of your home</h1>
+    {{range .PhotoURLs}}
+    <div style="margin:16px 0;text-align:center">
+      <img alt="Estimate photo of your home" src="{{.}}"
+        style="display:block;outline:none;border:1px solid #e9ecef;text-decoration:none;max-width:100%;height:auto;border-radius:8px;margin:0 auto"
+        width="550"/>
+    </div>
+    {{end}}
+  </td></tr></tbody></table>
+  {{end}}
+
+  <hr style="width:100%;border:none;border-top:1px solid #eaeaea;height:1px;background-color:#e9ecef;margin:32px 0"/>
+
+  {{/* ── Urgency callout ── */}}
+  <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation"
+    style="background-color:#f8f9fa;padding:32px 24px;margin:32px 0;border-radius:12px;border:2px solid #69C4BB">
+  <tbody><tr><td>
+    <div style="width:80px;height:80px;background-color:#69C4BB;border-radius:50%;margin:0 auto 24px auto;text-align:center;line-height:80px;font-size:32px">&#9889;</div>
+    <h1 style="font-size:22px;font-weight:bold;color:#333333;margin:0 0 20px 0;line-height:1.3;text-align:center">Our schedule fills up freaky fast!</h1>
+    <p style="font-size:16px;line-height:1.5;margin:16px 0;color:#333333;margin-bottom:16px;text-align:left">
+      Our last day of hanging lights is <strong>November 30th</strong> and our schedule is
+      typically <strong>fully booked by November 15th</strong>.
+    </p>
+    <p style="font-size:16px;line-height:1.5;margin:0;color:#333333;text-align:left">
+      If you know you&#x27;d like to hire us, let us know
+      <strong style="color:#F066A1">ASAP</strong> so we can get you in our schedule.
+    </p>
+  </td></tr></tbody></table>
+
+  {{/* ── Terms of service ── */}}
+  <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation"
+    style="background-color:#ffffff;padding:24px;margin:16px 0;border-top:1px solid #e9ecef">
+  <tbody><tr><td>
+    <div style="max-width:500px;margin:0 auto">
+      <p style="font-size:14px;line-height:1.4;margin:0 0 12px 0;color:#666666">
+        Please read our terms of service carefully, and give us a call if you have any questions.
+      </p>
+      <p style="font-size:12px;line-height:24px;margin:0 0 16px 0;color:#999999">Last updated September 2022</p>
+      <a href="https://tistheseasonkc.com/terms-and-conditions"
+        style="display:inline-block;background-color:#69C4BB;color:white;padding:8px 16px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500">
+        Terms of Service
+      </a>
+    </div>
+  </td></tr></tbody></table>
+
+  {{/* ── Footer ── */}}
+  <table align="center" width="100%" border="0" cellPadding="0" cellSpacing="0" role="presentation"
+    style="background-color:#f8f9fa;padding:32px 24px;text-align:left;border-top:1px solid #e9ecef">
+  <tbody><tr><td>
+    <p style="font-size:16px;line-height:24px;margin:16px 0;font-weight:600;color:#333333;margin-bottom:16px">&#9731;&#65039; Angela &#9731;&#65039;</p>
+    <p style="font-size:16px;line-height:24px;margin:8px 0;font-weight:600;color:#333333;margin-bottom:16px">(816) 281-7032</p>
+  </td></tr></tbody></table>
+
+</td></tr></tbody></table>
+</body>
+</html>
