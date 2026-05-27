@@ -514,6 +514,25 @@ func wwwRedirect(next http.Handler) http.Handler {
 	})
 }
 
+func termsRedirect(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/terms-and-conditions" {
+			http.Redirect(w, r, "/terms/", http.StatusMovedPermanently)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func securityHeadersMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	// Load config — reads APP_ENV and Stripe keys, logs active mode
 	cfg := services.LoadConfig()
@@ -542,7 +561,7 @@ func main() {
 	mux.Handle("/", cacheMiddleware(fs))
 
 	log.Println("Serving on :8000")
-	log.Fatal(http.ListenAndServe(":8000", wwwRedirect(mux)))
+	log.Fatal(http.ListenAndServe(":8000", securityHeadersMiddleware(termsRedirect(wwwRedirect(mux)))))
 }
 
 func cacheMiddleware(next http.Handler) http.Handler {

@@ -4,7 +4,7 @@ This document covers all backend API services that power the customer-facing and
 operational tools for Tis The Season KC. It is the single source of truth for
 what each service does, how to run it, what it needs, and what's left to build.
 
-> **Site infrastructure** (Hugo build, Cloudflare Pages deployment) lives in
+> **Site infrastructure** (Hugo build, exe.dev deployment on a public VM) lives in
 > `PLAN.md`. This doc is only about the Go backend services.
 
 ---
