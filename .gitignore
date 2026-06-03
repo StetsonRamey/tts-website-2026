@@ -18,3 +18,10 @@ tts-server
 
 # Airtable schema exports
 *_schema.json
+
+# Local env files — never commit secrets
+.env
+.env.local
+.env.*.local
+.env.production
+secrets.env

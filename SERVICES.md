@@ -29,6 +29,8 @@ TTS/
 │   ├── checkout.go              ← Stripe checkout page handler
 │   ├── webhook.go               ← Stripe webhook handler
 │   ├── estimate.go              ← estimate email sender ✅
+│   ├── sold_sync.go             ← /sold/sync — CompanyCam + Stripe customer sync ✅
+│   ├── invoice.go               ← /invoice/create — Stripe invoice generator ✅
 │   └── email_templates/
 │       └── estimate.html        ← Go HTML template for estimate email ✅
 ├── static/
@@ -260,6 +262,78 @@ curl -X POST https://tistheseasonkc.com/estimate/send \
 
 ---
 
+### 7. Sold Sync (CompanyCam + Stripe customer)
+
+**Route:** `POST /sold/sync`
+**Status:** ✅ Done — manual verification required (CompanyCam credentials)
+
+Triggered by an Airtable automation when a lead's `Status` is set to **Sold**.
+
+What it does:
+1. Verifies `Authorization: Bearer WEBHOOK_AUTH_KEY` header
+2. Parses JSON body: `{"recordId": "recXXX"}`
+3. Fetches the lead from the LEADS base
+4. If `CCam ID` (`fldMVhdPoyhFk4rZ2`) is empty:
+   - Creates a CompanyCam project (`POST /v2/projects`) with name + address + primary contact
+   - Immediately patches the project ID back to Airtable (so retries can't duplicate)
+   - Uploads each Airtable photo to the project (`POST /v2/projects/{id}/photos`) — non-fatal on failure
+5. If `stripeID` (`fldU6bJBjtQvd6dAX`) is empty:
+   - Creates a Stripe customer (`POST /v1/customers`) via the exe.dev proxy
+   - Stores `airtable_record_id` as Stripe metadata for reverse lookup
+   - Immediately patches the `cus_...` ID back to Airtable
+
+**Idempotency:** Re-running with a record that already has both IDs is a no-op
+and returns `{"companyCamSkipped": true, "stripeSkipped": true}`.
+
+**Trigger example:**
+```bash
+curl -X POST https://tistheseasonkc.com/sold/sync \
+  -H "Authorization: Bearer YOUR_WEBHOOK_AUTH_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"recordId": "recXXXXXXXXXXXXXX"}'
+```
+
+**Files:** `services/sold_sync.go`, `services/leads.go`
+
+---
+
+### 8. Invoice Creation
+
+**Route:** `POST /invoice/create`
+**Status:** ✅ Done — verified in sandbox
+
+Triggered by an Airtable automation when **Make Invoice** is checked (after
+`/sold/sync` has run).
+
+What it does:
+1. Verifies `Authorization: Bearer WEBHOOK_AUTH_KEY` header
+2. Parses JSON body: `{"recordId": "recXXX"}`
+3. Fetches the lead and validates:
+   - `stripeID` exists (else 400 — run `/sold/sync` first)
+   - `Feet` > 0
+   - `stripeInvoiceLink` is empty (else short-circuits with the existing link)
+4. Looks up `STRIPE_INVOICE_PRODUCT_ID_{ENV}`'s `default_price` from Stripe
+5. Creates an invoice item: `customer=cus_xxx`, `price=price_xxx`, `quantity=Feet`
+6. Creates the invoice: `collection_method=send_invoice`, `days_until_due=30`
+7. Finalizes it and reads back `hosted_invoice_url`
+8. Patches `stripeInvoiceLink` (`fld2JkST42hZMHltf`) to Airtable
+
+**Stripe owns the unit cost.** The env var points at a Product whose
+`default_price` defines the $ per linear foot. To change the rate, update the
+price in Stripe — no redeploy.
+
+**Trigger example:**
+```bash
+curl -X POST https://tistheseasonkc.com/invoice/create \
+  -H "Authorization: Bearer YOUR_WEBHOOK_AUTH_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"recordId": "recXXXXXXXXXXXXXX"}'
+```
+
+**Files:** `services/invoice.go`, `services/leads.go`
+
+---
+
 ## Route Map
 
 | Method | Path | Service | Public? |
@@ -267,6 +341,8 @@ curl -X POST https://tistheseasonkc.com/estimate/send \
 | GET | `/pay` | Stripe Checkout | Yes — customer-facing |
 | POST | `/stripe/webhook` | Stripe Webhook | Yes — Stripe only (sig verified) |
 | POST | `/estimate/send` | Estimate Email | Internal — Bearer token required |
+| POST | `/sold/sync` | CompanyCam + Stripe customer sync | Internal — Bearer token required |
+| POST | `/invoice/create` | Stripe invoice creation | Internal — Bearer token required |
 | GET | `/photos/{filename}` | Photo serving | Yes — linked from estimate emails |
 | POST | `/contact` | Contact Form | Yes — existing, live |
 

@@ -29,11 +29,24 @@ const (
 
 // Config is passed to every service handler.
 type Config struct {
-	Env              string // "dev" or "prod"
-	StripeBaseURL    string // proxy URL selected based on Env
-	WebhookSecret    string // still needed for signature verification (set in systemd)
-	ReviewCouponID   string // Stripe coupon ID for review discounts (optional)
-	ErrorEmailTo     string // address to notify on errors
+	Env            string // "dev" or "prod"
+	StripeBaseURL  string // proxy URL selected based on Env
+	WebhookSecret  string // still needed for signature verification (set in systemd)
+	ReviewCouponID string // Stripe coupon ID for review discounts (optional)
+	ErrorEmailTo   string // address to notify on errors
+
+	// InvoiceProductID is the Stripe Product used by the "Make Invoice"
+	// automation. The product owns the unit cost per linear foot; the Go
+	// backend just passes Airtable's Feet value as the quantity.
+	// Selected from STRIPE_INVOICE_PRODUCT_ID_DEV / _PROD based on Env.
+	InvoiceProductID string
+
+	// CompanyCam — used by /sold/sync to create projects and upload photos.
+	// CompanyCamBaseURL defaults to https://api.companycam.com/v2 but can be
+	// overridden to point at an exe.dev proxy that injects auth.
+	CompanyCamBaseURL   string
+	CompanyCamAPIToken  string // blank when a proxy injects auth
+	CompanyCamUserEmail string // sent as X-CompanyCam-User header
 }
 
 // LoadConfig reads APP_ENV and sets up the correct Stripe proxy URL.
@@ -65,13 +78,46 @@ func LoadConfig() *Config {
 		log.Printf("WARNING: %s not set — webhook signature verification will fail", webhookSecretKey)
 	}
 
+	// Stripe Product used for the "Make Invoice" automation.
+	// Dev/prod use different product IDs (test products vs live products).
+	invoiceProductKey := "STRIPE_INVOICE_PRODUCT_ID_" + strings.ToUpper(env)
+	invoiceProductID := os.Getenv(invoiceProductKey)
+	if invoiceProductID == "" {
+		log.Printf("WARNING: %s not set — /invoice/create will fail", invoiceProductKey)
+	}
+
 	return &Config{
 		Env:            env,
 		StripeBaseURL:  stripeBaseURL,
 		WebhookSecret:  webhookSecret,
 		ReviewCouponID: os.Getenv("STRIPE_REVIEW_COUPON_ID"),
 		ErrorEmailTo:   getEnvOr("ERROR_EMAIL_TO", "stetson@tts.lighting"),
+
+		InvoiceProductID: invoiceProductID,
+
+		CompanyCamBaseURL:   getEnvOr("COMPANYCAM_BASE_URL", "https://api.companycam.com/v2"),
+		CompanyCamAPIToken:  os.Getenv("COMPANYCAM_API_TOKEN"),
+		CompanyCamUserEmail: os.Getenv("COMPANYCAM_USER_EMAIL"),
 	}
+}
+
+// RequireBearerAuth validates the Authorization: Bearer <WEBHOOK_AUTH_KEY> header.
+// Writes a 401 response and returns false if the token is missing/wrong, or if
+// WEBHOOK_AUTH_KEY is empty in the environment (fail-closed — we never want an
+// internal endpoint to be open in dev because the secret wasn't set).
+func RequireBearerAuth(w http.ResponseWriter, r *http.Request) bool {
+	expected := os.Getenv("WEBHOOK_AUTH_KEY")
+	if expected == "" {
+		log.Printf("[auth] WEBHOOK_AUTH_KEY is empty — rejecting request to %s", r.URL.Path)
+		http.Error(w, `{"error":"server auth not configured"}`, http.StatusUnauthorized)
+		return false
+	}
+	token := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+	if token != expected {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+		return false
+	}
+	return true
 }
 
 // sendErrorEmail sends a plain-text alert when something goes wrong.

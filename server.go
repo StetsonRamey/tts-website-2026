@@ -554,6 +554,10 @@ func main() {
 	mux.HandleFunc("/confirmation/send", services.ConfirmationHandler(cfg))
 	mux.HandleFunc("/oos/send", services.OOSHandler(cfg))
 
+	// Sold sync + invoice automation (internal — protected by WEBHOOK_AUTH_KEY)
+	mux.HandleFunc("/sold/sync", services.SoldSyncHandler(cfg))
+	mux.HandleFunc("/invoice/create", services.InvoiceHandler(cfg))
+
 	// Serve downloaded estimate photos (permanent URLs embedded in emails)
 	mux.HandleFunc("/photos/", services.PhotoHandler())
 

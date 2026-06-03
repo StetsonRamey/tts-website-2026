@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TTS Airtable Sold Sync Plan</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #5d6678;
+      --paper: #fbfaf5;
+      --card: #ffffff;
+      --green: #2d8a4e;
+      --teal: #69c4bb;
+      --red: #b42318;
+      --gold: #d39b2a;
+      --line: #e6e1d5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main { scroll-snap-type: y mandatory; }
+    section {
+      min-height: 100vh;
+      padding: clamp(2rem, 5vw, 5rem);
+      display: grid;
+      align-content: center;
+      scroll-snap-align: start;
+      border-bottom: 1px solid var(--line);
+    }
+    .slide {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+    .eyebrow {
+      margin: 0 0 .75rem;
+      color: var(--green);
+      font-size: .85rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1, h2 { line-height: 1.05; margin: 0; letter-spacing: -.04em; }
+    h1 { font-size: clamp(3rem, 8vw, 6.75rem); max-width: 11ch; }
+    h2 { font-size: clamp(2.25rem, 5vw, 4.75rem); max-width: 13ch; }
+    h3 { margin: 0 0 .5rem; font-size: 1.15rem; }
+    p { color: var(--muted); font-size: clamp(1.05rem, 1.6vw, 1.35rem); max-width: 68ch; }
+    .lede { font-size: clamp(1.25rem, 2vw, 1.7rem); max-width: 44ch; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 2rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 1.25rem;
+      box-shadow: 0 18px 55px rgba(23,32,51,.07);
+    }
+    .card p, li { color: var(--muted); font-size: 1rem; }
+    ul, ol { margin: .75rem 0 0; padding-left: 1.25rem; }
+    li + li { margin-top: .45rem; }
+    code {
+      background: #f0eee6;
+      border: 1px solid var(--line);
+      border-radius: .45rem;
+      padding: .08rem .35rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: .92em;
+    }
+    .flow {
+      display: grid;
+      gap: .85rem;
+    }
+    .diagram {
+      display: grid;
+      gap: .75rem;
+      margin-top: 2rem;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 3rem 1fr;
+      gap: 1rem;
+      align-items: start;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1rem;
+    }
+    .num {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: var(--green);
+      font-weight: 800;
+    }
+    .tag {
+      display: inline-block;
+      margin: .25rem .35rem .25rem 0;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 999px;
+      padding: .3rem .65rem;
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 650;
+    }
+    .ok { color: var(--green); }
+    .warn { color: var(--gold); }
+    .danger { color: var(--red); }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; margin-top: 2rem; }
+    .small { font-size: .92rem; }
+    @media (max-width: 760px) {
+      .two { grid-template-columns: 1fr; }
+      section { min-height: auto; }
+    }
+    @media print {
+      main { scroll-snap-type: none; }
+      section { min-height: 100vh; page-break-after: always; }
+      .card { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <section>
+    <div class="slide">
+      <p class="eyebrow">Tis The Season KC Backend Plan</p>
+      <h1>Airtable Sold Sync + Invoice Automation</h1>
+      <p class="lede">Move the Val.town automation into the Go service, keep dev/prod Stripe routing through <code>APP_ENV</code>, and use Airtable as the operational source of truth.</p>
+      <div>
+        <span class="tag">LEADS base: appg9012rLh2diVLq</span>
+        <span class="tag">Table: tblui0E6mBFkHGWvZ</span>
+        <span class="tag">Platform: exe.dev</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slide">
+      <p class="eyebrow">Goal</p>
+      <h2>One Airtable action becomes the customer setup workflow.</h2>
+      <div class="diagram">
+        <div class="step"><div class="num">1</div><div><h3>Status set to Sold</h3><p>Airtable automation calls the internal Go endpoint with the record ID.</p></div></div>
+        <div class="step"><div class="num">2</div><div><h3>Create CompanyCam project</h3><p>Use lead contact/address data and upload any Airtable attachment photos into the project.</p></div></div>
+        <div class="step"><div class="num">3</div><div><h3>Create Stripe customer</h3><p>Use the same lead data, then save the returned <code>cus_...</code> ID back to Airtable.</p></div></div>
+        <div class="step"><div class="num">4</div><div><h3>Make Invoice when ready</h3><p>A second Airtable checkbox creates/finalizes a Stripe invoice and saves the hosted invoice link.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slide">
+      <p class="eyebrow">Endpoint 1</p>
+      <h2><code>POST /sold/sync</code></h2>
+      <p>Triggered when the lead/customer record is marked <strong>Sold</strong>.</p>
+      <div class="grid">
+        <div class="card"><h3>Input</h3><p><code>{"recordId":"rec..."}</code></p><p class="small">Auth: <code>Authorization: Bearer $WEBHOOK_AUTH_KEY</code></p></div>
+        <div class="card"><h3>CompanyCam</h3><ul><li>Create project from full name + address.</li><li>Add primary contact from name/email/phone.</li><li>Download Airtable photos and upload them to the project.</li><li>Patch <code>CCam ID</code>.</li></ul></div>
+        <div class="card"><h3>Stripe</h3><ul><li>Create customer in sandbox or live account based on <code>APP_ENV</code>.</li><li>Patch <code>stripeID</code>.</li><li>Skip if ID already exists.</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slide">
+      <p class="eyebrow">Endpoint 2</p>
+      <h2><code>POST /invoice/create</code></h2>
+      <p>Triggered when <strong>Make Invoice</strong> is checked after the Stripe customer exists.</p>
+      <div class="grid">
+        <div class="card"><h3>Guardrails</h3><ul><li>Require existing <code>stripeID</code>.</li><li>If <code>stripeInvoiceLink</code> exists, return success without duplicating.</li><li>Use bearer auth like other internal endpoints.</li></ul></div>
+        <div class="card"><h3>Stripe actions</h3><ul><li>Create invoice item using configured Stripe product/price.</li><li>Send Airtable <code>Feet</code> as the invoice item quantity.</li><li>Create + finalize invoice.</li><li>Read <code>hosted_invoice_url</code>.</li></ul></div>
+        <div class="card"><h3>Airtable result</h3><ul><li>Patch <code>stripeInvoiceLink</code>.</li><li>Optionally clear <code>Make Invoice</code>.</li><li>Optionally set/send invoice later.</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slide">
+      <p class="eyebrow">Airtable Fields</p>
+      <h2>Known IDs for the LEADS table.</h2>
+      <div class="two">
+        <div class="card flow">
+          <h3>Workflow fields</h3>
+          <p><code>Status</code>: <code>fldfEuftFl2Y56jzx</code></p>
+          <p><code>CCam ID</code>: <code>fldMVhdPoyhFk4rZ2</code></p>
+          <p><code>stripeID</code>: <code>fldU6bJBjtQvd6dAX</code></p>
+          <p><code>stripeInvoiceLink</code>: <code>fld2JkST42hZMHltf</code></p>
+          <p><code>Make Invoice</code>: <code>fldskscCdCGUlxhXq</code></p>
+          <p><code>Send Invoice</code>: <code>fldmPoHcq6HBInZXC</code></p>
+        </div>
+        <div class="card flow">
+          <h3>Lead data fields</h3>
+          <p><code>Full Name</code>: <code>fldASesUdamRf6QsC</code></p>
+          <p><code>First Name</code>: <code>fldplXExIaztUlnVf</code></p>
+          <p><code>Last Name</code>: <code>fldiVRdwdOumpsrCh</code></p>
+          <p><code>Email</code>: <code>fldsvJF0WoUqKWOtq</code></p>
+          <p><code>Phone</code>: <code>fldGCBMLm7Ks1KD6N</code></p>
+          <p><code>Street/City/State/Zip</code>: existing confirmed IDs</p>
+          <p><code>Photo</code>: <code>fldPT5nBi1q8NsaoR</code></p>
+          <p><code>Feet</code>: <code>fldelBDSYukmjqNbo</code> — sent to Stripe as invoice quantity</p>
+          <p><code>Price LED</code>: <code>fld5LWFylybQBCArw</code> — estimate/reference only</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slide">
+      <p class="eyebrow">Environment Strategy</p>
+      <h2>Local dev uses docs/env values; exe.dev owns real secrets.</h2>
+      <div class="grid">
+        <div class="card"><h3>Stripe</h3><p>Keep existing pattern: no Stripe secret keys in code. <code>APP_ENV=dev</code> uses sandbox proxy; <code>APP_ENV=prod</code> uses live proxy.</p><p><code>STRIPE_INVOICE_PRODUCT_ID_DEV</code><br><code>STRIPE_INVOICE_PRODUCT_ID_PROD</code></p></div>
+        <div class="card"><h3>Airtable</h3><p>Runtime service calls Airtable through the exe.dev proxy. Local schema discovery uses the rebuilt Airtable skill with curl + 1Password PAT.</p></div>
+        <div class="card"><h3>CompanyCam</h3><p>Use direct API locally with <code>COMPANYCAM_API_TOKEN</code>, or later use an exe.dev proxy that injects auth.</p><p><code>COMPANYCAM_BASE_URL</code><br><code>COMPANYCAM_API_TOKEN</code><br><code>COMPANYCAM_USER_EMAIL</code></p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slide">
+      <p class="eyebrow">Duplicate + Failure Protection</p>
+      <h2>Patch IDs immediately and skip existing work.</h2>
+      <div class="grid">
+        <div class="card"><h3 class="ok">Safe retries</h3><ul><li>If <code>CCam ID</code> exists, skip CompanyCam.</li><li>If <code>stripeID</code> exists, skip Stripe customer creation.</li><li>If invoice link exists, skip invoice creation.</li></ul></div>
+        <div class="card"><h3 class="warn">Partial failure handling</h3><ul><li>Patch each external ID as soon as that call succeeds.</li><li>If photo upload fails, decide whether project creation still counts as success.</li><li>Email/log errors for manual follow-up.</li></ul></div>
+        <div class="card"><h3 class="danger">Known edge case</h3><p>If CompanyCam creates a project but Airtable patch fails, retry may duplicate the project. We can add search/idempotency later if it becomes a problem.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slide">
+      <p class="eyebrow">Implementation Order</p>
+      <h2>Smallest useful build sequence.</h2>
+      <div class="diagram">
+        <div class="step"><div class="num">1</div><div><h3>Extend LEADS helper</h3><p>Add contact/address/status/CompanyCam/Stripe/invoice fields and LEADS-specific patch helper.</p></div></div>
+        <div class="step"><div class="num">2</div><div><h3>Build <code>/invoice/create</code></h3><p>Lowest external complexity. Validate sandbox Stripe invoice creation and Airtable invoice link patching.</p></div></div>
+        <div class="step"><div class="num">3</div><div><h3>Build <code>/sold/sync</code></h3><p>Create CompanyCam project/photos and Stripe customer, then patch IDs.</p></div></div>
+        <div class="step"><div class="num">4</div><div><h3>Wire Airtable automations</h3><p>Use local curl/tunnel for dev; use exe.dev public endpoints for production automation.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slide">
+      <p class="eyebrow">Open Questions</p>
+      <h2>Confirm these before final production rollout.</h2>
+      <div class="grid">
+        <div class="card"><h3>Invoice quantity</h3><p>Confirmed: use Airtable <code>Feet</code> (<code>fldelBDSYukmjqNbo</code>) as the Stripe invoice item quantity.</p></div>
+        <div class="card"><h3>Stripe configured item</h3><p>Use <code>STRIPE_INVOICE_PRODUCT_ID_*</code> as the configured Stripe invoice item reference. Stripe owns the $/linear-foot unit cost.</p></div>
+        <div class="card"><h3>CompanyCam API shape</h3><p>Confirm exact photo upload endpoint/payload against CompanyCam docs or a sandbox test.</p></div>
+        <div class="card"><h3>Paid invoice tracking</h3><p>Defer Stripe invoice-paid webhook until deployed on exe.dev.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slide">
+      <p class="eyebrow">Build Status</p>
+      <h2>Both endpoints shipped — auth, validation, and idempotency verified.</h2>
+      <div class="grid">
+        <div class="card">
+          <h3 class="ok">New files</h3>
+          <ul>
+            <li><code>services/sold_sync.go</code> — <code>POST /sold/sync</code> handler. Creates CompanyCam project (primary contact + photo uploads), then Stripe customer. Patches each ID back to Airtable immediately after creation so retries can't duplicate.</li>
+            <li><code>services/invoice.go</code> — <code>POST /invoice/create</code> handler. Validates <code>stripeID</code> + <code>Feet</code>, short-circuits if <code>stripeInvoiceLink</code> already set, looks up the Stripe product's <code>default_price</code>, creates invoice item with <code>quantity=Feet</code>, creates and finalizes the invoice, patches the hosted URL back to Airtable.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="ok">Extended files</h3>
+          <ul>
+            <li><code>services/leads.go</code> — added field IDs for phone, full name, address, status, CompanyCam ID, Stripe ID, invoice link, Make/Send Invoice; expanded the <code>Lead</code> struct; added <code>PatchLeadFields()</code> targeting the LEADS base.</li>
+            <li><code>services/config.go</code> — added <code>InvoiceProductID</code> (env-switched), <code>CompanyCamBaseURL/APIToken/UserEmail</code>, and <code>RequireBearerAuth()</code> which fail-closes when <code>WEBHOOK_AUTH_KEY</code> is empty.</li>
+            <li><code>server.go</code> — registered <code>/sold/sync</code> and <code>/invoice/create</code>.</li>
+            <li><code>SERVICES.md</code> — documented both endpoints with field IDs, payload, idempotency notes, and curl examples.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Design highlights</h3>
+          <ul>
+            <li>Zero new dependencies — direct <code>net/http</code> calls following the existing <code>services/checkout.go</code> pattern.</li>
+            <li>Stripe owns the unit price — env var holds a Product ID, not a Price ID. The handler reads <code>product.default_price</code> at invoice time so the $/linear-foot rate is changed in the Stripe dashboard, not in code.</li>
+            <li>Photo upload is non-fatal — project creation still counts as success if a photo URL fails. Stripe customer creation failure blocks the response (it's the critical path for invoicing).</li>
+            <li>Auth is strict — missing <code>WEBHOOK_AUTH_KEY</code> rejects every request, even with a matching empty token from the client.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slide">
+      <p class="eyebrow">Why Not Local</p>
+      <h2>The exe.dev proxies are unreachable from your laptop.</h2>
+      <div class="grid">
+        <div class="card">
+          <h3 class="danger">What happens</h3>
+          <p>Both <code>airtable.int.exe.xyz</code> and <code>stripe-test-mode.int.exe.xyz</code> resolve to <code>169.254.169.254</code> — the AWS instance metadata IP. Only processes running inside the VM can reach them. From a laptop you get <code>dial tcp 169.254.169.254:443: connect: no route to host</code>.</p>
+        </div>
+        <div class="card">
+          <h3 class="ok">The fix</h3>
+          <p>Skip local dev. Push to GitHub, pull on the VM, rebuild, restart the systemd service, then curl the endpoints from inside the VM or from the public URL. Stripe and Airtable credentials are already injected by the proxies in that environment.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slide">
+      <p class="eyebrow">Deploy + Test on exe.dev</p>
+      <h2>Push, pull, rebuild, restart, curl.</h2>
+
+      <div class="diagram">
+        <div class="step">
+          <div class="num">1</div>
+          <div>
+            <h3>Push from your laptop</h3>
+            <pre style="background:#f0eee6; border:1px solid var(--line); border-radius:.5rem; padding:.85rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.85rem; white-space: pre-wrap;">git add .gitignore .env.example SERVICES.md server.go \
+        services/config.go services/leads.go \
+        services/invoice.go services/sold_sync.go \
+        sold-sync-plan.html
+git commit -m "feat: /sold/sync + /invoice/create endpoints"
+git push origin main</pre>
+            <p class="small">Sanity check first: <code>git status</code> must NOT list <code>.env.local</code>. The new <code>.gitignore</code> entry takes care of that.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <div>
+            <h3>Add the new env vars to <code>/etc/tts/secrets.env</code> on the VM</h3>
+            <p class="small">Before restarting, append the variables the new endpoints need. Without these, <code>/invoice/create</code> returns 500 and <code>/sold/sync</code> can't create CompanyCam projects.</p>
+            <pre style="background:#f0eee6; border:1px solid var(--line); border-radius:.5rem; padding:.85rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.85rem; white-space: pre-wrap;">sudo nano /etc/tts/secrets.env
+
+# Append:
+STRIPE_INVOICE_PRODUCT_ID_DEV=prod_Uc6pEX6LZHcEcL
+STRIPE_INVOICE_PRODUCT_ID_PROD=prod_...
+WEBHOOK_AUTH_KEY=<paste your shared key here>
+COMPANYCAM_BASE_URL=https://api.companycam.com/v2
+COMPANYCAM_API_TOKEN=<your CompanyCam PAT>
+COMPANYCAM_USER_EMAIL=stetson@tts.lighting</pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <div>
+            <h3>Pull, rebuild, restart</h3>
+            <pre style="background:#f0eee6; border:1px solid var(--line); border-radius:.5rem; padding:.85rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.85rem; white-space: pre-wrap;">cd /path/to/tts-go
+git pull origin main
+go build -o tts-server .
+sudo systemctl daemon-reload   # only needed if you edited the unit
+sudo systemctl restart tts.service
+journalctl -u tts.service -n 30 --no-pager</pre>
+            <p class="small">Confirm the boot log shows <code>🟡 STRIPE MODE: SANDBOX (dev)</code> and no warnings about missing env vars.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">4</div>
+          <div>
+            <h3>Pick a real LEADS record ID</h3>
+            <p>Open the LEADS base (<code>appg9012rLh2diVLq</code>) in Airtable, find a test lead with address + phone + photo, copy its <code>RecordID</code> formula value (looks like <code>recXXXXXXXXXXXXXX</code>).</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">5</div>
+          <div>
+            <h3>Test <code>POST /sold/sync</code></h3>
+            <pre style="background:#f0eee6; border:1px solid var(--line); border-radius:.5rem; padding:.85rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.85rem; white-space: pre-wrap;"># From the VM (loopback) — or from your laptop hitting the public URL:
+WEBHOOK_AUTH_KEY=$(sudo grep ^WEBHOOK_AUTH_KEY /etc/tts/secrets.env | cut -d= -f2-)
+
+curl -X POST https://tistheseasonkc.com/sold/sync \
+  -H "Authorization: Bearer $WEBHOOK_AUTH_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"recordId": "recXXXXXXXXXXXXXX"}'</pre>
+            <p class="small">Expect a JSON response with <code>companyCamID</code> + <code>stripeID</code> (or <code>...Skipped: true</code> on the second run). Verify in the CompanyCam web app and the Stripe sandbox dashboard, then check that both ID fields are populated on the Airtable record.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">6</div>
+          <div>
+            <h3>Test <code>POST /invoice/create</code></h3>
+            <pre style="background:#f0eee6; border:1px solid var(--line); border-radius:.5rem; padding:.85rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.85rem; white-space: pre-wrap;">curl -X POST https://tistheseasonkc.com/invoice/create \
+  -H "Authorization: Bearer $WEBHOOK_AUTH_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"recordId": "recXXXXXXXXXXXXXX"}'</pre>
+            <p class="small">Expect <code>stripeInvoiceLink</code> in the response. Open the URL — it should show a Stripe-hosted invoice for <code>Feet × $/foot</code>. Re-run to confirm the idempotency guard returns <code>skipped: true</code> with the same link.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">7</div>
+          <div>
+            <h3>Watch the logs in real time while you test</h3>
+            <pre style="background:#f0eee6; border:1px solid var(--line); border-radius:.5rem; padding:.85rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.85rem;">journalctl -u tts.service -f</pre>
+            <p class="small">Each handler logs a tagged line: <code>[sold-sync] done record=… ccam=… stripe=…</code> or <code>[invoice] created record=… invoice=… quantity=…</code>. Errors include the upstream HTTP body for fast triage.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">8</div>
+          <div>
+            <h3>Test the auth + validation guards</h3>
+            <pre style="background:#f0eee6; border:1px solid var(--line); border-radius:.5rem; padding:.85rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.85rem; white-space: pre-wrap;"># No auth → 401
+curl -i -X POST https://tistheseasonkc.com/sold/sync -d '{}'
+
+# Wrong method → 405
+curl -i https://tistheseasonkc.com/invoice/create
+
+# Missing recordId → 400
+curl -i -X POST https://tistheseasonkc.com/sold/sync \
+  -H "Authorization: Bearer $WEBHOOK_AUTH_KEY" \
+  -H "Content-Type: application/json" -d '{}'</pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">9</div>
+          <div>
+            <h3>Clean up between runs</h3>
+            <p>To re-test the create paths (not the skip paths), clear these three fields on the Airtable record before re-running: <code>CCam ID</code>, <code>stripeID</code>, <code>stripeInvoiceLink</code>. Optionally archive/delete the resulting CompanyCam project and void the Stripe sandbox invoice.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
