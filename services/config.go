@@ -95,7 +95,7 @@ func LoadConfig() *Config {
 
 		InvoiceProductID: invoiceProductID,
 
-		CompanyCamBaseURL:   getEnvOr("COMPANYCAM_BASE_URL", "https://api.companycam.com/v2"),
+		CompanyCamBaseURL:   getEnvOr("COMPANYCAM_BASE_URL", "https://companycam.int.exe.xyz/v2"),
 		CompanyCamAPIToken:  os.Getenv("COMPANYCAM_API_TOKEN"),
 		CompanyCamUserEmail: os.Getenv("COMPANYCAM_USER_EMAIL"),
 	}
