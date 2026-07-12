@@ -22,23 +22,6 @@
         </div>
     </section>
 
-    {{/* ── Trust Bar ── */}}
-    <section class="trust-bar region" aria-label="Why choose us">
-        <div class="wrapper flow">
-            <p class="overline">Why Tis The Season</p>
-            <h2 class="">Everything You Need for a Hassle-Free Holiday</h2>
-            <div class="trust-bar__grid grid">
-                {{ range first 5 hugo.Data.services }}
-                <div class="trust-item">
-                    <p class="trust-item__icon" aria-hidden="true">{{ .icon }}</p>
-                    <h3 class="trust-item__title weight-bold" data-balance>{{ .name }}</h3>
-                    <p class="trust-item__desc">{{ .description }}</p>
-                </div>
-                {{ end }}
-            </div>
-        </div>
-    </section>
-
     {{/* ── Service Facts ── */}}
     <section class="service-facts region bg-light" aria-label="Holiday lighting at a glance">
         <div class="wrapper flow">
@@ -51,10 +34,10 @@
                 </p>
             </div>
             <div class="service-facts__body">
-                <div class="service-facts__list" aria-label="What is included">
+                <div class="service-facts__list" aria-label="Holiday lighting services and details">
                     <div class="service-fact flow">
-                        <h3>What We Do</h3>
-                        <p>Custom design, professional installation, in-season maintenance, post-season takedown, and off-season storage.</p>
+                        <h3>Residential and Commercial</h3>
+                        <p>We design and install custom holiday lighting for homes, storefronts, office buildings, and other commercial properties.</p>
                     </div>
                     <div class="service-fact flow">
                         <h3>Lighting Options</h3>
@@ -65,17 +48,17 @@
                         <p>Free estimates with guaranteed first-year pricing. The first-year price includes the materials, and you own the lights.</p>
                     </div>
                     <div class="service-fact flow">
-                        <h3>Full-Service Support</h3>
+                        <h3>Maintenance and Storage</h3>
                         <p>Bulb and wire problems are covered by in-season maintenance. We store your lights after the season; wreath storage is not currently available.</p>
                     </div>
                 </div>
                 <div class="service-facts__aside flow">
                     <div class="service-fact flow">
-                        <h3>Local Experience</h3>
-                        <p>Serving Lee's Summit and Raymore since 2015, with more than 900 homes serviced annually. Fully insured with liability coverage.</p>
+                        <h3>Serving Lee's Summit and Raymore</h3>
+                        <p>Locally operated since 2015, with more than 900 homes serviced annually. Fully insured with liability coverage.</p>
                     </div>
                     <div class="service-fact flow">
-                        <h3>Get Started</h3>
+                        <h3>Get a Free Estimate</h3>
                         <p>Call <a href="tel:{{ site.Params.phone }}">{{ site.Params.phone }}</a> or text <a href="sms:{{ site.Params.textPhone }}">{{ site.Params.textPhone }}</a> for a free estimate.</p>
                     </div>
                 </div>
