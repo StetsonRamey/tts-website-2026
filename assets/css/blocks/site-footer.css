@@ -2,12 +2,12 @@
     /* ── Site Footer ── */
     .site-footer {
         background-color: var(--color-band);
-        color: var(--color-white);
+        color: var(--color-on-dark);
         padding-block: var(--space-xl);
     }
 
     .site-footer a {
-        color: var(--color-white);
+        color: var(--color-on-dark);
         text-decoration: none;
     }
 

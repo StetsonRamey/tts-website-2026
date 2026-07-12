@@ -53,7 +53,7 @@
     }
 
     .service-fact a {
-        color: var(--color-dark);
+        color: var(--color-text);
         font-weight: 700;
         white-space: nowrap;
     }

@@ -50,7 +50,7 @@
         max-width: 80%;
         margin-inline: auto;
         margin-block-start: -3rem;
-        background: var(--color-dark);
+        background: var(--color-band);
         padding: var(--space-s) var(--gutter);
         border-radius: var(--radius-l);
         position: relative;
@@ -78,7 +78,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: var(--color-dark);
+        background: var(--color-band);
         z-index: -1;
         border-radius: inherit;
     }
@@ -86,12 +86,12 @@
     .hero__content h1 {
         font-size: var(--step-3);
         line-height: 1.15;
-        color: var(--color-white);
+        color: var(--color-on-dark);
     }
 
     .hero__content p:not(.overline) {
         font-size: var(--step--1);
-        color: var(--color-white);
+        color: var(--color-on-dark);
     }
 
     .hero__actions {
@@ -101,7 +101,7 @@
 
     .hero__phone {
         font-weight: 700;
-        color: var(--color-dark);
+        color: var(--color-on-dark);
         text-decoration: none;
     }
 

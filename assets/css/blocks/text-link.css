@@ -7,7 +7,7 @@
     }
 
     .text-link:hover {
-        color: var(--color-dark);
+        color: var(--color-text);
     }
 
     /* Color overrides */

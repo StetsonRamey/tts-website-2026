@@ -1,7 +1,7 @@
 @layer blocks {
     /* ── Trust Bar ── */
     .trust-bar {
-        background-color: var(--color-white);
+        background-color: var(--color-surface);
     }
 
     .trust-bar__grid {

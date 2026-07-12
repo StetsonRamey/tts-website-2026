@@ -28,6 +28,6 @@
     }
 
     .breadcrumbs [aria-current="page"] {
-        color: var(--color-dark);
+        color: var(--color-text);
     }
 }

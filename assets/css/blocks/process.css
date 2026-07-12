@@ -1,12 +1,12 @@
 @layer blocks {
     /* ── Process Section ── */
     .process {
-        background-color: var(--color-dark);
-        color: var(--color-white);
+        background-color: var(--color-band);
+        color: var(--color-on-dark);
     }
 
     .process h2 {
-        color: var(--color-white);
+        color: var(--color-on-dark);
     }
 
     .process__grid {
@@ -42,7 +42,7 @@
 
     .process-step__title {
         font-size: var(--step-1);
-        color: var(--color-white);
+        color: var(--color-on-dark);
     }
 
     .process-step p:last-child {

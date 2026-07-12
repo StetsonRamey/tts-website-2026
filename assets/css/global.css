@@ -118,6 +118,48 @@ ol[role='list'] {
   --font-heading: var(--font-body);
 }
 
+/* ==========================================================================
+    DARK THEME
+    Redefines only the semantic / on-dark / band / surface / border tokens.
+    The raw brand palette (primary, secondary, accent) is theme-constant.
+
+    Currently driven by the user's OS setting via prefers-color-scheme.
+    A manual toggle can be layered on later by setting data-theme on <html>
+    (add a [data-theme="dark"] mirror of these overrides + a
+    :root[data-theme="light"] reset that cancels this media query).
+    ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-text: var(--color-light);
+    --color-text-muted: #a0a0b0;
+    --color-bg: var(--color-dark);
+    --color-bg-accent: #25253a;
+    --color-surface: #25253a;
+    --color-border: #3a3a52;
+
+    /* Dark bands (footer, hero card, process, area cards) — a shade darker
+       than the page bg so they still read as distinct bands. */
+    --color-band: #131322;
+
+    /* Content on dark bands: the band stays dark in both themes, so the
+       white-alpha family stays as-is. */
+    --color-on-dark: var(--color-white);
+    --color-on-dark-muted: rgba(255, 255, 255, 0.72);
+    --color-on-dark-faint: rgba(255, 255, 255, 0.5);
+    --color-on-dark-border: rgba(255, 255, 255, 0.15);
+    --color-on-dark-surface: rgba(255, 255, 255, 0.05);
+    --color-on-dark-panel: rgba(255, 255, 255, 0.12);
+
+    /* Photo scrims stay dark in both themes (they sit over images). */
+    --color-scrim: rgba(0, 0, 0, 0.7);
+    --color-overlay: rgba(19, 19, 34, 0.92);
+
+    /* Shadow is less visible on dark bg; deepen it slightly. */
+    --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+
 /* --- Base element styles --- */
 html {
   scroll-behavior: smooth;
@@ -152,7 +194,7 @@ a {
 }
 
 a:hover {
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 
 img,

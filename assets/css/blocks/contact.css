@@ -18,7 +18,7 @@
 
     .contact-card__value {
         font-weight: 700;
-        color: var(--color-dark);
+        color: var(--color-text);
         text-decoration: none;
     }
 
@@ -34,7 +34,7 @@
     /* ── Contact Form ── */
     .contact-form__card {
         --flow-space: var(--space-s);
-        background: var(--color-white);
+        background: var(--color-surface);
         border-radius: var(--radius-l);
         padding: var(--space-l);
         text-align: left;
@@ -68,7 +68,7 @@
         padding: 0.625rem 0.75rem;
         border: 1px solid var(--color-border);
         border-radius: var(--radius-s);
-        background: var(--color-white);
+        background: var(--color-surface);
         font-size: var(--step-0);
         color: var(--color-text);
     }
@@ -178,7 +178,7 @@
     /* ── Contact Process CTA ── */
     .contact-process__cta {
         font-size: var(--step--1);
-        color: var(--color-white);
+        color: var(--color-on-dark);
         margin-block-start: var(--space-m);
     }
 }

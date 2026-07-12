@@ -19,7 +19,7 @@
 
     .cta-band__phone {
         font-weight: 700;
-        color: var(--color-dark);
+        color: var(--color-text);
         text-decoration: none;
     }
 

@@ -14,7 +14,7 @@
 }
 
 .toc__details {
-    background: var(--color-light);
+    background: var(--color-bg-accent);
     border-radius: var(--radius-m);
     padding: var(--space-s) var(--space-m);
 }
@@ -62,7 +62,7 @@
 }
 
 .toc #TableOfContents a:hover {
-    color: var(--color-dark);
+    color: var(--color-text);
 }
 
 /* ── Mobile: collapsible ── */
