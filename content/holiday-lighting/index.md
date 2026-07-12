@@ -2,7 +2,7 @@
 title: 'Holiday Lighting Installation'
 description: 'Professional holiday lighting installation in Lee''s Summit, MO. LED options, custom designs, full-service install, maintenance, takedown & storage.'
 seo:
-  og_image: '/images/og/holiday-lighting.jpg'
+  og_image: '/images/og/social.jpg'
   og_type: 'website'
   schema_type: 'Service'
 keywords:

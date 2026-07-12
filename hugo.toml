@@ -33,7 +33,7 @@ enableRobotsTXT = true
   primaryCity = "Lee's Summit, MO"
   inBusinessSince = '2015'
   # Default OG image (fallback for all pages)
-  ogImage = '/images/og/social.png'
+  ogImage = '/images/og/social.jpg'
   # Google Places API key (restricted to tistheseasonkc.com referrer + Places API only)
   googleMapsApiKey = 'AIzaSyAtwWskZSb5_b3HOIxCAnaG4I8jS4paqaM'
 

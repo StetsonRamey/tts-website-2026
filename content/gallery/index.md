@@ -2,7 +2,7 @@
 title: 'Holiday Lighting Gallery'
 description: 'See our holiday lighting installations in Lee''s Summit, MO and Raymore, MO. Professional residential and commercial Christmas light displays.'
 seo:
-  og_image: '/images/og/gallery.jpg'
+  og_image: '/images/og/social.jpg'
   og_type: 'website'
   schema_type: ''
 keywords:

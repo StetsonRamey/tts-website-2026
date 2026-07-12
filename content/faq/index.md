@@ -2,7 +2,7 @@
 title: 'Frequently Asked Questions'
 description: 'Common questions about holiday lighting installation from Tis the Season Holiday Lighting in Lee''s Summit, MO. Pricing, scheduling, service area, and more.'
 seo:
-  og_image: '/images/og/faq.jpg'
+  og_image: '/images/og/social.jpg'
   og_type: 'website'
   schema_type: 'FAQPage'
 keywords:

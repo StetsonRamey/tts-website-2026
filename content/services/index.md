@@ -2,7 +2,7 @@
 title: 'Holiday Lighting Services'
 description: 'Full-service residential and commercial holiday lighting in Lee''s Summit, MO. Design, installation, maintenance, takedown & storage — all included.'
 seo:
-  og_image: '/images/og/services.jpg'
+  og_image: '/images/og/social.jpg'
   og_type: 'website'
   schema_type: 'Service'
 keywords:
