@@ -157,7 +157,16 @@ func countryForIP(ip string) (string, error) {
 // ── Contact Handler ──
 
 func handleContact(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	// /contact/ is the Hugo page; keep this endpoint for form submissions only.
+	// Redirect browser and crawler requests for the slashless URL to the canonical page.
+	switch r.Method {
+	case http.MethodGet, http.MethodHead:
+		http.Redirect(w, r, "/contact/", http.StatusMovedPermanently)
+		return
+	case http.MethodPost:
+		// Continue to form processing below.
+	default:
+		w.Header().Set("Allow", http.MethodGet+", "+http.MethodHead+", "+http.MethodPost)
 		http.Error(w, `{"error":"method not allowed"}`, http.StatusMethodNotAllowed)
 		return
 	}
