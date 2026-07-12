@@ -126,3 +126,51 @@
         }
     }
 }
+
+@layer blocks {
+    /* ── About-page values ── */
+    .about-values {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: var(--space-l);
+        margin-block-start: var(--space-l);
+    }
+
+    .about-values__item {
+        padding-block-end: var(--space-m);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .about-values__item h3 {
+        font-size: var(--step-1);
+        line-height: 1.2;
+    }
+
+    .about-values__item p {
+        max-width: 30ch;
+        margin-block-start: var(--space-xs);
+        color: var(--color-text-muted);
+        text-wrap: pretty;
+    }
+
+    @media (max-width: 64rem) {
+        .about-values {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 39.9rem) {
+        .about-values {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .about-values__item {
+            padding-block: var(--space-s);
+        }
+
+        .about-values__item:first-child {
+            padding-block-start: 0;
+        }
+    }
+}
