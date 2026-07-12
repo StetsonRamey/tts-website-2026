@@ -40,6 +40,13 @@
 
     .site-header__actions {
         gap: var(--space-s);
+        margin-inline-start: auto;
+    }
+
+    /* Keep the toggle attached to the estimate action instead of letting
+       space-between distribute it as a separate header column. */
+    .site-header__inner > .theme-toggle {
+        flex: 0 0 auto;
     }
 
     .site-header__phone {
@@ -54,19 +61,20 @@
     }
 
     /* Mobile header: two-tier layout */
-    @media (max-width: 48rem) {
+    @media (max-width: 60rem) {
         .site-header__inner {
             flex-wrap: wrap;
         }
 
         .site-header__nav {
             order: 3;
-            flex-grow: 1;
+            flex: 1 0 calc(100% - 2.25rem - var(--space-s));
             border-top: 1px solid var(--color-border);
             padding-top: var(--space-2xs);
         }
 
-        /* Toggle drops onto the nav row, right-aligned next to the links. */
+        /* On the wrapped row, reserve the toggle's width so it stays flush
+           right beneath the estimate button. */
         .site-header__inner > .theme-toggle {
             order: 3;
             align-self: center;
