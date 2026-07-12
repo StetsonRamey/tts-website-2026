@@ -2,22 +2,44 @@
 
 {{/* LocalBusiness schema */}}
 {{- if eq $schemaType "LocalBusiness" -}}
+{{- $hero := resources.Get "images/originals/hero.jpg" -}}
+{{- $heroURL := printf "%simages/logo.svg" site.BaseURL -}}
+{{- with $hero -}}
+  {{- $heroURL = .RelPermalink | absURL -}}
+{{- end -}}
+{{- $businessID := printf "%s#business" site.BaseURL -}}
 {{- $schema := dict
   "@context" "https://schema.org"
-  "@type" "LocalBusiness"
-  "@id" (printf "%s#business" site.BaseURL)
+  "@type" (slice "LocalBusiness" "ProfessionalService")
+  "@id" $businessID
   "name" site.Params.companyName
   "description" site.Params.description
   "url" site.BaseURL
   "telephone" site.Params.phone
   "email" site.Params.email
+  "foundingDate" site.Params.inBusinessSince
   "areaServed" (slice
     (dict "@type" "City" "name" "Lee's Summit" "addressRegion" "MO")
     (dict "@type" "City" "name" "Raymore" "addressRegion" "MO")
+    (dict "@type" "Place" "name" "Winterset Valley" "containedInPlace" (dict "@type" "City" "name" "Lee's Summit" "addressRegion" "MO"))
+    (dict "@type" "Place" "name" "Creekmoor" "containedInPlace" (dict "@type" "City" "name" "Raymore" "addressRegion" "MO"))
   )
   "priceRange" "$$"
-  "image" (printf "%simages/logo.svg" site.BaseURL)
+  "image" $heroURL
   "logo" (printf "%simages/logo.svg" site.BaseURL)
+  "sameAs" (slice
+    "https://www.google.com/maps/place/Tis+the+Season+for+Lights,+LLC/@38.8882299,-94.39654,11z/data=!3m1!4b1!4m6!3m5!1s0x87c0f087ab93128f:0xf72262ed961dbd44!8m2!3d38.8882299!4d-94.39654!16s%2Fg%2F11c59x__k0?hl=en\u0026entry=ttu\u0026g_ep=EgoyMDI2MDcwOC4wIKXMDSoASAFQAw%3D%3D"
+    "https://www.facebook.com/tistheseasonkc/"
+  )
+  "employee" (slice
+    (dict "@type" "Person" "name" "Stetson Ramey" "jobTitle" "Owner")
+    (dict "@type" "Person" "name" "Ryan Keller" "jobTitle" "Owner")
+  )
+  "contactPoint" (slice
+    (dict "@type" "ContactPoint" "contactType" "customer service" "telephone" site.Params.phone "description" "Call support and installation inquiries. Messages and requests are answered 24 hours a day.")
+    (dict "@type" "ContactPoint" "contactType" "customer service" "telephone" site.Params.textPhone "description" "Text support and installation inquiries. Messages and requests are answered 24 hours a day.")
+    (dict "@type" "ContactPoint" "contactType" "customer service" "email" site.Params.email "description" "Email inquiries are monitored and answered 24 hours a day.")
+  )
 -}}
 <script type="application/ld+json">
 {{ $schema | jsonify (dict "indent" "  ") | safeJS }}
@@ -32,13 +54,7 @@
   "name" .Title
   "description" .Description
   "url" .Permalink
-  "provider" (dict
-    "@id" (printf "%s#business" site.BaseURL)
-    "@type" "LocalBusiness"
-    "name" site.Params.companyName
-    "telephone" site.Params.phone
-    "url" site.BaseURL
-  )
+  "provider" (dict "@id" (printf "%s#business" site.BaseURL))
   "areaServed" (slice
     (dict "@type" "City" "name" "Lee's Summit" "addressRegion" "MO")
     (dict "@type" "City" "name" "Raymore" "addressRegion" "MO")
