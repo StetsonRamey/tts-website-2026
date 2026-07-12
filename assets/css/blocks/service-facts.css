@@ -1,9 +1,5 @@
 @layer blocks {
     /* ── Service Facts ── */
-    .service-facts {
-        border-block: 1px solid var(--color-border);
-    }
-
     .service-facts__header {
         max-width: 66rem;
     }
@@ -25,39 +21,12 @@
     .service-facts__list {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        column-gap: var(--space-l);
-    }
-
-    .service-facts__list .service-fact {
-        padding-block: var(--space-m);
-        border-block-start: 1px solid var(--color-border);
-    }
-
-    .service-facts__list .service-fact:nth-child(-n + 2) {
-        border-block-start: 2px solid var(--color-primary);
-    }
-
-    .service-facts__list .service-fact:nth-child(2n) {
-        border-block-start-color: var(--color-border);
-    }
-
-    .service-facts__list .service-fact:nth-child(2) {
-        border-block-start-color: var(--color-secondary);
+        gap: var(--space-l) var(--space-l-xl);
     }
 
     .service-facts__aside {
-        --flow-space: 0;
-        padding-inline-start: var(--space-l);
-        border-inline-start: 1px solid var(--color-border);
-    }
-
-    .service-facts__aside .service-fact {
-        padding-block: var(--space-m);
-        border-block-start: 1px solid var(--color-border);
-    }
-
-    .service-facts__aside .service-fact:first-child {
-        border-block-start: 2px solid var(--color-secondary);
+        display: grid;
+        gap: var(--space-l);
     }
 
     .service-fact {
@@ -70,8 +39,17 @@
     }
 
     .service-fact p {
+        max-width: 42ch;
         color: var(--color-text-muted);
         font-size: var(--step--1);
+    }
+
+    .service-facts__aside .service-fact:first-child h3 {
+        color: var(--color-secondary);
+    }
+
+    .service-facts__aside .service-fact:last-child h3 {
+        color: var(--color-primary);
     }
 
     .service-fact a {
@@ -81,49 +59,38 @@
     }
 
     .service-facts__note {
-        margin-block-start: var(--space-l);
+        margin-block-start: var(--space-xl);
         font-size: var(--step--1);
     }
 
     @media (max-width: 54rem) {
         .service-facts__body {
             grid-template-columns: 1fr;
-            gap: 0;
+            gap: var(--space-xl);
         }
 
         .service-facts__aside {
-            margin-block-start: var(--space-s);
-            padding-inline-start: 0;
-            border-inline-start: 0;
-            border-block-start: 1px solid var(--color-border);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: var(--space-l);
         }
     }
 
     @media (max-width: 39.9rem) {
         .service-facts__body {
             margin-block-start: var(--space-l);
+            gap: var(--space-l);
         }
 
-        .service-facts__list {
-            display: block;
-        }
-
-        .service-facts__list .service-fact,
-        .service-facts__list .service-fact:nth-child(-n + 2),
-        .service-facts__list .service-fact:nth-child(2n) {
-            border-block-start: 1px solid var(--color-border);
-        }
-
-        .service-facts__list .service-fact:first-child {
-            border-block-start: 2px solid var(--color-primary);
-        }
-
-        .service-facts__aside .service-fact {
-            padding-block: var(--space-m);
+        .service-facts__list,
+        .service-facts__aside {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-l);
         }
 
         .service-facts__note {
             max-width: 32ch;
+            margin-block-start: var(--space-l);
         }
     }
 }
