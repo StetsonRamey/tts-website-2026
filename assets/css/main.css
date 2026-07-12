@@ -4,6 +4,7 @@
 
 /* Import all blocks */
 @import "blocks/site-header.css";
+@import "blocks/theme-toggle.css";
 @import "blocks/site-footer.css";
 @import "blocks/hero.css";
 @import "blocks/button.css";

@@ -61,9 +61,16 @@
 
         .site-header__nav {
             order: 3;
-            flex-basis: 100%;
+            flex-grow: 1;
             border-top: 1px solid var(--color-border);
             padding-top: var(--space-2xs);
+        }
+
+        /* Toggle drops onto the nav row, right-aligned next to the links. */
+        .site-header__inner > .theme-toggle {
+            order: 3;
+            align-self: center;
+            margin-block-start: var(--space-2xs);
         }
 
         .site-header__nav ul {

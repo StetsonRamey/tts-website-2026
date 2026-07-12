@@ -1,6 +1,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+{{/* Theme no-flash: set data-theme on <html> before paint.
+   Stored choice wins; otherwise follow prefers-color-scheme. */}}
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t)}else if(window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.setAttribute('data-theme','dark')}}catch(e){}})();</script>
+
 {{/* Favicon – https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs */}}
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">

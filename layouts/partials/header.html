@@ -10,6 +10,7 @@
         {{- end }}
       </ul>
     </nav>
+    {{ partial "theme-toggle.html" . }}
     <div class="site-header__actions cluster">
       <a href="tel:{{ site.Params.phone }}" class="site-header__phone">{{ site.Params.phone }}</a>
       <a href="/contact/" class="button">Free Estimate</a>

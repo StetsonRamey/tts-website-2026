@@ -1,0 +1,5 @@
+{{/* Theme toggle button — sun/moon icons, CSS swaps which is visible. */}}
+<button type="button" class="theme-toggle" aria-label="Toggle color theme" title="Toggle light/dark theme">
+  {{ partial "icon.html" (dict "name" "sun" "class" "theme-toggle__icon theme-toggle__icon--sun" "aria_hidden" "true") }}
+  {{ partial "icon.html" (dict "name" "moon" "class" "theme-toggle__icon theme-toggle__icon--moon" "aria_hidden" "true") }}
+</button>
