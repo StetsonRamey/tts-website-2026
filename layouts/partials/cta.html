@@ -13,6 +13,7 @@
 {{- $style := printf "%s; --wrapper-max: %s" $marginStyle $maxWidth -}}
 <aside class="cta-band region" aria-label="Call to action">
   <div class="wrapper flow" style="{{ $style | safeCSS }}">
+    <p class="overline">Ready to Glow?</p>
     <h2>{{ $heading }}</h2>
     <p>{{ $text }}</p>
     <div class="cta-band__actions cluster">

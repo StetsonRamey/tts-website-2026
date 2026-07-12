@@ -33,15 +33,15 @@ ol[role='list'] {
 
 /* --- Core tokens --- */
 :root {
-  /* Brand palette — one accessible accent, quiet winter neutrals */
-  --color-primary: #167c75;
-  --color-secondary: var(--color-primary);
-  --color-accent: var(--color-primary);
+  /* Core brand */
+  --color-primary: #69C4BB;
+  --color-secondary: #F066A1;
+  --color-accent: #d4af37;
 
   /* Neutrals */
-  --color-dark: #182032;
-  --color-mid: #596170;
-  --color-light: #f5f6f2;
+  --color-dark: #1a1a2e;
+  --color-mid: #4a4a5a;
+  --color-light: #f5f5f0;
   --color-white: #ffffff;
 
   /* Semantic */
@@ -50,7 +50,7 @@ ol[role='list'] {
   --color-bg: var(--color-white);
   --color-bg-accent: var(--color-light);
   --color-surface: var(--color-white);
-  --color-border: #d9ddd7;
+  --color-border: #e0e0d8;
 
   /* States */
   --color-success: #2d8a4e;

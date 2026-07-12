@@ -2,12 +2,15 @@
     /* ── Why Card (dark bg) ── */
     .why-card {
         --flow-space: var(--space-2xs);
-        padding: var(--space-s) 0;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-l);
+        padding: var(--space-s);
         text-align: left;
-        border-top: 1px solid rgba(255, 255, 255, 0.28);
+        border: 1px dashed var(--color-secondary);
     }
 
     .why-card__icon {
-        display: none;
+        font-size: var(--step-2);
+        color: var(--color-primary);
     }
 }

@@ -16,10 +16,9 @@
         display: block;
         position: relative;
         overflow: hidden;
-        border-radius: 0;
+        border-radius: var(--radius-l);
         text-decoration: none;
         aspect-ratio: 3 / 2;
-        background: var(--color-dark);
     }
 
     .area-card img {
@@ -30,19 +29,28 @@
     }
 
     .area-card:hover img {
-        transform: scale(1.03);
+        transform: scale(1.05);
     }
 
     .area-card__overlay {
         position: absolute;
-        inset: auto 0 0;
-        background: rgba(24, 32, 50, 0.92);
-        padding: var(--space-s) var(--space-m);
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 50%);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        padding: var(--space-m);
         color: var(--color-white);
+        text-align: center;
+    }
+
+    .area-card__pin {
+        font-size: var(--step-3);
     }
 
     .area-card__overlay h3 {
         color: var(--color-white);
-        font-size: var(--step-1);
+        font-size: var(--step-2);
     }
 }

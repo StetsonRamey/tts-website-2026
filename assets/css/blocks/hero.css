@@ -1,51 +1,97 @@
 @layer blocks {
-    /* ── Home hero: image-led, with a single calm content panel ── */
+    /* ── Hero ── */
     .hero {
         background-color: var(--color-bg-accent);
         position: relative;
+        overflow: hidden;
+    }
+    
+    /*lift the dots above anything else*/
+    .hero > div {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Dot grid — fades out toward the bottom via mask */
+    .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image: radial-gradient(circle, var(--color-border) 1px, transparent 1px);
+        background-size: 8px 8px;
+        mask-image: linear-gradient(to bottom, black 5%, transparent 99%);
+        -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 99%);
     }
 
     .hero__inner {
         display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(20rem, 0.85fr);
-        align-items: stretch;
-        min-height: clamp(30rem, 44vw, 40rem);
+        grid-template-rows: auto auto;
+        padding-block: var(--space-m);
+        position: relative;
+        z-index: 1;
     }
 
     .hero__image {
-        grid-column: 2;
         grid-row: 1;
+        grid-column: 1;
     }
 
     .hero__image img {
         width: 100%;
-        height: 100%;
-        min-height: clamp(30rem, 44vw, 40rem);
+        height: clamp(20rem, 50vw, 40rem);
         object-fit: cover;
-        border-radius: 0;
+        border-radius: var(--radius-l);
     }
 
     .hero__content {
-        --flow-space: var(--space-s);
-        grid-column: 1;
-        grid-row: 1;
-        align-self: center;
-        max-width: 42rem;
-        padding: var(--space-xl) clamp(var(--space-m), 4vw, var(--space-2xl));
+        --flow-space: var(--space-2xs);
+        max-width: 80%;
+        margin-inline: auto;
+        margin-block-start: -3rem;
         background: var(--color-dark);
-        color: var(--color-white);
-        z-index: 1;
+        padding: var(--space-s) var(--gutter);
+        border-radius: var(--radius-l);
+        position: relative;
+        z-index: 2;
+        grid-row: 2 / 4;
+        grid-column: 1;
+    }
+
+    .hero__content::before {
+        content: "";
+        position: absolute;
+        top: -4px;
+        left: -4px;
+        right: -4px;
+        bottom: -4px;
+        background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+        z-index: -1;
+        border-radius: calc(var(--radius-l) + 4px);
+    }
+
+    .hero__content::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--color-dark);
+        z-index: -1;
+        border-radius: inherit;
     }
 
     .hero__content h1 {
-        font-size: var(--step-4);
-        line-height: 1.08;
+        font-size: var(--step-3);
+        line-height: 1.15;
         color: var(--color-white);
     }
 
     .hero__content p:not(.overline) {
-        max-width: 38ch;
-        color: rgba(255, 255, 255, 0.82);
+        font-size: var(--step--1);
+        color: var(--color-white);
     }
 
     .hero__actions {
@@ -64,58 +110,28 @@
     }
 
     .hero__trust {
-        padding-block-start: var(--space-xs);
-        border-block-start: 1px solid rgba(255, 255, 255, 0.25);
         font-size: var(--step--1);
-        color: rgba(255, 255, 255, 0.78);
+        color: var(--color-primary);
         gap: var(--space-s);
     }
 
-    /* ── Inner-page hero uses a simple split, not the home overlay ── */
-    .hero.region {
-        padding-block: var(--space-l-xl);
-    }
-
-    .hero.region .switcher {
-        align-items: center;
-    }
-
-    .hero.region .switcher > :first-child {
-        --flow-space: var(--space-s);
-        max-width: 38rem;
-    }
-
-    .hero.region h1 {
-        font-size: var(--step-4);
-        line-height: 1.08;
-    }
-
-    .hero.region .switcher img {
-        aspect-ratio: 4 / 3;
-        object-fit: cover;
-        border-radius: 0;
-    }
-
-    @media (max-width: 54rem) {
-        .hero__inner {
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-        }
-
-        .hero__image,
-        .hero__content {
-            display: block;
-        }
-
+    @media (max-width: 860px) {
         .hero__image img {
-            min-height: 0;
-            aspect-ratio: 16 / 10;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
         }
 
         .hero__content {
-            max-width: none;
-            padding: var(--space-l) var(--gutter);
+            max-width: 100%;
+            grid-row: 2;
+            /* Kill the desktop overlap — positive spacing instead */
+            margin-block-start: var(--space-s);
+        }
+
+        .hero .button {
+            display: block;
+            text-align: center;
         }
     }
 }
