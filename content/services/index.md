@@ -20,7 +20,7 @@ Tis the Season Holiday Lighting provides full-service holiday lighting for both 
 
 Your home deserves to shine. We work with homeowners to design and install custom holiday lighting displays that match your style and budget.
 
-![Residential lighting placeholder](https://placehold.co/800x500?text=Residential+Service)
+![Residential home with alternating red and green C9 holiday lights along the rooflines](/images/originals/services/residential.JPG)
 
 **What residential customers love:**
 
@@ -35,7 +35,7 @@ Your home deserves to shine. We work with homeowners to design and install custo
 
 Create a professional, welcoming atmosphere for your customers and employees. We serve storefronts and office buildings.
 
-![Commercial lighting placeholder](https://placehold.co/800x500?text=Commercial+Service)
+![Life.Church commercial building outlined in pure white LED holiday lights at night](/images/originals/services/commercial.jpg)
 
 **What commercial customers value:**
 

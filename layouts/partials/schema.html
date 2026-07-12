@@ -5,6 +5,7 @@
 {{- $schema := dict
   "@context" "https://schema.org"
   "@type" "LocalBusiness"
+  "@id" (printf "%s#business" site.BaseURL)
   "name" site.Params.companyName
   "description" site.Params.description
   "url" site.BaseURL
@@ -16,6 +17,7 @@
   )
   "priceRange" "$$"
   "image" (printf "%simages/logo.svg" site.BaseURL)
+  "logo" (printf "%simages/logo.svg" site.BaseURL)
 -}}
 <script type="application/ld+json">
 {{ $schema | jsonify (dict "indent" "  ") | safeJS }}
@@ -31,6 +33,7 @@
   "description" .Description
   "url" .Permalink
   "provider" (dict
+    "@id" (printf "%s#business" site.BaseURL)
     "@type" "LocalBusiness"
     "name" site.Params.companyName
     "telephone" site.Params.phone
@@ -59,4 +62,21 @@
 {{ $schema | jsonify (dict "indent" "  ") | safeJS }}
 </script>
 {{- end -}}
+{{- end -}}
+
+{{/* BreadcrumbList schema */}}
+{{- if not .IsHome -}}
+{{- $items := slice (dict "@type" "ListItem" "position" 1 "name" "Home" "item" site.BaseURL) -}}
+{{- $position := 2 -}}
+{{- range .Ancestors.Reverse -}}
+  {{- if not .IsHome -}}
+    {{- $items = $items | append (dict "@type" "ListItem" "position" $position "name" .Title "item" .Permalink) -}}
+    {{- $position = add $position 1 -}}
+  {{- end -}}
+{{- end -}}
+{{- $items = $items | append (dict "@type" "ListItem" "position" $position "name" .Title "item" .Permalink) -}}
+{{- $breadcrumbSchema := dict "@context" "https://schema.org" "@type" "BreadcrumbList" "itemListElement" $items -}}
+<script type="application/ld+json">
+{{ $breadcrumbSchema | jsonify (dict "indent" "  ") | safeJS }}
+</script>
 {{- end -}}

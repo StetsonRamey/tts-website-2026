@@ -13,6 +13,8 @@ package services
 //   6. Redirect customer to Stripe-hosted checkout page
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -33,12 +35,14 @@ func CheckoutHandler(cfg *Config) http.HandlerFunc {
 			return
 		}
 
+		ref := newRefCode()
+
 		// ── 1. Fetch customer ─────────────────────────────────────────
 		customer, err := GetCustomerByRecordID(recordID)
 		if err != nil {
-			log.Printf("[checkout] GetCustomer(%s): %v", recordID, err)
-			cfg.sendErrorEmail(fmt.Sprintf("checkout: GetCustomer(%s): %v", recordID, err))
-			http.Error(w, checkoutErrorMsg, http.StatusInternalServerError)
+			log.Printf("[checkout] ref=%s GetCustomer(%s): %v", ref, recordID, err)
+			cfg.sendErrorEmail(fmt.Sprintf("checkout: ref=%s GetCustomer(%s): %v", ref, recordID, err))
+			renderCheckoutError(w, ref, "We couldn\u2019t look up your account.", friendlyCause(err))
 			return
 		}
 
@@ -51,24 +55,24 @@ func CheckoutHandler(cfg *Config) http.HandlerFunc {
 		// ── 3. Fetch line items ───────────────────────────────────
 		items, err := GetCurrentYearLineItems(recordID, cfg.Env)
 		if err != nil {
-			log.Printf("[checkout] GetLineItems(%s): %v", recordID, err)
-			cfg.sendErrorEmail(fmt.Sprintf("checkout: GetLineItems(%s) customer=%s: %v", recordID, customer.FullName, err))
-			http.Error(w, checkoutErrorMsg, http.StatusInternalServerError)
+			log.Printf("[checkout] ref=%s GetLineItems(%s): %v", ref, recordID, err)
+			cfg.sendErrorEmail(fmt.Sprintf("checkout: ref=%s GetLineItems(%s) customer=%s: %v", ref, recordID, customer.FullName, err))
+			renderCheckoutError(w, ref, "We couldn\u2019t load this year\u2019s invoice items.", friendlyCause(err))
 			return
 		}
 		if len(items) == 0 {
-			log.Printf("[checkout] no line items for record %s", recordID)
-			cfg.sendErrorEmail(fmt.Sprintf("checkout: no line items for %s (%s)", customer.FullName, recordID))
-			http.Error(w, checkoutErrorMsg, http.StatusInternalServerError)
+			log.Printf("[checkout] ref=%s no line items for record %s", ref, recordID)
+			cfg.sendErrorEmail(fmt.Sprintf("checkout: ref=%s no line items for %s (%s)", ref, customer.FullName, recordID))
+			renderCheckoutError(w, ref, "There are no invoice items on file for this year yet.", "")
 			return
 		}
 
 		// ── 4. Create Stripe Checkout session via proxy ───────────────
 		sessURL, err := createCheckoutSession(cfg, customer, items)
 		if err != nil {
-			log.Printf("[checkout] createCheckoutSession(%s): %v", recordID, err)
-			cfg.sendErrorEmail(fmt.Sprintf("checkout: Stripe session failed for %s (%s): %v", customer.FullName, recordID, err))
-			http.Error(w, checkoutErrorMsg, http.StatusInternalServerError)
+			log.Printf("[checkout] ref=%s createCheckoutSession(%s): %v", ref, recordID, err)
+			cfg.sendErrorEmail(fmt.Sprintf("checkout: ref=%s Stripe session failed for %s (%s): %v", ref, customer.FullName, recordID, err))
+			renderCheckoutError(w, ref, "Our payment processor rejected the request.", friendlyCause(err))
 			return
 		}
 
@@ -182,5 +186,109 @@ func renderAlreadyPaid(w http.ResponseWriter) {
 	_ = alreadyPaidTmpl.Execute(w, nil)
 }
 
-const checkoutErrorMsg = "An error occurred creating your checkout page. " +
-	"Please text Tis The Season and we\u2019ll get it corrected and resend your link."
+type checkoutErrorData struct {
+	Reason string
+	Detail string
+	Ref    string
+}
+
+var checkoutErrorTmpl = template.Must(template.New("err").Parse(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout Error — Tis The Season Holiday Lighting</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 100vh; padding: 2rem;
+      text-align: center;
+    }
+    .card {
+      background: white; border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      padding: 2.5rem 2rem; max-width: 30rem;
+    }
+    h1 { color: #c0392b; font-size: 1.75rem; margin-bottom: 1rem; }
+    p  { color: #4a4a5a; line-height: 1.6; margin-bottom: 1rem; }
+    .reason { font-weight: 600; color: #2d2d3a; }
+    .detail {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.85rem;
+      background: #f7f4ec;
+      border-radius: 0.375rem;
+      padding: 0.6rem 0.75rem;
+      color: #6a5a3a;
+      word-break: break-word;
+      text-align: left;
+      margin-bottom: 1.25rem;
+    }
+    .ref {
+      font-size: 0.8rem;
+      color: #8a8a96;
+      margin-bottom: 1.5rem;
+    }
+    .ref code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: #f0ede4;
+      padding: 0.1rem 0.4rem;
+      border-radius: 0.25rem;
+      color: #4a4a5a;
+    }
+    a.home { display: inline-block; color: #69C4BB; text-decoration: none; font-weight: 600; }
+    a.home:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Checkout Unavailable</h1>
+    <p class="reason">{{if .Reason}}{{.Reason}}{{else}}Something went wrong creating your checkout page.{{end}}</p>
+    {{if .Detail}}<div class="detail">{{.Detail}}</div>{{end}}
+    <p>Please text Tis The Season a screenshot of this page and we’ll get it sorted right away.</p>
+    {{if .Ref}}<p class="ref">Reference: <code>{{.Ref}}</code></p>{{end}}
+    <a class="home" href="https://tistheseasonkc.com/">Tis The Season Home Page &rarr;</a>
+  </div>
+</body>
+</html>`))
+
+func renderCheckoutError(w http.ResponseWriter, ref, reason, detail string) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(http.StatusInternalServerError)
+	_ = checkoutErrorTmpl.Execute(w, checkoutErrorData{Reason: reason, Detail: detail, Ref: ref})
+}
+
+// newRefCode returns a short reference code customers can quote to us.
+func newRefCode() string {
+	var b [3]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return "------"
+	}
+	return strings.ToUpper(hex.EncodeToString(b[:]))
+}
+
+// friendlyCause translates a raw error into a short customer-safe explanation.
+// It deliberately avoids leaking IDs, secrets, or stack traces.
+func friendlyCause(err error) string {
+	if err == nil {
+		return ""
+	}
+	msg := err.Error()
+	lower := strings.ToLower(msg)
+	switch {
+	case strings.Contains(lower, "no such customer"):
+		return "Your customer record needs to be re-linked on our end."
+	case strings.Contains(lower, "no such coupon"), strings.Contains(lower, "no such price"), strings.Contains(lower, "no such product"):
+		return "One of the items on your invoice is misconfigured."
+	case strings.Contains(lower, "not_found"), strings.Contains(lower, "404"):
+		return "We couldn\u2019t find your record \u2014 the payment link may be stale."
+	case strings.Contains(lower, "timeout"), strings.Contains(lower, "deadline"):
+		return "The request timed out reaching our payment processor."
+	case strings.Contains(lower, "unauthorized"), strings.Contains(lower, "forbidden"), strings.Contains(lower, "401"), strings.Contains(lower, "403"):
+		return "We weren\u2019t able to authenticate with our payment processor."
+	}
+	return ""
+}

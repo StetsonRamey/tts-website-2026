@@ -5,6 +5,9 @@ seo:
   og_image: ''
   og_type: 'website'
   schema_type: ''
+  noindex: true
+sitemap:
+  disable: true
 ---
 
 ## Thank You!

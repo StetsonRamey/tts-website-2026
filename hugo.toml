@@ -1,5 +1,5 @@
 baseURL = 'https://tistheseasonkc.com/'
-languageCode = 'en-us'
+locale = 'en-us'
 title = 'Tis The Season Holiday Lighting'
 enableRobotsTXT = true
 
@@ -15,7 +15,13 @@ enableRobotsTXT = true
   priority = 0.5
 
 [outputs]
-  home = ['HTML', 'RSS']
+  home = ['HTML', 'RSS', 'RobotsTXT']
+
+[outputFormats.RobotsTXT]
+  mediaType = 'text/plain'
+  baseName = 'robots'
+  isPlainText = true
+  notAlternative = true
 
 [params]
   description = "Professional holiday lighting installation in Lee's Summit, MO and surrounding areas. Residential and commercial. Free estimates, full-service install, maintenance, takedown & storage."

@@ -6,28 +6,32 @@
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-{{/* Title */}}
-<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} | {{ site.Title }}{{ end }}</title>
+{{- $title := cond .IsHome site.Title (printf "%s | %s" .Title site.Title) -}}
+{{- $description := .Description | default site.Params.description -}}
+{{- $ogType := .Params.seo.og_type | default "website" -}}
+{{- $ogImage := .Params.seo.og_image | default site.Params.ogImage -}}
+{{- $isNoIndex := .Params.seo.noindex | default false -}}
 
-{{/* Meta description */}}
-<meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
-
-{{/* Canonical URL */}}
+<title>{{ $title }}</title>
+<meta name="description" content="{{ $description }}">
+{{- if $isNoIndex }}
+<meta name="robots" content="noindex, follow">
+{{- end }}
 <link rel="canonical" href="{{ .Permalink }}">
 
-{{/* Open Graph */}}
-<meta property="og:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }}{{ end }}">
-<meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
-<meta property="og:type" content="website">
+<meta property="og:title" content="{{ $title }}">
+<meta property="og:description" content="{{ $description }}">
+<meta property="og:type" content="{{ $ogType }}">
 <meta property="og:url" content="{{ .Permalink }}">
-<meta property="og:image" content="{{ "/images/og/social.png" | absURL }}">
+<meta property="og:image" content="{{ $ogImage | absURL }}">
 <meta property="og:site_name" content="{{ site.Title }}">
+<meta property="og:locale" content="en_US">
 
-{{/* Twitter Card */}}
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }}{{ end }}">
-<meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
-<meta name="twitter:image" content="{{ "/images/og/social.png" | absURL }}">
+<meta name="twitter:title" content="{{ $title }}">
+<meta name="twitter:description" content="{{ $description }}">
+<meta name="twitter:url" content="{{ .Permalink }}">
+<meta name="twitter:image" content="{{ $ogImage | absURL }}">
 
 {{/* Preload hints */}}
 {{ partial "css-bundle.html" . }}

@@ -17,7 +17,7 @@ keywords:
 
 Tis the Season Holiday Lighting is a full-service holiday lighting company based in the Lee's Summit, MO area. We design, install, maintain, take down, and store your holiday lights — for both homes and commercial properties.
 
-![Holiday lighting hero placeholder](https://placehold.co/1200x600?text=Holiday+Lighting+Hero)
+![Two-story home with red and green C9 holiday lights lining the rooflines and eaves](/images/originals/residential-home.jpg)
 
 ### What We Offer
 
@@ -37,7 +37,7 @@ We use commercial-grade LED lights that are energy-efficient, long-lasting, and 
 - Custom color combinations
 - Bulb style choices (C9, mini, icicle, net, and more)
 
-![LED options placeholder](https://placehold.co/800x400?text=LED+Options)
+![Modern Lee's Summit home with crisp warm white holiday lights along every roofline](/images/originals/hero.jpg)
 
 ### What's Included
 
@@ -77,8 +77,8 @@ We include in-season maintenance at no extra charge. Just let us know and we'll 
 
 ### See Our Work
 
-![Gallery preview 1](https://placehold.co/400x300?text=Install+Example+1)
-![Gallery preview 2](https://placehold.co/400x300?text=Install+Example+2)
+![Summit Park Church exterior outlined in warm white commercial holiday lights at night](/images/originals/commercial-home.jpg)
+![Single-story home outlined in green LED holiday lights with a lit wreath on the front porch](/images/originals/services/holiday-lighting.jpg)
 
 [View the full gallery →](/gallery/)
 

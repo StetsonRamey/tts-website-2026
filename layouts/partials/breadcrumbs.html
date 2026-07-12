@@ -5,7 +5,7 @@
     {{- $ancestors := .Ancestors.Reverse -}}
     {{- range $ancestors -}}
       {{- if not .IsHome }}
-    <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
+    <li><a href="{{ .Permalink }}">{{ .LinkTitle | default .Title }}</a></li>
       {{- end -}}
     {{- end }}
     <li aria-current="page">{{ .Title }}</li>

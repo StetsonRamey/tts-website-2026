@@ -15,7 +15,7 @@ keywords:
 
 Full-service holiday lighting for homes and businesses. We handle the design, installation, maintenance, takedown, and storage — so you don't have to.
 
-![Hero placeholder](https://placehold.co/1200x600?text=Hero+Image)
+![Holiday lighting installation on a home in Lee's Summit, MO](/images/originals/hero.jpg)
 
 ### Why Tis The Season?
 
@@ -37,7 +37,7 @@ Full-service holiday lighting for homes and businesses. We handle the design, in
 
 Make your home the highlight of the neighborhood. We create custom roofline and wreath displays that fit your style and budget.
 
-![Residential placeholder](https://placehold.co/600x400?text=Residential+Lighting)
+![Two-story home with red and green C9 lights along the rooflines and eaves](/images/originals/residential-home.jpg)
 
 [Learn more about our services →](/services/)
 
@@ -45,15 +45,15 @@ Make your home the highlight of the neighborhood. We create custom roofline and 
 
 Create a welcoming, professional atmosphere for your customers and employees. We work with storefronts and office buildings.
 
-![Commercial placeholder](https://placehold.co/600x400?text=Commercial+Lighting)
+![Summit Park Church exterior outlined in warm white commercial holiday lights at night](/images/originals/commercial-home.jpg)
 
 [Learn more about our services →](/services/)
 
 ### Featured Work
 
-![Gallery preview 1](https://placehold.co/400x300?text=Gallery+1)
-![Gallery preview 2](https://placehold.co/400x300?text=Gallery+2)
-![Gallery preview 3](https://placehold.co/400x300?text=Gallery+3)
+![Blue two-story home with warm white roofline lights and a snow-covered yard](/images/originals/home1.jpeg)
+![Single-story home with multicolor C9 holiday lights lining the rooflines at night](/images/originals/home2.jpg)
+![Stucco home with three-car garage outlined in red and warm white holiday lights at dusk](/images/originals/home3.jpg)
 
 [See more in our gallery →](/gallery/)
 
