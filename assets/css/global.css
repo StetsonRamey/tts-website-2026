@@ -134,8 +134,8 @@ ol[role='list'] {
     --color-text: var(--color-light);
     --color-text-muted: #a0a0b0;
     --color-bg: var(--color-dark);
-    --color-bg-accent: #25253a;
-    --color-surface: #25253a;
+    --color-bg-accent: #222236;
+    --color-surface: #2e2e46;
     --color-border: #3a3a52;
 
     /* Dark bands (footer, hero card, process, area cards) — a shade darker
