@@ -2,7 +2,7 @@
     /* ── Why Card (dark bg) ── */
     .why-card {
         --flow-space: var(--space-2xs);
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--color-on-dark-surface);
         border-radius: var(--radius-l);
         padding: var(--space-s);
         text-align: left;

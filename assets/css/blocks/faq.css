@@ -1,11 +1,11 @@
 @layer blocks {
     /* ── FAQ Accordion ── */
     .faq-group {
-        border-block-start: 1px solid var(--color-border, #e0e0e0);
+        border-block-start: 1px solid var(--color-border);
     }
 
     .faq-item {
-        border-block-end: 1px solid var(--color-border, #e0e0e0);
+        border-block-end: 1px solid var(--color-border);
     }
 
     .faq-item__question {

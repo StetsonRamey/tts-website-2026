@@ -39,6 +39,7 @@ ol[role='list'] {
   --color-accent: #d4af37;
 
   /* Neutrals */
+  --color-black: #000000;
   --color-dark: #1a1a2e;
   --color-mid: #4a4a5a;
   --color-light: #f5f5f0;
@@ -50,12 +51,29 @@ ol[role='list'] {
   --color-bg: var(--color-white);
   --color-bg-accent: var(--color-light);
   --color-surface: var(--color-white);
+  --color-band: var(--color-black);
   --color-border: #e0e0d8;
 
   /* States */
   --color-success: #2d8a4e;
-  --color-error: #c53030;
+  --color-error: #d32f2f;
+  --color-error-bg: color-mix(in srgb, var(--color-error) 3%, transparent);
   --color-focus: var(--color-accent);
+
+  /* Content on dark surfaces (footer, process, overlays, dark bands) */
+  --color-on-dark: var(--color-white);
+  --color-on-dark-muted: rgba(255, 255, 255, 0.7);
+  --color-on-dark-faint: rgba(255, 255, 255, 0.5);
+  --color-on-dark-border: rgba(255, 255, 255, 0.15);
+  --color-on-dark-surface: rgba(255, 255, 255, 0.05);
+  --color-on-dark-panel: rgba(255, 255, 255, 0.12);
+
+  /* Image scrims / overlays */
+  --color-scrim: rgba(0, 0, 0, 0.7);
+  --color-overlay: rgba(26, 26, 46, 0.92);
+
+  /* Shadows */
+  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.08);
 
   /* Fluid spacing scale — min @ 320px, max @ 1140px */
   --space-3xs: clamp(0.25rem, 0.23rem + 0.09vw, 0.3125rem);
