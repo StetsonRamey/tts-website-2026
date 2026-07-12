@@ -37,14 +37,14 @@
                 <div class="flow" style="--flow-space: var(--space-xs);">
                     <div class="feature-card flow">
                         <p class="feature-card__icon" aria-hidden="true">✦</p>
-                        <p class="weight-bold">Roofline & Gutter Lights</p>
+                        <h3>Roofline &amp; Gutter Lights</h3>
                         <p>
                             Clean, professional roofline and gutter lighting that highlights your home's architecture.
                         </p>
                     </div>
                     <div class="feature-card flow">
                         <p class="feature-card__icon" aria-hidden="true">✦</p>
-                        <p class="weight-bold">Wreath Displays</p>
+                        <h3>Wreath Displays</h3>
                         <p>
                             Beautiful wreath installations on windows, doors, and facades — hung and removed by our
                             team.
@@ -52,7 +52,7 @@
                     </div>
                     <div class="feature-card flow">
                         <p class="feature-card__icon" aria-hidden="true">✦</p>
-                        <p class="weight-bold">Custom Designs</p>
+                        <h3>Custom Designs</h3>
                         <p>Unique lighting designs tailored to your property, style, and budget.</p>
                     </div>
                 </div>
@@ -81,7 +81,7 @@
                 <div class="flow" style="--flow-space: var(--space-xs);">
                     <div class="feature-card flow">
                         <p class="feature-card__icon" aria-hidden="true">✦</p>
-                        <p class="weight-bold">Storefront Displays</p>
+                        <h3>Storefront Displays</h3>
                         <p>
                             Eye-catching lighting that draws customers in and sets your business apart during the
                             holidays.
@@ -89,12 +89,12 @@
                     </div>
                     <div class="feature-card flow">
                         <p class="feature-card__icon" aria-hidden="true">✦</p>
-                        <p class="weight-bold">Office Buildings</p>
+                        <h3>Office Buildings</h3>
                         <p>Professional lighting installations scaled to your property and designed to impress.</p>
                     </div>
                     <div class="feature-card flow">
                         <p class="feature-card__icon" aria-hidden="true">✦</p>
-                        <p class="weight-bold">Custom Designs</p>
+                        <h3>Custom Designs</h3>
                         <p>Tailored commercial lighting plans that match your brand and budget.</p>
                     </div>
                 </div>
@@ -107,15 +107,7 @@
         <div class="wrapper flow">
             <p class="overline">Full Service</p>
             <h2>What's Included with Every Project</h2>
-            <div class="process__grid grid">
-                {{ range hugo.Data.included }}
-                <div class="process-step flow">
-                    <p class="process-step__number">{{ .num }}</p>
-                    <h3 class="process-step__title">{{ .name }}</h3>
-                    <p>{{ .description }}</p>
-                </div>
-                {{ end }}
-            </div>
+            {{ partial "included-services.html" . }}
         </div>
     </section>
 

@@ -74,15 +74,7 @@
         <div class="wrapper flow">
             <p class="overline">What's Included</p>
             <h2>Full-Service from Start to Finish</h2>
-            <div class="process__grid grid">
-                {{ range hugo.Data.included }}
-                <div class="process-step flow">
-                    <p class="process-step__number">{{ .num }}</p>
-                    <h3 class="process-step__title">{{ .name }}</h3>
-                    <p>{{ .description }}</p>
-                </div>
-                {{ end }}
-            </div>
+            {{ partial "included-services.html" . }}
         </div>
     </section>
 

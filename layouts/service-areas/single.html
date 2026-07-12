@@ -33,34 +33,34 @@
             <p>
                 {{ if $areaData }}
                     {{ if $areaData.primary }}
-                        As our home base since {{ site.Params.inBusinessSince }}, {{ $areaData.name }} gets our full attention. Every project includes:
+                        As our home base since {{ site.Params.inBusinessSince }}, {{ $areaData.name }} receives our full-service residential and commercial holiday lighting experience.
                     {{ else }}
-                        {{ $areaData.name }} is one of our core service areas. Every project includes the same full-service experience:
+                        {{ $areaData.name }} is one of our core service areas for residential and commercial holiday lighting.
                     {{ end }}
                 {{ end }}
             </p>
-            <div class="grid" style="--grid-min-item-size: 16rem">
-                <div class="feature-card flow">
+            <ul class="grid" style="--grid-min-item-size: 16rem" role="list" aria-label="Services included in every project">
+                <li class="feature-card flow">
                     <p class="feature-card__icon" aria-hidden="true">✦</p>
-                    <p class="weight-bold">Free Estimate</p>
+                    <h3>Free Estimate</h3>
                     <p>No-hassle estimates with guaranteed first-year pricing.</p>
-                </div>
-                <div class="feature-card flow">
+                </li>
+                <li class="feature-card flow">
                     <p class="feature-card__icon" aria-hidden="true">✦</p>
-                    <p class="weight-bold">Custom Design</p>
+                    <h3>Custom Design</h3>
                     <p>A lighting plan tailored to your home or business.</p>
-                </div>
-                <div class="feature-card flow">
+                </li>
+                <li class="feature-card flow">
                     <p class="feature-card__icon" aria-hidden="true">✦</p>
-                    <p class="weight-bold">Professional Installation</p>
+                    <h3>Professional Installation</h3>
                     <p>Installed by our fully insured, experienced team.</p>
-                </div>
-                <div class="feature-card flow">
+                </li>
+                <li class="feature-card flow">
                     <p class="feature-card__icon" aria-hidden="true">✦</p>
-                    <p class="weight-bold">Maintenance & Takedown</p>
-                    <p>In-season repairs, post-season takedown, and off-season storage included.</p>
-                </div>
-            </div>
+                    <h3>Maintenance, Takedown, and Storage</h3>
+                    <p>Bulb and wire problems are covered during the season, followed by post-season takedown and off-season storage of the lights.</p>
+                </li>
+            </ul>
         </div>
     </section>
 
@@ -101,9 +101,10 @@
                 <p class="overline">Homes & Businesses</p>
                 <h2 data-balance>Residential & Commercial Service</h2>
                 <p>
-                    {{ $areaData.name | default "Your area" }} homeowners and businesses both benefit from our full-service approach. From residential rooflines
-                    and wreaths to commercial storefronts and office buildings, we design and install lighting that makes
-                    your property stand out.
+                    We provide residential holiday lighting and commercial holiday lighting in {{ $areaData.name | default "your area" }}, Missouri. From residential rooflines and wreaths to commercial storefronts and office buildings, we design and install lighting that makes your property stand out.
+                </p>
+                <p>
+                    Every project includes custom design, professional installation, in-season maintenance, post-season takedown, and off-season storage of the lights.
                 </p>
                 <div class="cluster">
                     <a href="/services/" class="button">View All Services</a>
@@ -120,22 +121,22 @@
             <div class="grid" style="--grid-min-item-size: 16rem">
                 <div class="why-card flow">
                     <p class="why-card__icon" aria-hidden="true">✦</p>
-                    <p class="weight-bold">Locally Operated</p>
+                    <h3>Locally Operated</h3>
                     <p>Based in the Lee's Summit area — {{ $areaData.name | default "your city" }} is right in our core service zone.</p>
                 </div>
                 <div class="why-card flow">
                     <p class="why-card__icon" aria-hidden="true">✦</p>
-                    <p class="weight-bold">900+ Homes Annually</p>
+                    <h3>900+ Homes Annually</h3>
                     <p>Over 900 residential and commercial projects every season.</p>
                 </div>
                 <div class="why-card flow">
                     <p class="why-card__icon" aria-hidden="true">✦</p>
-                    <p class="weight-bold">Fully Insured</p>
+                    <h3>Fully Insured</h3>
                     <p>Full liability coverage on every job for your peace of mind.</p>
                 </div>
                 <div class="why-card flow">
                     <p class="why-card__icon" aria-hidden="true">✦</p>
-                    <p class="weight-bold">Everything Included</p>
+                    <h3>Everything Included</h3>
                     <p>We provide the lights, install them, and store them off-season.</p>
                 </div>
             </div>

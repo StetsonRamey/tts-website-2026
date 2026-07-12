@@ -14,7 +14,7 @@ keywords:
 
 ## Holiday Lighting Services
 
-Tis the Season Holiday Lighting provides full-service holiday lighting for both residential and commercial customers in Lee's Summit, Raymore, and surrounding areas. From the first design consultation through post-season storage, we handle everything.
+Tis the Season Holiday Lighting provides residential holiday lighting and commercial holiday lighting in Lee's Summit and Raymore, Missouri. Every project includes custom design, professional installation, in-season maintenance, post-season takedown, and off-season storage of the lights.
 
 ### Residential Holiday Lighting
 
@@ -49,9 +49,13 @@ Create a professional, welcoming atmosphere for your customers and employees. We
 
 - **Free Estimate** — No-hassle quote with guaranteed first-year pricing
 - **Professional Installation** — Insured crew, clean execution
-- **In-Season Maintenance** — If a light goes out, we fix it
-- **Takedown** — We remove everything after the season
-- **Storage** — Lights stored safely until next year
+- **In-Season Maintenance** — Bulb and wire problems are covered during the season
+- **Post-Season Takedown** — We remove everything after the season
+- **Off-Season Storage** — We store your lights until next year; wreath storage is not currently available
+
+The first-year price includes the lighting materials, and customers own the lights. Future years primarily cover installation and removal unless additional lights or color changes are requested.
+
+We install our own standard commercial-grade equipment rather than customer-provided lights so we can maintain consistent bulb colors, quality, and warranty coverage.
 
 ### Holiday Lighting — Our Flagship Service
 
@@ -64,7 +68,7 @@ Holiday lighting is what we do best. For a deeper look at our lighting options, 
 - Fully insured with liability coverage
 - Locally operated in the Lee's Summit, MO area
 - We provide the lights — you don't need to buy anything
-- Storage included with every project
+- Off-season storage of the lights included with every project; wreath storage is not currently available
 
 ---
 

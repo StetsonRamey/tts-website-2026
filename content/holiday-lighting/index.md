@@ -15,7 +15,7 @@ keywords:
 
 ## Professional Holiday Lighting Installation
 
-Tis the Season Holiday Lighting is a full-service holiday lighting company based in the Lee's Summit, MO area. We design, install, maintain, take down, and store your holiday lights — for both homes and commercial properties.
+Tis the Season Holiday Lighting provides residential holiday lighting and commercial holiday lighting in Lee's Summit and Raymore, Missouri. Every project includes custom design, professional installation, in-season maintenance, post-season takedown, and off-season storage of the lights.
 
 ![Two-story home with red and green C9 holiday lights lining the rooflines and eaves](/images/originals/residential-home.jpg)
 
@@ -35,7 +35,8 @@ We use commercial-grade LED lights that are energy-efficient, long-lasting, and 
 - Cool white
 - Multi-color
 - Custom color combinations
-- Bulb style choices (C9, mini, icicle, net, and more)
+- C7 and C9 bulbs
+- Wreath displays
 
 ![Modern Lee's Summit home with crisp warm white holiday lights along every roofline](/images/originals/hero.jpg)
 
@@ -45,10 +46,12 @@ Every project includes:
 
 1. **Free Estimate** — No-hassle consultation with guaranteed first-year pricing
 2. **Custom Design** — We plan a display tailored to your home or business
-3. **Professional Installation** — Installed by our insured, experienced crew
-4. **In-Season Maintenance** — If something goes out, we come back and fix it
-5. **Takedown** — We remove everything after the season ends
-6. **Storage** — Your lights are stored safely until next year
+3. **Professional Installation** — Installed by our fully insured, experienced crew
+4. **In-Season Maintenance** — Bulb and wire problems are covered during the season
+5. **Post-Season Takedown** — We remove everything after the season ends
+6. **Off-Season Storage** — We store your lights safely until next year; wreath storage is not currently available
+
+The first-year price includes the lighting materials, and you own the lights. Future years primarily cover installation and removal unless you request additional lights or change the colors of your display.
 
 ### How the Installation Works
 
@@ -65,7 +68,7 @@ Every project includes:
 Pricing depends on your property size and design preferences. We provide free estimates with guaranteed first-year pricing, so you know exactly what to expect.
 
 **When should I book my installation?**
-The earlier the better. Most customers book in late summer or early fall to secure their preferred installation date.
+We recommend booking in October or by the first week of November if you want installation completed by Thanksgiving.
 
 **Do you work with HOAs?**
 Yes. We're familiar with neighborhoods in Lee's Summit and Raymore, including Winterset Valley and Creekmoor.

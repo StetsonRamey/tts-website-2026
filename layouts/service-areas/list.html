@@ -7,8 +7,8 @@
             <h1 data-balance>Holiday Lighting Service Areas</h1>
             <p style="max-width: 60rem;">
                 Tis the Season Holiday Lighting is a locally operated company based in the Lee's Summit, MO area. We
-                provide full-service residential and commercial holiday lighting in Lee's Summit, Raymore, and nearby
-                communities.
+                provide residential holiday lighting and commercial holiday lighting in Lee's Summit and Raymore,
+                Missouri.
             </p>
             <p><a href="/contact/" class="button">Get Your Free Estimate</a></p>
         </div>
@@ -45,15 +45,7 @@
             <p>
                 No matter where you are in our service area, every project includes the same full-service experience.
             </p>
-            <div class="process__grid grid">
-                {{ range hugo.Data.included }}
-                <div class="process-step flow">
-                    <p class="process-step__number">{{ .num }}</p>
-                    <h3 class="process-step__title">{{ .name }}</h3>
-                    <p>{{ .description }}</p>
-                </div>
-                {{ end }}
-            </div>
+            {{ partial "included-services.html" . }}
         </div>
     </section>
 
@@ -70,7 +62,7 @@
                 {{ range (index hugo.Data "service-areas").areas }}
                 <div class="feature-card flow" style="border-bottom: none;">
                     {{ partial "icon.html" (dict "name" "map" "class" "icon-sm area-card__pin" "variant" "secondary") }}
-                    <p class="weight-bold">{{ .name }}, {{ .state }}</p>
+                    <h3>{{ .name }}, {{ .state }}</h3>
                     {{ if .neighborhoods }}
                     <ul role="list">
                         {{ range .neighborhoods }}

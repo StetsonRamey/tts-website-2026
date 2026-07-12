@@ -1,0 +1,9 @@
+<ol class="process__grid grid" aria-label="Services included with every project">
+    {{ range hugo.Data.included }}
+    <li class="process-step flow">
+        <p class="process-step__number" aria-hidden="true">{{ .num }}</p>
+        <h3 class="process-step__title">{{ .name }}</h3>
+        <p>{{ .description }}</p>
+    </li>
+    {{ end }}
+</ol>

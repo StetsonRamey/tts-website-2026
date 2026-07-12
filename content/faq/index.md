@@ -30,7 +30,7 @@ faq_items:
   - question: 'What types of lights do you use?'
     answer: 'We use commercial-grade LED lights in C7 and C9 bulbs, along with wreaths. Options include warm white, pure white, multicolor, and custom color combinations. C9 is the most common style shown in our photos.'
   - question: 'What if a light goes out during the season?'
-    answer: 'Bulb and wire problems are covered by our in-season maintenance service at no extra charge. Contact us and we will come fix the issue. Bulb and wire problems are covered by our in-season maintenance service at no extra charge. Contact us and we will come fix the issue. Other situations may not be covered under warranty; see our [terms](/terms/) for details.'
+    answer: 'Bulb and wire problems are covered by our in-season maintenance service at no extra charge. Contact us and we will come fix the issue. Other situations may not be covered under warranty; see our [terms](/terms/) for details.'
   - question: 'Are you insured?'
     answer: 'Yes. We carry full liability coverage for every installation.'
   - question: 'Do you store the lights after the season?'
