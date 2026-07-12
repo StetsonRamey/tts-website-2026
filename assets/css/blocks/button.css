@@ -1,20 +1,29 @@
 @layer blocks {
-    /* ── Button ── */
+    /* ── Buttons ── */
     .button {
-        display: inline-block;
-        padding: 0.75rem 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 3rem;
+        padding: 0.7rem 1.25rem;
         background-color: var(--color-primary);
         color: var(--color-white);
         font-weight: 700;
+        line-height: 1.15;
         text-decoration: none;
-        border-radius: var(--radius-s);
-        border: none;
+        border: 1px solid var(--color-primary);
+        border-radius: 0;
         cursor: pointer;
-        transition: background-color 0.2s ease;
+        transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
     }
 
     .button:hover {
         background-color: var(--color-dark);
+        border-color: var(--color-dark);
         color: var(--color-white);
+    }
+
+    .button:active {
+        transform: translateY(1px);
     }
 }

@@ -9,15 +9,11 @@
             <div class="hero__content flow">
                 <p class="overline">Professional Holiday Lighting</p>
                 <h1 data-balance>Holiday Lighting in Lee's Summit, MO</h1>
-                <p>
-                    Full-service holiday lighting for homes and businesses. We handle the design, installation,
-                    maintenance, takedown, and storage — so you don't have to.
-                </p>
-                <ul class="hero__trust cluster" role="list">
-                    <li>✓ Since 2015</li>
-                    <li>✓ 900+ Homes</li>
-                    <li>✓ Fully Insured</li>
-                </ul>
+                <p>Design, installation, maintenance, takedown, and storage for homes and businesses — handled by one local team.</p>
+                <div class="hero__actions cluster">
+                    <a href="/contact/" class="button">Free Estimate</a>
+                    <a href="tel:{{ site.Params.phone }}" class="hero__phone">{{ site.Params.phone }}</a>
+                </div>
             </div>
         </div>
     </section>
@@ -26,7 +22,6 @@
     <section class="service-facts region bg-light" aria-label="Holiday lighting at a glance">
         <div class="wrapper flow">
             <div class="service-facts__header">
-                <p class="overline">At a Glance</p>
                 <h2>Professional Holiday Lighting, Start to Finish</h2>
                 <p class="service-facts__intro">
                     We make holiday lighting simple for homes and businesses in Lee's Summit and Raymore.
@@ -77,14 +72,14 @@
                     {{ partial "image.html" (dict "src" "images/originals/residential-home.jpg" "alt" "Two-story home with red and green C9 lights along the rooflines and eaves" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                     <div class="service-card__overlay">
                         <h3>Residential</h3>
-                        <p>View Services →</p>
+                        <p>Explore service</p>
                     </div>
                 </a>
                 <a href="/services/#commercial" class="service-card" aria-label="Commercial Holiday Lighting">
                     {{ partial "image.html" (dict "src" "images/originals/commercial-home.jpg" "alt" "Summit Park Church exterior outlined in warm white commercial holiday lights at night" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                     <div class="service-card__overlay">
                         <h3>Commercial</h3>
-                        <p>View Services →</p>
+                        <p>Explore service</p>
                     </div>
                 </a>
             </div>
@@ -103,7 +98,6 @@
     {{/* ── Featured Installations ── */}}
     <section class="gallery-preview region" aria-label="Featured installations">
         <div class="wrapper">
-            <p class="overline">Our Work</p>
             <h2>Featured Installations</h2>
             <div class="gallery-preview__grid grid" style="--grid-min-item-size: 18rem">
                 <figure class="gallery-card">
@@ -123,7 +117,6 @@
     {{/* ── Testimonials ── */}}
     <section class="testimonials region bg-light" aria-label="Testimonials">
         <div class="wrapper">
-            <p class="overline">What Customers Say</p>
             <h2>Trusted by Homeowners</h2>
             <div class="testimonials__grid grid" style="--grid-min-item-size: 18rem">
                 {{ range hugo.Data.testimonials }}
@@ -146,14 +139,12 @@
     {{/* ── Service Areas ── */}}
     <section class="areas-preview region bg-dark" aria-label="Service areas">
         <div class="wrapper">
-            <p class="overline">Where We Serve</p>
             <h2>Service Coverage</h2>
             <div class="areas-preview__grid grid" style="--grid-min-item-size: 20rem">
                 {{ range (index hugo.Data "service-areas").areas }}
                 <a href="/service-areas/{{ .slug }}/" class="area-card" aria-label="{{ .name }}, {{ .state }}">
                     {{ partial "image.html" (dict "src" (printf "images/originals/%s" .image) "alt" (printf "Holiday lighting in %s, %s" .name .state) "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
                     <div class="area-card__overlay">
-                        <p class="area-card__pin" aria-hidden="true">📍</p>
                         <h3>{{ .name }}, {{ .state }}</h3>
                     </div>
                 </a>

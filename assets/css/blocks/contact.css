@@ -6,10 +6,11 @@
 
     .contact-card {
         --flow-space: var(--space-3xs);
-        background: var(--color-bg-accent);
-        border-radius: var(--radius-l);
-        padding: var(--space-s);
+        background: transparent;
+        border-radius: 0;
+        padding: var(--space-s) 0;
         text-align: left;
+        border-top: 1px solid var(--color-border);
     }
 
     .contact-card__icon {
@@ -35,10 +36,10 @@
     .contact-form__card {
         --flow-space: var(--space-s);
         background: var(--color-white);
-        border-radius: var(--radius-l);
+        border-radius: 0;
         padding: var(--space-l);
         text-align: left;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--color-border);
     }
 
     .contact-form__row {
@@ -138,9 +139,10 @@
 
     .contact-area-card {
         --flow-space: var(--space-2xs);
-        background: rgba(255, 255, 255, 0.12);
-        border-radius: var(--radius-l);
-        padding: var(--space-m);
+        background: transparent;
+        border-radius: 0;
+        padding: var(--space-m) 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.28);
     }
 
     .contact-area-card__icon {
