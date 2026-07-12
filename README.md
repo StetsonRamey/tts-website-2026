@@ -62,7 +62,7 @@ make dev              # Start Hugo dev server at http://localhost:1313
 
 ### Production Build & Deploy
 ```bash
-make build-prod       # Production build (minified, optimized)
+make build-prod       # Production build (minified; explicitly targets https://tistheseasonkc.com/)
 go run server.go      # Start Go server on :8000
 ```
 

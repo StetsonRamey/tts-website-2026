@@ -7,7 +7,7 @@ build:
 	hugo
 
 build-prod:
-	hugo --minify --gc
+	hugo --minify --gc --environment production --baseURL 'https://tistheseasonkc.com/'
 
 clean:
 	rm -rf resources/_gen public
