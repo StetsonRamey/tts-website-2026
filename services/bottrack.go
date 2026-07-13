@@ -94,7 +94,6 @@ var botSignatures = []botSig{
 	{"archive.org_bot", "Archive.org", botOther},
 	{"WaybackMachine", "Wayback", botOther},
 	{"Wget", "Wget", botOther},
-	{"curl", "curl", botOther},
 }
 
 // classifyBot returns (name, kind). kind == botNone means "not a known bot".

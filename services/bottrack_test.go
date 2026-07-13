@@ -23,7 +23,6 @@ func TestClassifyBot(t *testing.T) {
 		{"Mozilla/5.0 (compatible; PerplexityBot/1.0)", "PerplexityBot", botAI},
 		{"Mozilla/5.0 (Macintosh) Chrome/120", "", botNone},
 		{"", "", botNone},
-		{"curl/8.0", "curl", botOther},
 	}
 	for _, c := range cases {
 		name, kind := classifyBot(c.ua)
