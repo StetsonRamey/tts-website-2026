@@ -44,7 +44,7 @@ func TestBotTrackingAndDashboard(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ok", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) })
 	mux.HandleFunc("/missing", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(404) })
-	mux.HandleFunc("/internal/bots", BotDashboardHandler(&Config{Env: "dev"}))
+	mux.HandleFunc("/internal/bots", BotDashboardHandler(&Config{Env: "dev"}, true))
 	wrapped := BotTrackMiddleware(mux)
 
 	srv := httptest.NewServer(wrapped)

@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -567,8 +568,10 @@ func main() {
 	mux.HandleFunc("/sold/sync", services.SoldSyncHandler(cfg))
 	mux.HandleFunc("/invoice/create", services.InvoiceHandler(cfg))
 
-	// Bot / AI-crawler crawl dashboard (internal — protected by WEBHOOK_AUTH_KEY)
-	mux.HandleFunc("/internal/bots", services.BotDashboardHandler(cfg))
+	// Bot / AI-crawler crawl dashboard on the PUBLIC mux — still bearer-authed
+	// so it's reachable via curl with the WEBHOOK_AUTH_KEY from anywhere.
+	// (A token-free, one-click version runs on the internal listener below.)
+	mux.HandleFunc("/internal/bots", services.BotDashboardHandler(cfg, true))
 
 	// Serve downloaded estimate photos (permanent URLs embedded in emails)
 	mux.HandleFunc("/photos/", services.PhotoHandler())
@@ -577,6 +580,37 @@ func main() {
 	mux.Handle("/", cacheMiddleware(fs))
 
 	log.Println("Serving on :8000")
+
+	// Internal-only listener: a separate mux on a private port (default :3001)
+	// for dashboards/tools meant only for the VM owner. exe.dev proxies alternate
+	// ports privately — only users with VM access can reach them, gated by their
+	// exe.dev login. That login gate IS the auth, so these handlers skip the
+	// bearer-token check, keeping the dashboard a clean one-click bookmark with
+	// no secret in the URL or logs. Set INTERNAL_PORT=0 to disable.
+	internalPort := os.Getenv("INTERNAL_PORT")
+	if internalPort == "" {
+		internalPort = "3001"
+	}
+	if internalPort != "0" {
+		imux := http.NewServeMux()
+		imux.HandleFunc("/internal/bots", services.BotDashboardHandler(cfg, false))
+		imux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			fmt.Fprintf(w, "<!doctype html><meta charset=utf-8><title>TTS Internal</title>"+
+				"<style>body{font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:#0f1115;color:#e6e6e6;padding:40px}"+
+				"h1{font-size:18px}a{color:#6fb6ff}code{background:#1a1d24;padding:2px 6px;border-radius:4px}</style>"+
+				"<h1>TTS — Internal tools</h1>"+
+				"<ul><li><a href=\"/internal/bots\">🤖 Bot Crawl Dashboard</a></li></ul>"+
+				"<p style=color:#8a93a4;font-size:13px>Private to VM owner — gated by exe.dev login.</p>")
+		})
+		go func() {
+			log.Printf("Internal listener on :%s (private — exe.dev-gated)", internalPort)
+			if err := http.ListenAndServe(":"+internalPort, imux); err != nil {
+				log.Printf("[internal] listen :%s failed: %v", internalPort, err)
+			}
+		}()
+	}
+
 	log.Fatal(http.ListenAndServe(":8000",
 		securityHeadersMiddleware(termsRedirect(wwwRedirect(services.BotTrackMiddleware(mux))))))
 }

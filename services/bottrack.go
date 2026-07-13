@@ -277,11 +277,19 @@ type botStat struct {
 // ── Dashboard handler ────────────────────────────────────────────────────
 
 // BotDashboardHandler returns an HTML summary of recent bot crawling.
-// Protected by RequireBearerAuth (same WEBHOOK_AUTH_KEY as other internal
-// endpoints). Pass ?days=N to change the window (default 7, max 90).
-func BotDashboardHandler(cfg *Config) http.HandlerFunc {
+//
+// auth controls how the endpoint is gated:
+//   - true  → require Authorization: Bearer WEBHOOK_AUTH_KEY (used when the
+//             endpoint is exposed on the public-facing mux).
+//   - false → no bearer check; intended for the internal-only listener whose
+//             access is already gated by exe.dev's private-proxy login. This
+//             avoids putting a secret in the URL while keeping the dashboard
+//             a one-click bookmark for the VM owner.
+//
+// Pass ?days=N to change the window (default 7, max 90).
+func BotDashboardHandler(cfg *Config, auth bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !RequireBearerAuth(w, r) {
+		if auth && !RequireBearerAuth(w, r) {
 			return
 		}
 
