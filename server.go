@@ -544,6 +544,11 @@ func securityHeadersMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
+	// Initialize Sentry first so panics during startup are captured.
+	// No-op if SENTRY_DSN is unset (local dev). Flush on exit.
+	services.InitSentry()
+	defer services.FlushSentry(2 * time.Second)
+
 	// Load config — reads APP_ENV and Stripe keys, logs active mode
 	cfg := services.LoadConfig()
 
@@ -605,14 +610,15 @@ func main() {
 		})
 		go func() {
 			log.Printf("Internal listener on :%s (private — exe.dev-gated)", internalPort)
-			if err := http.ListenAndServe(":"+internalPort, imux); err != nil {
+			if err := http.ListenAndServe(":"+internalPort, services.SentryRecovery(imux)); err != nil {
 				log.Printf("[internal] listen :%s failed: %v", internalPort, err)
 			}
 		}()
 	}
 
 	log.Fatal(http.ListenAndServe(":8000",
-		securityHeadersMiddleware(termsRedirect(wwwRedirect(services.BotTrackMiddleware(mux))))))
+		services.SentryRecovery(
+			securityHeadersMiddleware(termsRedirect(wwwRedirect(services.BotTrackMiddleware(mux)))))))
 }
 
 func cacheMiddleware(next http.Handler) http.Handler {

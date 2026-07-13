@@ -122,6 +122,13 @@ func RequireBearerAuth(w http.ResponseWriter, r *http.Request) bool {
 
 // sendErrorEmail sends a plain-text alert when something goes wrong.
 func (cfg *Config) sendErrorEmail(message string) {
+	// Also report to Sentry (no-op if disabled). We pass nil for the request
+	// because this helper is called from background paths without one; the
+	// env tag set at InitSentry still attaches. This means every existing
+	// error-alert call site (checkout, webhook, invoice, sold-sync, ...) is
+	// automatically reported to Sentry without scattering CaptureError calls.
+	CaptureMessage(message, nil)
+
 	smtpHost := "smtp.gmail.com"
 	smtpPort := "587"
 	from := os.Getenv("GMAIL_SEND_AS")
