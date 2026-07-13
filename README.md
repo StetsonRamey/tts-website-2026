@@ -1,76 +1,103 @@
 # Tis The Season KC — Hugo + Go Site
 
-Professional holiday lighting website for [tistheseasonkc.com](https://tistheseasonkc.com/).
+Professional holiday-lighting website for [tistheseasonkc.com](https://tistheseasonkc.com/).
 
-Built with **Hugo** (static content), **Go** (backend server), styled with **CUBE CSS**, hosted on **exe.dev VM**.
+The site is rendered and built with **Hugo**. A small **Go** server serves the built site and owns the runtime features: contact intake, payments, operational automations, email, analytics proxying, and observability. Styling follows **CUBE CSS**. It is deployed on an exe.dev VM.
 
 ## Prerequisites
 
-- [Hugo Extended](https://gohugo.io/installation/) (v0.120+)
+- [Hugo Extended](https://gohugo.io/installation/)
 - GNU Make
+- Go 1.26+
 
 ## Quick Start
 
 ```bash
-make dev          # Start dev server at http://localhost:1313
-make build        # Development build → public/
-make build-prod   # Production build (minified) → public/
-make clean        # Remove generated files
+make dev          # Hugo development server only: http://localhost:1313
+make build        # Hugo development build → public/
+make build-prod   # Production Hugo build → public/
+go run server.go  # Go server: public/ plus backend routes on :8000
+make clean        # Remove generated Hugo artifacts
 ```
+
+> `make dev` is for frontend/content work only. It does not run backend routes such as `/contact`, `/pay`, `/analytics/*`, or the internal tools.
+
+For runtime configuration and backend operations, see `SERVICES.md`. Environment-variable names are documented in `.env.example`; the Go server reads environment variables directly and does **not** load a `.env` file itself.
 
 ## Project Structure
 
-```
+```text
 TTS/
-├── Makefile          # Canonical dev/build/clean commands
-├── hugo.toml         # Hugo configuration
-├── server.go         # Go HTTP server (forms, payments, static serving)
-├── services/         # Go packages (Stripe, email, photo handling)
-├── content/          # Markdown pages with front matter
-├── layouts/          # HTML templates and partials
-├── assets/css/       # CUBE CSS (global, composition, utilities, blocks, exceptions)
-├── static/           # Static assets (images, robots.txt)
-├── public/           # Hugo build output (served by Go server)
-├── data/             # YAML data files (services, testimonials, areas)
-└── business-logos/   # Approved logo SVGs
+├── AGENTS.md             # Working map and conventions for coding agents
+├── README.md             # This site/application overview
+├── SERVICES.md           # Backend architecture and operations runbook
+├── Makefile              # Hugo dev/build/clean commands
+├── hugo.toml             # Hugo configuration, menus, params, outputs
+├── server.go             # Go server, routes, middleware, static serving
+├── services/             # Backend handlers and third-party integrations
+├── content/              # Markdown pages with front matter
+├── layouts/              # Hugo layouts, partials, SEO/schema output
+├── assets/css/           # CUBE CSS entry point, layers, and component styles
+├── assets/js/            # Progressive enhancement for forms and UI behavior
+├── assets/images/        # Hugo-managed image source assets
+├── static/               # Passthrough assets: favicons, logos, llms.txt, etc.
+├── data/                 # YAML data for site content
+├── business-logos/       # Approved logo SVGs
+├── .agents/              # Static business/domain facts used for templates
+└── public/               # Generated Hugo output, served by the Go server
 ```
+
+## Responsibilities
+
+- **Hugo** — page content, page rendering, templates, SEO/meta tags, schema, generated `robots.txt`, and asset bundling.
+- **Go** — contact form intake, Stripe checkout/webhooks, email and internal automation endpoints, staged-photo hosting, first-party analytics proxy, bot-crawl tracking, redirects, caching, security headers, and custom 404 handling.
+- **`services/`** — focused backend integrations for Airtable, Stripe, Gmail, CompanyCam, Sentry, Umami, and bot tracking.
 
 ## Workflow Conventions
 
-- **Hugo for content**: Markdown pages, templates, static generation
-- **Go for backend**: HTTP server, form handling, payment processing, email services
-- **Use `make` targets**: `dev`, `build`, `build-prod`, `clean`
-- **No JS package manager** — Hugo handles frontend assets via Pipes
-- **Environment**: `.env` file for API keys (Stripe, Airtable, etc.)
+- Use Hugo for content, rendering, and frontend asset changes; use Go only for server/runtime behavior.
+- Use `make dev`, `make build`, `make build-prod`, and `make clean` for Hugo tasks. The Makefile does not build or run the Go backend.
+- There is no Node/npm build step. Hugo Pipes builds CSS and JavaScript from `assets/`.
+- Keep secrets out of the repository. Runtime configuration is supplied by environment variables; see `.env.example` and `SERVICES.md`.
+- Before changing a subsystem, read its source and the relevant documentation. `AGENTS.md` is the starting point for agents.
 
 ## CSS Architecture (CUBE CSS)
 
-| File | Purpose |
-|------|----------|
-| `global.css` | Reset, custom properties, base element styles |
-| `composition.css` | Layout primitives (flow, wrapper, grid, cluster, etc.) |
-| `utilities.css` | Utility classes (colors, spacing, typography) |
-| `blocks.css` | Component styles (nav, hero, card, button, form) |
-| `exceptions.css` | Data-attribute state overrides |
+| Path | Purpose |
+|---|---|
+| `assets/css/main.css` | CSS entry point that imports the layers below |
+| `assets/css/global.css` | Reset, custom properties, and base element styles |
+| `assets/css/composition.css` | Layout primitives such as flow, wrapper, grid, and cluster |
+| `assets/css/utilities.css` | Utility classes for colors, spacing, and typography |
+| `assets/css/blocks/*.css` | Component-level styles such as header, hero, cards, forms, and footer |
+| `assets/css/exceptions.css` | State-specific and data-attribute overrides |
 
-## Building & Running
+## Frontend Behavior
 
-### Development
+Frontend JavaScript is progressively enhanced through Hugo-bundled files in `assets/js/`:
+
+- form validation and asynchronous contact submission
+- phone-number formatting
+- address autocomplete
+- theme toggle
+
+Shared Hugo partials also provide canonical URLs, Open Graph/Twitter metadata, schema.org JSON-LD, analytics markup, and the CSS/JS bundles.
+
+## Running the Production Server
+
 ```bash
-make dev              # Start Hugo dev server at http://localhost:1313
+make build-prod
+go build -o tts-server .
+./tts-server
 ```
 
-### Production Build & Deploy
-```bash
-make build-prod       # Production build (minified; explicitly targets https://tistheseasonkc.com/)
-go run server.go      # Start Go server on :8000
-```
+The public Go listener runs on port `8000`. It serves `public/` and backend routes. When enabled, a second owner-only internal listener runs on `INTERNAL_PORT` (default `3001`). Deployment/service management details are in `SERVICES.md`.
 
 ### Server Features
-- **Contact Form Handler** (`/contact`): Validates submissions, rate-limits by IP, geo-blocks non-US, logs to Airtable
-- **Stripe Integration** (`/pay`, `/stripe/webhook`): Payment processing and webhook handling
-- **Email Services** (`/estimate/send`, `/confirmation/send`, `/oos/send`): Customer communication (protected by auth key)
-- **Static File Serving**: Smart cache headers (1-year for immutable assets, 1-hour for HTML)
-- **Security Headers**: X-Frame-Options, X-Content-Type-Options, Referrer-Policy
-- **URL Redirects**: Legacy Cloudflare redirects (e.g., `/terms-and-conditions` → `/terms/`)
-- **www Redirect**: Forces canonical domain without www
+
+- **Contact intake** (`/contact`) — accepts HTML form and JSON POSTs; validates fields, applies anti-spam checks, logs submissions, and writes accepted leads to Airtable.
+- **Payments** (`/pay`, `/stripe/webhook`) — Stripe Checkout and signed webhook handling.
+- **Operational automations** (`/estimate/send`, `/confirmation/send`, `/oos/send`, `/sold/sync`, `/invoice/create`) — authenticated email, CRM, CompanyCam, and invoicing workflows.
+- **Analytics and observability** — first-party Umami proxy (`/analytics/*`), Sentry error reporting, and a bot/crawler dashboard (`/internal/bots`).
+- **Photo hosting** (`/photos/*`) — permanent serving of staged photos used in estimate emails.
+- **Static-site middleware** — canonical `www` and legacy URL redirects, security headers, a Hugo-styled 404 response, and cache headers: one year immutable for CSS/JS/fonts, 30 days for images, and one hour for other responses.

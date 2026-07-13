@@ -1,395 +1,263 @@
 # Tis The Season KC — Backend Services Runbook
 
-This document covers all backend API services that power the customer-facing and
-operational tools for Tis The Season KC. It is the single source of truth for
-what each service does, how to run it, what it needs, and what's left to build.
+This document describes the Go backend that serves the public Hugo build and powers customer-facing and operational workflows. It covers the implemented routes, configuration, integrations, and deployment expectations.
 
-> **Site infrastructure** (Hugo build, exe.dev deployment on a public VM) lives in
-> `PLAN.md`. This doc is only about the Go backend services.
+For the site structure and local build workflow, see `README.md`. For agent working conventions, see `AGENTS.md`.
+
+> This repository does **not** version a systemd unit or production secrets. The commands and paths below describe the expected VM deployment, which must be verified on the target host.
 
 ---
 
-## Where This Code Lives
+## Architecture and Code Map
 
-All backend services run inside the existing Go HTTP server (`server.go`) that
-already powers the contact form and serves the static site. New services are
-added as route handlers and organized in the `services/` directory.
+The public Go server starts in `server.go`. It serves Hugo's generated `public/` directory, registers backend handlers from `services/`, and applies redirects, security headers, caching, bot tracking, Sentry recovery, and custom 404 handling.
 
-The server runs as a persistent systemd service (`tts.service`) on this VM.
-
-```
+```text
 TTS/
-├── server.go                    ← main entry point, registers all routes
-├── go.mod                       ← Go module (zero external dependencies)
-├── .env.example                 ← documents every required env var (no secrets)
+├── server.go                       # Public server, middleware, route registration, internal listener
+├── go.mod                          # Go module; includes Sentry SDK dependencies
+├── .env.example                    # Environment-variable reference; never contains real secrets
 ├── services/
-│   ├── config.go                ← LoadConfig(), env var validation, error emails
-│   ├── airtable.go              ← shared Airtable API client, typed structs
-│   ├── leads.go                 ← Airtable client for LEADS base (2026 Leads table)
-│   ├── checkout.go              ← Stripe checkout page handler
-│   ├── webhook.go               ← Stripe webhook handler
-│   ├── estimate.go              ← estimate email sender ✅
-│   ├── sold_sync.go             ← /sold/sync — CompanyCam + Stripe customer sync ✅
-│   ├── invoice.go               ← /invoice/create — Stripe invoice generator ✅
+│   ├── config.go                   # Runtime config, bearer auth, status, error-email helper
+│   ├── airtable.go                 # Customers and yearly-invoicing Airtable client
+│   ├── leads.go                    # Leads Airtable client and patch helpers
+│   ├── checkout.go                 # GET /pay
+│   ├── webhook.go                  # POST /stripe/webhook
+│   ├── estimate.go                 # POST /estimate/send and GET /photos/*
+│   ├── confirmation.go             # POST /confirmation/send
+│   ├── oos.go                      # POST /oos/send
+│   ├── sold_sync.go                # POST /sold/sync
+│   ├── invoice.go                  # POST /invoice/create
+│   ├── bottrack.go                 # Crawler logging and /internal/bots dashboard
+│   ├── umamiproxy.go               # First-party /analytics/* proxy
+│   ├── sentry.go                   # Sentry initialization and recovery middleware
 │   └── email_templates/
-│       └── estimate.html        ← Go HTML template for estimate email ✅
-├── static/
-│   └── images/
-│       └── tts-logo.png         ← logo served at /images/tts-logo.png (Hugo static)
-└── SERVICES.md                  ← this file
+│       ├── estimate.html
+│       ├── confirmation.html
+│       └── tts-logo.png
+├── public/                         # Hugo build output served by the Go server
+└── SERVICES.md                     # This runbook
 ```
+
+## Listeners
+
+- **Public listener:** `:8000`. Serves the static site and all public/backend routes.
+- **Internal listener:** `INTERNAL_PORT`, default `:3001`; set `INTERNAL_PORT=0` to disable it. It exposes owner-only tools through the exe.dev VM proxy. Currently it offers `/internal/bots` without a bearer token; access is gated by exe.dev login.
+
+The internal listener is not a replacement for route-level authorization on the public listener.
 
 ---
 
-## Environment & Configuration
+## Environment and Configuration
 
-All secrets and config live in environment variables. **Never hardcode keys.**
+All runtime configuration comes from environment variables. Never hardcode secrets or commit an environment file containing real credentials.
 
-The server is controlled by a single `APP_ENV` flag:
+`.env.example` is the versioned reference for variable names. The Go server reads its process environment directly; it does not parse `.env` files.
+
+On the production VM, a typical systemd deployment uses an external root-readable-only `EnvironmentFile=`, for example `/etc/tts/secrets.env`, referenced by an externally managed `tts.service` unit. Verify the actual unit and paths before changing production configuration.
+
+### Modes
+
+`APP_ENV` selects Stripe mode:
 
 | Value | Behavior |
-|-------|----------|
-| `dev` | Uses Stripe sandbox proxy, Stripe TEST product IDs from Airtable |
-| `prod` | Uses Stripe live proxy, live Stripe product IDs from Airtable |
+|---|---|
+| `dev` (default) | Uses the sandbox Stripe proxy and `*_DEV` configuration |
+| `prod` | Uses the live Stripe proxy and `*_PROD` configuration |
 
-The server logs the active mode unmistakably on startup:
-```
-⚡ TTS Server starting
-🟡 STRIPE MODE: SANDBOX (dev)
-```
-or
-```
-⚡ TTS Server starting
-🟢 STRIPE MODE: LIVE (prod)
-```
+Startup logs identify the selected mode. Do not switch modes casually: validate required webhook/product configuration first.
 
-To switch modes: change `APP_ENV` in the systemd unit and restart. No code changes needed.
+### Environment-variable Reference
 
-### Required Environment Variables
+| Variable | Purpose |
+|---|---|
+| `APP_ENV` | `dev` or `prod`; selects Stripe proxy and environment-specific values |
+| `STRIPE_WEBHOOK_SECRET_DEV` / `STRIPE_WEBHOOK_SECRET_PROD` | Inbound Stripe webhook signature verification |
+| `STRIPE_REVIEW_COUPON_ID` | Optional coupon applied for eligible review discounts |
+| `STRIPE_INVOICE_PRODUCT_ID_DEV` / `STRIPE_INVOICE_PRODUCT_ID_PROD` | Stripe product used for invoice creation; the product's default price determines per-foot cost |
+| `WEBHOOK_AUTH_KEY` | Required bearer token for internal automation routes and the public bot dashboard |
+| `COMPANYCAM_BASE_URL` | Optional CompanyCam API base URL override; defaults to the exe.dev CompanyCam proxy |
+| `COMPANYCAM_API_TOKEN` | Optional direct CompanyCam token for local/non-proxy development |
+| `COMPANYCAM_USER_EMAIL` | Optional CompanyCam user identity header for direct/non-proxy development |
+| `GMAIL_USER` | Optional SMTP authentication account; defaults to `GMAIL_SEND_AS` when unset |
+| `GMAIL_SEND_AS` | SMTP envelope/from address and visible sender alias |
+| `GMAIL_APP_PASSWORD` | Gmail App Password used for SMTP |
+| `ERROR_EMAIL_TO` | Recipient for backend error alerts; defaults to `stetson@tts.lighting` |
+| `SENTRY_DSN` | Optional Sentry DSN; unset disables Sentry reporting |
+| `INTERNAL_PORT` | Internal owner-only listener port; defaults to `3001`, or `0` disables it |
+| `UMIAMI_URL` | Umami upstream URL; intentionally matches the spelling used by the code, defaults to `http://127.0.0.1:3000` |
 
-See `.env.example` for the full list. These live in `/etc/systemd/system/tts.service`
-under `[Service]` as `Environment=` lines.
+Outbound Stripe and Airtable calls use exe.dev proxy integrations in the deployed environment, so Stripe API keys and Airtable PATs are not stored in this repository or expected as normal backend environment variables.
 
-```
-APP_ENV=dev                              # or: prod
+### Changing Configuration on a VM
 
-# Stripe webhook signing secrets (outbound Stripe calls use exe.dev proxy — no keys needed)
-STRIPE_WEBHOOK_SECRET_DEV=whsec_...      # from Stripe Dashboard → Webhooks (sandbox)
-STRIPE_WEBHOOK_SECRET_PROD=whsec_...     # from Stripe Dashboard → Webhooks (live) — add when going live
-
-# Gmail SMTP (for estimate emails and server error alerts)
-GMAIL_SEND_AS=stetson@tts.lighting
-GMAIL_APP_PASSWORD="xxxx xxxx xxxx xxxx"  # 16-char Google App Password (quote it — has spaces)
-
-# Webhook auth — shared with Airtable automation scripts
-WEBHOOK_AUTH_KEY=<random>                # generate: openssl rand -base64 32 | tr '+/' '-_' | tr -d '='
-```
-
-**Note:** Stripe API calls go through `stripe-test-mode.int.exe.xyz` (dev) and
-`stripe-live-mode.int.exe.xyz` (prod) — exe.dev proxy integrations inject the keys,
-so no Stripe secret key is ever stored on this VM.
-
-Airtable calls go through `airtable.int.exe.xyz` — same deal, no Airtable PAT on VM.
-
-### Where Secrets Live
-
-Secrets are stored in a dedicated environment file, separate from the service config:
-
-```
-/etc/tts/secrets.env
-```
-
-- Owned by `root`, mode `600` — only root can read it
-- Never commit this file or its contents to git
-- The service config (`/etc/systemd/system/tts.service`) references it via `EnvironmentFile=` — it contains no secrets itself
-
-### How to Add or Rotate a Secret
+1. Confirm the active systemd unit and environment-file path with `systemctl cat tts.service`.
+2. Edit the external secret/config source, never this repository's `.env.example` with real values.
+3. Restart the service and inspect logs:
 
 ```bash
-# Edit the secrets file
-sudo nano /etc/tts/secrets.env
-
-# Reload and restart to pick up changes
-sudo systemctl daemon-reload && sudo systemctl restart tts.service
-
-# Confirm it started correctly
-journalctl -u tts.service -n 5
-```
-
-### Adding Secrets for Future Services
-
-When adding the live Stripe webhook secret, append to `/etc/tts/secrets.env`:
-
-```
-STRIPE_WEBHOOK_SECRET_PROD=whsec_...
+sudo systemctl daemon-reload
+sudo systemctl restart tts.service
+journalctl -u tts.service -n 50 --no-pager
 ```
 
 ---
 
 ## Services
 
-### 1. Airtable Client
+### Contact Intake
 
-**File:** `services/airtable.go`
-**Status:** ✅ Done — tested
+**Routes:** `GET|HEAD /contact`, `POST /contact`
+**Code:** `server.go`
 
-Shared client used by all other services. Key details:
-- All requests include `returnFieldsByFieldId=true` so map keys are stable field IDs (not names)
-- Field ID constants defined at top of file for both Customers and Yearly Invoicing tables
-- `GetCustomerByRecordID()` — fetch by Airtable record ID (used by checkout)
-- `GetCustomerByStripeID()` — fetch by Stripe `cus_` ID (used by webhook)
-- `GetCurrentYearLineItems()` — fetch Yearly Invoicing rows for a customer, selects dev or prod Stripe product ID field based on `APP_ENV`
-- `MarkCustomerPaid()` — PATCH: sets `Paid? = "Paid"` and clears `Review Discount?` checkbox
+- `GET` and `HEAD` redirect to the canonical Hugo page at `/contact/`.
+- `POST` accepts HTML form submissions and JSON submissions.
+- The handler validates data, rate-limits by IP, rejects implausibly fast submissions, checks non-US traffic, records outcomes, and sends accepted leads to Airtable.
+- Standard HTML form posts redirect to `/thank-you/`; JavaScript-enhanced HTML requests receive a thank-you fragment; JSON clients receive JSON.
 
----
+### Airtable Clients
 
-### 2. Stripe Checkout
+**Code:** `services/airtable.go`, `services/leads.go`
+
+The backend has separate typed clients for the customer/yearly-invoicing data and the leads data. They support checkout/webhook state changes, lead lookups, photo metadata, sold-job sync, and invoice-link updates. Airtable requests use the exe.dev proxy integration in the deployed environment.
+
+### Stripe Checkout
 
 **Route:** `GET /pay?q={airtableRecordID}`
-**Status:** ✅ Done — tested end-to-end
+**Code:** `services/checkout.go`
 
-What it does:
-1. Reads `?q=` record ID, fetches customer from Airtable
-2. If already paid → returns a friendly "already paid" message
-3. Fetches current-year line items from Yearly Invoicing table
-4. Builds a Stripe Checkout Session via the exe.dev proxy (form-encoded POST)
-5. If `Review Discount?` is checked on the customer → applies coupon `wdxZW6X2`
-6. Redirects customer to Stripe-hosted checkout page
-7. Stripe redirects to `https://tistheseasonkc.com/payment-success` on success
+The handler loads the customer and current-year line items from Airtable, prevents duplicate payment when the customer is already paid, creates a Stripe Checkout Session through the selected exe.dev proxy, and redirects to Stripe. If the customer's review-discount flag is set, it applies `STRIPE_REVIEW_COUPON_ID` when configured.
 
-**File:** `services/checkout.go`
-
----
-
-### 3. Stripe Webhook
+### Stripe Webhook
 
 **Route:** `POST /stripe/webhook`
-**Status:** ✅ Done — tested end-to-end
+**Code:** `services/webhook.go`
 
-What it does:
-1. Receives `checkout.session.completed` event from Stripe
-2. Verifies `Stripe-Signature` header with HMAC-SHA256 (manual — no stripe-go SDK)
-3. Looks up customer in Airtable by Stripe `cus_` ID
-4. Patches Airtable: `Paid? = "Paid"` + `Review Discount? = false`
+Receives `checkout.session.completed`, verifies the `Stripe-Signature` header with the mode-specific webhook secret, finds the customer through the Stripe customer ID, and marks the customer paid in Airtable.
 
-**Stripe Dashboard setup:**
-- Sandbox endpoint: `https://pi-vm.exe.xyz:8000/stripe/webhook` ✅ registered
-- Live endpoint: `https://tistheseasonkc.com/stripe/webhook` — add when going live
-- Event: `checkout.session.completed` only
+Configure Stripe Dashboard endpoints for the actual deployed public hostname and mode. This is deployment state, not a repository guarantee.
 
-**File:** `services/webhook.go`
+### Estimate Email and Photo Hosting
 
----
+**Routes:** `POST /estimate/send`, `GET /photos/{filename}`
+**Code:** `services/estimate.go`, `services/email_templates/estimate.html`
 
-### 4. Payment Success Page
+The authenticated estimate endpoint accepts `{"recordId":"rec..."}`, loads a lead from Airtable, downloads its photo attachments before their Airtable CDN URLs expire, writes permanent copies under `/var/lib/tts/photos/`, renders the estimate template, and sends it by Gmail SMTP. The photo route serves those staged copies at the public site hostname for use in the email.
 
-**URL:** `https://tistheseasonkc.com/payment-success`
-**Status:** ✅ Done
+### Confirmation and Out-of-Service Emails
 
-Hugo static page. Customers land here after completing Stripe checkout.
-Layout: `layouts/payment-success/single.html`
-Content: `content/payment-success/index.md`
+**Routes:** `POST /confirmation/send`, `POST /oos/send`
+**Code:** `services/confirmation.go`, `services/oos.go`
 
----
+Both authenticated endpoints accept an Airtable record ID, fetch the lead, and send Gmail SMTP communication. The confirmation flow renders `services/email_templates/confirmation.html`; the out-of-service flow sends a plain-text notice.
 
-### 5. Leads Airtable Client
-
-**File:** `services/leads.go`
-**Status:** ✅ Done — tested
-
-Reads from the **LEADS base** (`appg9012rLh2diVLq`), table **2026 Leads (forward)** (`tblui0E6mBFkHGWvZ`).
-
-- `GetLeadByRecordID(recordID)` — fetch a single lead by Airtable record ID
-- `Lead` struct: `AirtableID`, `RecordID`, `FirstName`, `LastName`, `Email`, `Feet`, `PriceLED`, `PriceRehang`, `Photos []LeadPhoto`
-- `LeadPhoto` struct: `ID`, `URL` (temporary Airtable CDN link), `Filename`
-- Uses `returnFieldsByFieldId=true` — field ID constants at top of file
-
-**Field IDs (2026 Leads):**
-
-| Field | ID |
-|-------|----|---|
-| First Name | `fldplXExIaztUlnVf` |
-| Last Name | `fldiVRdwdOumpsrCh` |
-| Email | `fldsvJF0WoUqKWOtq` |
-| Feet | `fldelBDSYukmjqNbo` |
-| Price LED | `fld5LWFylybQBCArw` |
-| Price Rehang | `fldC1G0g2nhXxXvc5` |
-| Photo | `fldPT5nBi1q8NsaoR` |
-| RecordID formula | `fldjMi3L50dNSg2bV` |
-
----
-
-### 6. Estimate Email
-
-**Route:** `POST /estimate/send`
-**Status:** ✅ Done — tested end-to-end
-
-What it does:
-1. Verifies `Authorization: Bearer WEBHOOK_AUTH_KEY` header
-2. Parses JSON body: `{"recordId": "recXXX"}`
-3. Fetches lead from 2026 Leads table via `GetLeadByRecordID()`
-4. Downloads photos from Airtable CDN → saves to `/var/lib/tts/photos/`
-5. Photo filenames: `{first-last}-{sha256[:16]}.{ext}` e.g. `stetson-ramey-748bd896badeb589.png`
-6. Renders `services/email_templates/estimate.html` with lead data + public photo URLs
-7. Sends via Gmail SMTP (`smtp.gmail.com:587`, STARTTLS) as `stetson@tts.lighting`
-
-**Photo serving:**
-- Stored at: `/var/lib/tts/photos/`
-- Served at: `GET /photos/{filename}` → `https://tistheseasonkc.com/photos/{filename}`
-- Photos are permanent (downloaded from expiring Airtable CDN links at send time)
-
-**Email template data (`EstimateEmailData`):**
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `FirstName` | string | Lead's first name |
-| `Feet` | float64 | Estimated linear feet |
-| `PriceLED` | float64 | This year's LED price |
-| `PriceRehang` | float64 | Next year's rehang price |
-| `PhotoURLs` | []string | Public permanent photo URLs |
-
-**Template func:** `{{formatCurrency .PriceLED}}` → `$425.00`
-
-**To trigger (from Airtable automation or curl):**
-```bash
-curl -X POST https://tistheseasonkc.com/estimate/send \
-  -H "Authorization: Bearer YOUR_WEBHOOK_AUTH_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"recordId": "recXXXXXXXXXXXXXX"}'
-```
-
-**Files:** `services/estimate.go`, `services/leads.go`, `services/email_templates/estimate.html`
-
----
-
-### 7. Sold Sync (CompanyCam + Stripe customer)
+### Sold Sync
 
 **Route:** `POST /sold/sync`
-**Status:** ✅ Done — manual verification required (CompanyCam credentials)
+**Code:** `services/sold_sync.go`
 
-Triggered by an Airtable automation when a lead's `Status` is set to **Sold**.
+An authenticated Airtable automation calls this after a lead is marked sold. The handler creates a CompanyCam project and uploads lead photos when a project ID is missing, creates a Stripe customer when needed, and writes resulting IDs back to Airtable. It is designed to be idempotent: existing IDs are not recreated.
 
-What it does:
-1. Verifies `Authorization: Bearer WEBHOOK_AUTH_KEY` header
-2. Parses JSON body: `{"recordId": "recXXX"}`
-3. Fetches the lead from the LEADS base
-4. If `CCam ID` (`fldMVhdPoyhFk4rZ2`) is empty:
-   - Creates a CompanyCam project (`POST /v2/projects`) with name + address + primary contact
-   - Immediately patches the project ID back to Airtable (so retries can't duplicate)
-   - Uploads each Airtable photo to the project (`POST /v2/projects/{id}/photos`) — non-fatal on failure
-5. If `stripeID` (`fldU6bJBjtQvd6dAX`) is empty:
-   - Creates a Stripe customer (`POST /v1/customers`) via the exe.dev proxy
-   - Stores `airtable_record_id` as Stripe metadata for reverse lookup
-   - Immediately patches the `cus_...` ID back to Airtable
-
-**Idempotency:** Re-running with a record that already has both IDs is a no-op
-and returns `{"companyCamSkipped": true, "stripeSkipped": true}`.
-
-**Trigger example:**
-```bash
-curl -X POST https://tistheseasonkc.com/sold/sync \
-  -H "Authorization: Bearer YOUR_WEBHOOK_AUTH_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"recordId": "recXXXXXXXXXXXXXX"}'
-```
-
-**Files:** `services/sold_sync.go`, `services/leads.go`
-
----
-
-### 8. Invoice Creation
+### Invoice Creation
 
 **Route:** `POST /invoice/create`
-**Status:** ✅ Done — verified in sandbox
+**Code:** `services/invoice.go`
 
-Triggered by an Airtable automation when **Make Invoice** is checked (after
-`/sold/sync` has run).
+An authenticated Airtable automation calls this after sold sync. The handler verifies the lead has a Stripe customer and valid feet amount, gets the configured environment-specific Stripe product's default price, creates/finalizes a Stripe invoice, and stores the hosted invoice URL in Airtable. The Stripe product controls the unit price.
 
-What it does:
-1. Verifies `Authorization: Bearer WEBHOOK_AUTH_KEY` header
-2. Parses JSON body: `{"recordId": "recXXX"}`
-3. Fetches the lead and validates:
-   - `stripeID` exists (else 400 — run `/sold/sync` first)
-   - `Feet` > 0
-   - `stripeInvoiceLink` is empty (else short-circuits with the existing link)
-4. Looks up `STRIPE_INVOICE_PRODUCT_ID_{ENV}`'s `default_price` from Stripe
-5. Creates an invoice item: `customer=cus_xxx`, `price=price_xxx`, `quantity=Feet`
-6. Creates the invoice: `collection_method=send_invoice`, `days_until_due=30`
-7. Finalizes it and reads back `hosted_invoice_url`
-8. Patches `stripeInvoiceLink` (`fld2JkST42hZMHltf`) to Airtable
+### Bot Crawl Tracking
 
-**Stripe owns the unit cost.** The env var points at a Product whose
-`default_price` defines the $ per linear foot. To change the rate, update the
-price in Stripe — no redeploy.
+**Route:** `GET /internal/bots`
+**Code:** `services/bottrack.go`
 
-**Trigger example:**
-```bash
-curl -X POST https://tistheseasonkc.com/invoice/create \
-  -H "Authorization: Bearer YOUR_WEBHOOK_AUTH_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"recordId": "recXXXXXXXXXXXXXX"}'
-```
+Middleware records known AI, search, and other crawler requests to `~/.local/share/tts/bot-crawls.jsonl`, including status code and requested path. The public route requires `Authorization: Bearer WEBHOOK_AUTH_KEY`. The internal listener exposes the same dashboard without bearer auth, relying on exe.dev VM-owner access control.
 
-**Files:** `services/invoice.go`, `services/leads.go`
+### Umami Analytics Proxy
+
+**Routes:** `GET /analytics/script.js`, `POST /analytics/send`
+**Code:** `services/umamiproxy.go`
+
+The public Go server proxies the self-hosted Umami tracker and collection endpoint to the configured local Umami upstream. This keeps browser tracking first-party while leaving the Umami dashboard itself private. Unknown `/analytics/*` paths return 404.
+
+### Sentry and Status
+
+**Routes:** `GET /status`
+**Code:** `services/sentry.go`, `services/config.go`
+
+`SENTRY_DSN` enables panic recovery and backend error reporting; unset means the Sentry integration is a no-op. `/status` returns a simple health response and selected Stripe mode/proxy information. Treat it as operational metadata, not a public customer page.
 
 ---
 
 ## Route Map
 
-| Method | Path | Service | Public? |
-|--------|------|---------|--------|
-| GET | `/pay` | Stripe Checkout | Yes — customer-facing |
-| POST | `/stripe/webhook` | Stripe Webhook | Yes — Stripe only (sig verified) |
-| POST | `/estimate/send` | Estimate Email | Internal — Bearer token required |
-| POST | `/sold/sync` | CompanyCam + Stripe customer sync | Internal — Bearer token required |
-| POST | `/invoice/create` | Stripe invoice creation | Internal — Bearer token required |
-| GET | `/photos/{filename}` | Photo serving | Yes — linked from estimate emails |
-| POST | `/contact` | Contact Form | Yes — existing, live |
+| Method | Path | Authentication / audience |
+|---|---|---|
+| `GET`, `HEAD` | `/contact` | Public; redirects to `/contact/` |
+| `POST` | `/contact` | Public contact intake |
+| `GET` | `/pay` | Public customer checkout |
+| `POST` | `/stripe/webhook` | Stripe signature required |
+| `GET` | `/status` | Public operational status |
+| `POST` | `/estimate/send` | Bearer token required |
+| `POST` | `/confirmation/send` | Bearer token required |
+| `POST` | `/oos/send` | Bearer token required |
+| `POST` | `/sold/sync` | Bearer token required |
+| `POST` | `/invoice/create` | Bearer token required |
+| `GET` | `/photos/{filename}` | Public permanent email-photo URLs |
+| `GET` | `/internal/bots` | Bearer token on public listener; no bearer token on internal listener |
+| `GET` | `/analytics/script.js` | Public Umami script proxy |
+| `POST` | `/analytics/send` | Public Umami collection proxy |
+
+The static Hugo site is the public catch-all and must remain registered after specific routes.
 
 ---
 
-## Remaining Work
+## Build, Test, and Service Management
 
-- [ ] **Switch email sending to Angela's account** — blocked on Angela enabling 2FA on `angela@tts.lighting`
-  - Once 2FA is on: generate App Password at myaccount.google.com/apppasswords
-  - Verify `hello@tts.lighting` as a Send-As alias in Angela's Gmail settings
-  - Update `/etc/tts/secrets.env`: `GMAIL_USER=angela@tts.lighting`, `GMAIL_SEND_AS=hello@tts.lighting`, new `GMAIL_APP_PASSWORD`
-  - `sudo systemctl restart tts.service`
-  - **Currently:** sending from `stetson@tts.lighting` for testing
-- [ ] **Airtable automation** — wire up Airtable scripts to call `/estimate/send`, `/confirmation/send`, `/oos/send` with `WEBHOOK_AUTH_KEY`
-- [ ] **Live Stripe webhook** — register `https://tistheseasonkc.com/stripe/webhook` in Stripe live dashboard + add `STRIPE_WEBHOOK_SECRET_PROD`
-- [ ] **DNS cutover** — point `payments.tistheseasonkc.com` to this VM
-- [ ] **Flip to prod** — change `APP_ENV=prod` when ready for real customers
-- [ ] **Archive `tts-contact-form/`** — old Val.town TypeScript, safe to remove once everything is live
-
----
-
-## Seasonal Startup Checklist (Every September)
-
-```
-□ Check server is running:      systemctl status tts.service
-□ Check logs look clean:        journalctl -u tts.service -n 50
-□ Confirm APP_ENV is correct:   should be prod
-□ Verify Stripe mode is live:   look for 🟢 LIVE in the startup log
-□ Test a sandbox payment:       flip APP_ENV=dev, test, flip back to prod
-□ Confirm Airtable is current:  check for any schema changes from off-season
-□ Rotate any keys that are >1 year old
-```
-
----
-
-## Quick Reference — Server Management
+The Makefile runs Hugo tasks only:
 
 ```bash
-# Check status
-systemctl status tts.service
-
-# View live logs
-journalctl -u tts.service -f
-
-# Rebuild + restart
-go build -o tts-server . && sudo systemctl restart tts.service
-
-# Edit env vars
-sudo systemctl edit tts.service
+make dev          # Hugo development server on :1313
+make build        # Hugo build to public/
+make build-prod   # Minified production Hugo build to public/
+make clean        # Removes Hugo generated artifacts
 ```
+
+Build and test the backend separately:
+
+```bash
+go test ./...
+go build -o tts-server .
+```
+
+Typical VM commands, after verifying the service name:
+
+```bash
+sudo systemctl status tts.service
+sudo journalctl -u tts.service -f
+make build-prod && go build -o tts-server .
+sudo systemctl restart tts.service
+```
+
+## Seasonal Startup Checklist
+
+```text
+□ Confirm the Hugo build and Go binary are current
+□ Confirm the service is running and logs are clean
+□ Verify APP_ENV is correct before customer traffic
+□ Verify the matching Stripe webhook secret and invoice product are configured
+□ Make a controlled payment/webhook test in the intended mode
+□ Check Airtable schemas and automations for seasonal changes
+□ Verify Gmail sender/authentication and CompanyCam integration
+□ Verify Sentry, Umami, and the internal bot dashboard as applicable
+□ Rotate credentials that are due for rotation
+```
+
+## Deployment Notes and Follow-up Work
+
+Live operational status belongs in deployment tickets or the VM's runbook, not as permanent implementation claims in this file. Before a season or release, verify:
+
+- Stripe Dashboard webhook URLs for the actual public hostname.
+- Airtable automations that call estimate, confirmation, out-of-service, sold-sync, and invoice endpoints.
+- Gmail sender/account configuration (`GMAIL_USER`, `GMAIL_SEND_AS`, and app password).
+- CompanyCam proxy/direct credentials as applicable.
+- DNS and any external payment hostname configuration.
