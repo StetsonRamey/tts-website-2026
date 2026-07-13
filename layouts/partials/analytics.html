@@ -1,1 +1,7 @@
-{{/* Analytics snippet — deferred until post-launch (Phase 7) */}}
+{{/*
+  Umami analytics — self-hosted on this VM, served first-party from
+  tistheseasonkc.com via the Go reverse proxy (/analytics/*). Privacy-friendly:
+  no cookies, no cross-site tracking. The data-website-id points at the
+  "Tis The Season KC" website configured in the local Umami instance.
+*/}}
+<script defer src="/analytics/script.js" data-website-id="ff199472-199b-40ab-ae6c-4b3cbedf5456" data-host-url="https://tistheseasonkc.com/analytics"></script>

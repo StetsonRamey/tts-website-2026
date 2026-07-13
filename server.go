@@ -579,6 +579,10 @@ func main() {
 	mux.HandleFunc("/internal/bots", services.BotDashboardHandler(cfg, true))
 
 	// Serve downloaded estimate photos (permanent URLs embedded in emails)
+	// Umami analytics (first-party): proxy the tracking script + collect
+	// endpoint through the public server so visitor browsers can reach it.
+	mux.Handle("/analytics/", services.UmamiProxyHandler())
+
 	mux.HandleFunc("/photos/", services.PhotoHandler())
 
 	// Static site (catch-all — must be last)
