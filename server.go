@@ -567,6 +567,9 @@ func main() {
 	mux.HandleFunc("/sold/sync", services.SoldSyncHandler(cfg))
 	mux.HandleFunc("/invoice/create", services.InvoiceHandler(cfg))
 
+	// Bot / AI-crawler crawl dashboard (internal — protected by WEBHOOK_AUTH_KEY)
+	mux.HandleFunc("/internal/bots", services.BotDashboardHandler(cfg))
+
 	// Serve downloaded estimate photos (permanent URLs embedded in emails)
 	mux.HandleFunc("/photos/", services.PhotoHandler())
 
@@ -574,7 +577,8 @@ func main() {
 	mux.Handle("/", cacheMiddleware(fs))
 
 	log.Println("Serving on :8000")
-	log.Fatal(http.ListenAndServe(":8000", securityHeadersMiddleware(termsRedirect(wwwRedirect(mux)))))
+	log.Fatal(http.ListenAndServe(":8000",
+		securityHeadersMiddleware(termsRedirect(wwwRedirect(services.BotTrackMiddleware(mux))))))
 }
 
 func cacheMiddleware(next http.Handler) http.Handler {
