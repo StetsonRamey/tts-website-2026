@@ -14,7 +14,7 @@
 {{- $description := .Description | default site.Params.description -}}
 {{- $ogType := .Params.seo.og_type | default "website" -}}
 {{- $ogImage := .Params.seo.og_image | default site.Params.ogImage -}}
-{{- $isNoIndex := .Params.seo.noindex | default false -}}
+{{- $isNoIndex := .Params.seo.noindex | default (eq .Kind "404") -}}
 
 <title>{{ $title }}</title>
 <meta name="description" content="{{ $description }}">

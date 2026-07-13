@@ -344,7 +344,7 @@ func sendToAirtable(fd FormData) error {
 		"records": []map[string]any{
 			{
 				"fields": map[string]any{
-					"fldZWX56UF9UNbZOW": "Main Contact",  // Which Form
+					"fldZWX56UF9UNbZOW": "Main Contact",   // Which Form
 					"fldplXExIaztUlnVf": fd.FirstName,     // First Name
 					"fldiVRdwdOumpsrCh": fd.LastName,      // Last Name
 					"fldsvJF0WoUqKWOtq": fd.Email,         // Email
@@ -395,19 +395,19 @@ func logSubmission(fd FormData, ip, status, reason string) {
 			{
 				"fields": map[string]any{
 					"fldi3M07M8XzEdfDD": time.Now().UTC().Format(time.RFC3339), // Timestamp
-					"fld5n4yX9VN3USNnH": ip,                                   // IP
-					"fldEUrVMiJTBtyNnq": fd.FirstName,                         // First Name
-					"fldpXJarQJ6fJD2EB": fd.LastName,                          // Last Name
-					"fldoQv9Y8pkU2gYkE": fd.Email,                             // Email
-					"fldt4QvDtl5rsUVKj": fd.Phone,                             // Phone
-					"fldeB18affBf7eZER": fd.StreetAddress,                     // Street Address
-					"fldRYgmzZvxbIUH9S": fd.City,                              // City
-					"fldFUE3CyNQnp3N2j": fd.State,                             // State
-					"fldDVWQ86NqW0Qobq": fd.Zip,                               // Zip
-					"fldkHpBAQg67Ld1CM": fd.Message,                           // Message
-					"fld0HcH3I7kqxUmI5": status,                               // Status
-					"fldNklj8CcWdUuii4": reason,                               // Rejection Reason
-					"fldXmciOEUg3mc0m8": fd.FillTime,                          // Fill Time Seconds
+					"fld5n4yX9VN3USNnH": ip,                                    // IP
+					"fldEUrVMiJTBtyNnq": fd.FirstName,                          // First Name
+					"fldpXJarQJ6fJD2EB": fd.LastName,                           // Last Name
+					"fldoQv9Y8pkU2gYkE": fd.Email,                              // Email
+					"fldt4QvDtl5rsUVKj": fd.Phone,                              // Phone
+					"fldeB18affBf7eZER": fd.StreetAddress,                      // Street Address
+					"fldRYgmzZvxbIUH9S": fd.City,                               // City
+					"fldFUE3CyNQnp3N2j": fd.State,                              // State
+					"fldDVWQ86NqW0Qobq": fd.Zip,                                // Zip
+					"fldkHpBAQg67Ld1CM": fd.Message,                            // Message
+					"fld0HcH3I7kqxUmI5": status,                                // Status
+					"fldNklj8CcWdUuii4": reason,                                // Rejection Reason
+					"fldXmciOEUg3mc0m8": fd.FillTime,                           // Fill Time Seconds
 				},
 			},
 		},
@@ -552,6 +552,8 @@ func main() {
 	// Load config — reads APP_ENV and Stripe keys, logs active mode
 	cfg := services.LoadConfig()
 
+	loadCustom404()
+
 	fs := http.FileServer(http.Dir("public"))
 
 	mux := http.NewServeMux()
@@ -586,7 +588,7 @@ func main() {
 	mux.HandleFunc("/photos/", services.PhotoHandler())
 
 	// Static site (catch-all — must be last)
-	mux.Handle("/", cacheMiddleware(fs))
+	mux.Handle("/", cacheMiddleware(notFoundMiddleware(fs)))
 
 	log.Println("Serving on :8000")
 
@@ -623,6 +625,68 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8000",
 		services.SentryRecovery(
 			securityHeadersMiddleware(termsRedirect(wwwRedirect(services.BotTrackMiddleware(mux)))))))
+}
+
+// notFoundWriter buffers the FileServer's response just long enough to see
+// whether it's about to emit a 404. If so, we discard its plain-text body
+// and substitute Hugo's styled public/404.html instead — while keeping the
+// real 404 status code intact, so bot-crawl gap detection still sees it.
+type notFoundWriter struct {
+	http.ResponseWriter
+	status     int
+	triggered  bool
+	suppressed bool
+}
+
+func (w *notFoundWriter) WriteHeader(code int) {
+	w.status = code
+	if code == http.StatusNotFound {
+		w.triggered = true
+		// Don't forward the header yet — notFoundMiddleware will send its own
+		// once the FileServer is done, after loading the custom 404 body.
+		return
+	}
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func (w *notFoundWriter) Write(b []byte) (int, error) {
+	if w.triggered {
+		// Swallow the FileServer's default "404 page not found" body.
+		w.suppressed = true
+		return len(b), nil
+	}
+	return w.ResponseWriter.Write(b)
+}
+
+var custom404Body []byte
+
+func loadCustom404() {
+	b, err := os.ReadFile("public/404.html")
+	if err != nil {
+		log.Printf("[404] no custom 404 page found at public/404.html: %v", err)
+		return
+	}
+	custom404Body = b
+}
+
+// notFoundMiddleware serves Hugo's styled 404.html with a real HTTP 404
+// status whenever the wrapped handler (the static FileServer) would
+// otherwise return its bare-text 404. This keeps status codes truthful for
+// bot-crawl gap detection while giving humans a real page with a way home.
+func notFoundMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		nfw := &notFoundWriter{ResponseWriter: w, status: http.StatusOK}
+		next.ServeHTTP(nfw, r)
+		if nfw.triggered {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.WriteHeader(http.StatusNotFound)
+			if len(custom404Body) > 0 {
+				w.Write(custom404Body)
+			} else {
+				w.Write([]byte("404 page not found"))
+			}
+		}
+	})
 }
 
 func cacheMiddleware(next http.Handler) http.Handler {
