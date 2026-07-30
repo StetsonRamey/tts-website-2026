@@ -179,6 +179,8 @@ Middleware records known AI, search, and other crawler requests to `~/.local/sha
 
 The public Go server proxies the self-hosted Umami tracker and collection endpoint to the configured local Umami upstream. This keeps browser tracking first-party while leaving the Umami dashboard itself private. The tracker script builds its collect URL from `data-host-url` + `/api/send`, producing `/analytics/api/send`; both that and the legacy `/analytics/send` path are proxied to Umami's `/api/send`. Unknown `/analytics/*` paths return 404.
 
+**Conversion tracking:** `assets/js/form-submit.js` fires a Umami custom event named `contact_form_submit` on a successful contact-form submission. A corresponding goal of type "Custom event" is configured in the Umami dashboard to measure contact-form conversions.
+
 ### Sentry and Status
 
 **Routes:** `GET /status`

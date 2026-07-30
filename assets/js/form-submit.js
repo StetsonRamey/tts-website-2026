@@ -61,6 +61,14 @@
       }
 
       const html = await response.text();
+
+      // ── Conversion tracking ──
+      // Fire a Umami custom event so conversion goals can be measured.
+      // In Umami, create a goal of type "Custom event" with name "contact_form_submit".
+      if (typeof umami === "object" && typeof umami.track === "function") {
+        try { umami.track("contact_form_submit"); } catch (_) {}
+      }
+
       var section = form.closest(".contact-form");
       if (section) {
         section.outerHTML = html;
