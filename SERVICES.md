@@ -179,7 +179,15 @@ Middleware records known AI, search, and other crawler requests to `~/.local/sha
 
 The public Go server proxies the self-hosted Umami tracker and collection endpoint to the configured local Umami upstream. This keeps browser tracking first-party while leaving the Umami dashboard itself private. The tracker script builds its collect URL from `data-host-url` + `/api/send`, producing `/analytics/api/send`; both that and the legacy `/analytics/send` path are proxied to Umami's `/api/send`. Unknown `/analytics/*` paths return 404.
 
-**Conversion tracking:** `assets/js/form-submit.js` fires a Umami custom event named `contact_form_submit` on a successful contact-form submission. A corresponding goal of type "Custom event" is configured in the Umami dashboard to measure contact-form conversions.
+**Conversion tracking:** The contact form fires a sequence of Umami custom events so conversion goals and the Funnel report can measure engagement and drop-off:
+
+| Event | Fired from | When |
+|---|---|---|
+| `contact_form_start` | `assets/js/form-tracking.js` | First field focus |
+| `contact_form_field` (property: `field`) | `assets/js/form-tracking.js` | Each field's first focus (once per field) |
+| `contact_form_submit` | `assets/js/form-submit.js` | Successful submission |
+
+In the Umami dashboard, a goal of type "Custom event" with name `contact_form_submit` measures conversions. The Funnel report can chain `/contact/` → `contact_form_start` → `contact_form_submit` (and optionally intermediate `contact_form_field` steps) to visualize where visitors drop off. The Events → Properties tab and Breakdown report show which specific fields people reach.
 
 ### Sentry and Status
 
