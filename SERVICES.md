@@ -174,10 +174,10 @@ Middleware records known AI, search, and other crawler requests to `~/.local/sha
 
 ### Umami Analytics Proxy
 
-**Routes:** `GET /analytics/script.js`, `POST /analytics/send`
+**Routes:** `GET /analytics/script.js`, `POST /analytics/send`, `POST /analytics/api/send`
 **Code:** `services/umamiproxy.go`
 
-The public Go server proxies the self-hosted Umami tracker and collection endpoint to the configured local Umami upstream. This keeps browser tracking first-party while leaving the Umami dashboard itself private. Unknown `/analytics/*` paths return 404.
+The public Go server proxies the self-hosted Umami tracker and collection endpoint to the configured local Umami upstream. This keeps browser tracking first-party while leaving the Umami dashboard itself private. The tracker script builds its collect URL from `data-host-url` + `/api/send`, producing `/analytics/api/send`; both that and the legacy `/analytics/send` path are proxied to Umami's `/api/send`. Unknown `/analytics/*` paths return 404.
 
 ### Sentry and Status
 
@@ -205,7 +205,8 @@ The public Go server proxies the self-hosted Umami tracker and collection endpoi
 | `GET` | `/photos/{filename}` | Public permanent email-photo URLs |
 | `GET` | `/internal/bots` | Bearer token on public listener; no bearer token on internal listener |
 | `GET` | `/analytics/script.js` | Public Umami script proxy |
-| `POST` | `/analytics/send` | Public Umami collection proxy |
+| `POST` | `/analytics/send` | Public Umami collection proxy (legacy path) |
+| `POST` | `/analytics/api/send` | Public Umami collection proxy (tracker default) |
 
 The static Hugo site is the public catch-all and must remain registered after specific routes.
 

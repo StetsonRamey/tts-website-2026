@@ -73,7 +73,11 @@ func UmamiProxyHandler() http.Handler {
 			// Cache the tracker script for an hour; it's stable per Umami version.
 			w.Header().Set("Cache-Control", "public, max-age=3600")
 			umamiProxy.ServeHTTP(w, r)
-		case "/analytics/send":
+		case "/analytics/send", "/analytics/api/send":
+			// Umami's tracker builds its collect URL from data-host-url + "/api/send".
+			// With data-host-url="https://tistheseasonkc.com/analytics" the script
+			// POSTs to /analytics/api/send. The older /analytics/send path is kept
+			// for backward compatibility with manually-constructed payloads.
 			r.URL.Path = "/api/send"
 			r.URL.RawPath = ""
 			umamiProxy.ServeHTTP(w, r)
