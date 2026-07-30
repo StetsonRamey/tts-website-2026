@@ -231,7 +231,7 @@ func BotTrackMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		rec := &statusRecorder{ResponseWriter: w, status: 200}
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(rec, r)
 		recordBotHit(name, kind, r.UserAgent(), r.URL.Path, clientIP(r), rec.status)
 	})
 }
