@@ -8,6 +8,18 @@
   {{- $heroURL = .RelPermalink | absURL -}}
 {{- end -}}
 {{- $businessID := printf "%s#business" site.BaseURL -}}
+{{- $businessAreaServed := slice -}}
+{{- range (index hugo.Data "service-areas").areas -}}
+  {{- $area := . -}}
+  {{- $businessAreaServed = $businessAreaServed | append (dict "@type" "City" "name" $area.name "addressRegion" $area.state) -}}
+  {{- range $area.neighborhoods -}}
+    {{- $businessAreaServed = $businessAreaServed | append (dict
+      "@type" "Place"
+      "name" .name
+      "containedInPlace" (dict "@type" "City" "name" $area.name "addressRegion" $area.state)
+    ) -}}
+  {{- end -}}
+{{- end -}}
 {{- $schema := dict
   "@context" "https://schema.org"
   "@type" (slice "LocalBusiness" "ProfessionalService")
@@ -18,12 +30,7 @@
   "telephone" site.Params.phone
   "email" site.Params.email
   "foundingDate" site.Params.inBusinessSince
-  "areaServed" (slice
-    (dict "@type" "City" "name" "Lee's Summit" "addressRegion" "MO")
-    (dict "@type" "City" "name" "Raymore" "addressRegion" "MO")
-    (dict "@type" "Place" "name" "Winterset Valley" "containedInPlace" (dict "@type" "City" "name" "Lee's Summit" "addressRegion" "MO"))
-    (dict "@type" "Place" "name" "Creekmoor" "containedInPlace" (dict "@type" "City" "name" "Raymore" "addressRegion" "MO"))
-  )
+  "areaServed" $businessAreaServed
   "priceRange" "$$"
   "image" $heroURL
   "logo" (printf "%simages/logo.svg" site.BaseURL)
@@ -82,7 +89,8 @@
 {{- with .Params.faq_items -}}
 {{- $faqJSON := slice -}}
 {{- range . -}}
-  {{- $item := dict "@type" "Question" "name" .question "acceptedAnswer" (dict "@type" "Answer" "text" .answer) -}}
+  {{- $answerText := .answer | markdownify | plainify -}}
+  {{- $item := dict "@type" "Question" "name" .question "acceptedAnswer" (dict "@type" "Answer" "text" $answerText) -}}
   {{- $faqJSON = $faqJSON | append $item -}}
 {{- end -}}
 {{- $schema := dict "@context" "https://schema.org" "@type" "FAQPage" "mainEntity" $faqJSON -}}

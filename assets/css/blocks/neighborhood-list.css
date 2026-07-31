@@ -1,0 +1,13 @@
+@layer blocks {
+    .neighborhood-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+        gap: var(--space-2xs) var(--space-m);
+        padding-inline-start: 0;
+        list-style: none;
+    }
+
+    .neighborhood-list a {
+        font-weight: 600;
+    }
+}

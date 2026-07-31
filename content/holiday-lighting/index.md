@@ -1,6 +1,6 @@
 ---
 title: 'Holiday Lighting Installation'
-description: 'Professional holiday lighting installation in Lee''s Summit, MO. LED options, custom designs, full-service install, maintenance, takedown & storage.'
+description: 'Professional holiday lighting installation in Lee''s Summit and Raymore, MO. Compare C7 and C9 LEDs, explore custom colors, and see our full-service process.'
 seo:
   og_image: '/images/og/social.jpg'
   og_type: 'website'
@@ -9,84 +9,44 @@ keywords:
   - 'christmas light installation'
   - 'holiday lighting installation'
   - 'LED holiday lighting'
+  - 'C7 holiday lights'
+  - 'C9 holiday lights'
+  - 'custom color holiday lights'
   - 'residential holiday lighting'
   - 'commercial holiday lighting'
+bulb_intro: 'We use commercial-grade, diamond-faceted LED bulbs for a bright, consistent display. C7 and C9 options create different visual effects while providing the energy efficiency and durability of LED technology.'
+bulb_options:
+  - name: 'C7 Bulbs'
+    description: 'Approximately 1.5 inches long and 5 to 7 watts. Their smaller profile creates a more delicate accent.'
+  - name: 'C9 Bulbs'
+    description: 'Approximately 2.25 inches long and 7 to 10 watts. C9s are larger, brighter, and the most common style shown in our gallery.'
+  - name: 'Commercial-Grade LEDs'
+    description: 'Energy-efficient, vibrant, and long-lasting bulbs selected for consistent professional displays.'
+  - name: 'Lit Wreaths'
+    description: 'Wreaths are available as part of a design, but off-season wreath storage is not currently offered.'
+color_intro: 'Choose a classic white display, our standard multicolor sequence, or a custom combination. Most designs are included at no additional cost; a complex custom multicolor design may require a small first-year setup charge.'
+color_options:
+  - name: 'Warm White'
+    description: 'A classic, cozy look with a 2600–2800 K color temperature.'
+  - name: 'Pure White'
+    description: 'A clean, bright look with a 3950–4050 K color temperature.'
+  - name: 'Standard Multicolor'
+    description: 'Our festive repeating pattern uses red, yellow, green, orange, and blue.'
+  - name: 'Custom Combinations'
+    description: 'Request a custom color sequence or themed combination to fit your preferred design.'
+scope_intro: 'We currently install lights on rooflines and around garage doors, doors, and windows. We do not install lighting on trees, bushes, or walkways at this time.'
+attachment_intro: 'Roofline lights use non-damaging plastic clips that attach to gutters or slide beneath shingle edges. Lighting around doors and windows generally needs to be stapled to wood trim.'
+design_process:
+  - name: 'Contact Form & Free Estimate'
+    description: 'Submit the contact form so we have the details needed to clarify questions, assess the property, and provide guaranteed first-year pricing.'
+  - name: 'Photo-Marked Custom Design'
+    description: 'Your estimate includes a marked-up photo showing each proposed light run. Send a clear photo of another area and we can revise the design and footage.'
+  - name: 'Professional Installation'
+    description: 'Our fully insured crew installs the approved design. A typical normal-sized home generally takes less than one hour.'
+  - name: 'In-Season Maintenance'
+    description: 'If a covered bulb or wire problem occurs during the season, contact us and we will fix it at no additional charge.'
+  - name: 'Post-Season Takedown'
+    description: 'We organize removal routes after the holidays and take the display down, weather permitting.'
+  - name: 'Off-Season Storage'
+    description: 'We store the lights and prepare them for the next season. Wreath storage is not currently available.'
 ---
-
-## Professional Holiday Lighting Installation
-
-Tis the Season Holiday Lighting provides residential holiday lighting and commercial holiday lighting in Lee's Summit and Raymore, Missouri. Every project includes custom design, professional installation, in-season maintenance, post-season takedown, and off-season storage of the lights.
-
-![Two-story home with red and green C9 holiday lights lining the rooflines and eaves](/images/originals/residential-home.jpg)
-
-### What We Offer
-
-Whether you want a classic warm-white roofline or a colorful display across your entire property, we work with you to design the perfect look.
-
-**Residential lighting** — rooflines and wreaths.
-
-**Commercial lighting** — storefronts and office buildings.
-
-### LED Options & Design Choices
-
-We use commercial-grade LED lights that are energy-efficient, long-lasting, and vibrant.
-
-- Warm white
-- Cool white
-- Multi-color
-- Custom color combinations
-- C7 and C9 bulbs
-- Wreath displays
-
-![Modern Lee's Summit home with crisp warm white holiday lights along every roofline](/images/originals/hero.jpg)
-
-### What's Included
-
-Every project includes:
-
-1. **Free Estimate** — No-hassle consultation with guaranteed first-year pricing
-2. **Custom Design** — We plan a display tailored to your home or business
-3. **Professional Installation** — Installed by our fully insured, experienced crew
-4. **In-Season Maintenance** — Bulb and wire problems are covered during the season
-5. **Post-Season Takedown** — We remove everything after the season ends
-6. **Off-Season Storage** — We store your lights safely until next year; wreath storage is not currently available
-
-The first-year price includes the lighting materials, and you own the lights. Future years primarily cover installation and removal unless you request additional lights or change the colors of your display.
-
-### How the Installation Works
-
-1. **Schedule your estimate** — Call, text, or fill out our online form
-2. **We visit your property** — We assess your space and discuss your vision
-3. **Review your quote** — Transparent pricing with no surprises
-4. **Installation day** — Our team handles every detail
-5. **Enjoy the season** — We maintain your display through the holidays
-6. **Post-season** — We take everything down and store it for you
-
-### Common Questions
-
-**How much does professional holiday lighting cost?**
-Pricing depends on your property size and design preferences. We provide free estimates with guaranteed first-year pricing, so you know exactly what to expect.
-
-**When should I book my installation?**
-We recommend booking in October or by the first week of November if you want installation completed by Thanksgiving.
-
-**Do you work with HOAs?**
-Yes. We're familiar with neighborhoods in Lee's Summit and Raymore, including Winterset Valley and Creekmoor.
-
-**What if a light goes out during the season?**
-We include in-season maintenance at no extra charge. Just let us know and we'll come fix it.
-
-[See all FAQs →](/faq/)
-
-### See Our Work
-
-![Summit Park Church exterior outlined in warm white commercial holiday lights at night](/images/originals/commercial-home.jpg)
-![Single-story home outlined in green LED holiday lights with a lit wreath on the front porch](/images/originals/services/holiday-lighting.jpg)
-
-[View the full gallery →](/gallery/)
-
----
-
-### Ready for a Hassle-Free Holiday?
-
-Get a free estimate today. Call [816-281-7032](tel:816-281-7032), text [844-600-1675](sms:844-600-1675), or [request your estimate online](/contact/).

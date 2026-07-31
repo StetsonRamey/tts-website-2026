@@ -94,5 +94,9 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
         }
+
+        .process--six .process__grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
     }
 }

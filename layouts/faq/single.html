@@ -1,5 +1,6 @@
 {{ define "main" }}
 {{- $faqs := .Params.faq_items -}}
+{{- $categories := slice "Pricing & Estimates" "Scheduling" "Service Area & HOAs" "Design & Installation" "Service & Maintenance" -}}
 <main id="main-content">
     {{ partial "breadcrumbs.html" . }} {{/* ── Hero ── */}}
     <section class="hero region bg-light" aria-label="FAQ">
@@ -7,8 +8,7 @@
             <p class="overline">FAQ</p>
             <h1 data-balance style="--flow-space: .75rem">Frequently Asked Questions</h1>
             <p>
-                Common questions about holiday lighting installation from Tis the Season Holiday Lighting. Can't find
-                what you're looking for? <a href="/contact/">Reach out</a> — we're happy to help.
+                Direct answers about holiday lighting design, pricing, installation, HOA guidelines, maintenance, and storage in Lee's Summit and Raymore. Can't find what you need? <a href="/contact/">Reach out</a> — we're happy to help.
             </p>
         </div>
     </section>
@@ -18,57 +18,22 @@
         <div class="wrapper flow" style="--wrapper-max: 50rem">
             <h2 id="faq-sections-heading" class="visually-hidden">Holiday lighting questions and answers</h2>
 
-            {{/* ── Pricing ── */}}
-            <h2>Pricing</h2>
+            {{ range $category := $categories }}
+            {{ $items := where $faqs "category" $category }}
+            {{ if $items }}
+            <h2>{{ $category }}</h2>
             <div class="faq-group flow">
-                {{ range first 4 $faqs }}
+                {{ range $items }}
                 <details class="faq-item" name="faq">
                     <summary class="faq-item__question">{{ .question }}</summary>
                     <div class="faq-item__answer">
-                        <p>{{ .answer }}</p>
+                        {{ .answer | markdownify }}
                     </div>
                 </details>
                 {{ end }}
             </div>
-
-            {{/* ── Scheduling ── */}}
-            <h2>Scheduling</h2>
-            <div class="faq-group flow">
-                {{ range after 4 (first 7 $faqs) }}
-                <details class="faq-item" name="faq">
-                    <summary class="faq-item__question">{{ .question }}</summary>
-                    <div class="faq-item__answer">
-                        <p>{{ .answer }}</p>
-                    </div>
-                </details>
-                {{ end }}
-            </div>
-
-            {{/* ── Service Area ── */}}
-            <h2>Service Area</h2>
-            <div class="faq-group flow">
-                {{ range after 7 (first 8 $faqs) }}
-                <details class="faq-item" name="faq">
-                    <summary class="faq-item__question">{{ .question }}</summary>
-                    <div class="faq-item__answer">
-                        <p>{{ .answer }}</p>
-                    </div>
-                </details>
-                {{ end }}
-            </div>
-
-            {{/* ── Installation & Maintenance ── */}}
-            <h2>Installation & Maintenance</h2>
-            <div class="faq-group flow">
-                {{ range after 8 $faqs }}
-                <details class="faq-item" name="faq">
-                    <summary class="faq-item__question">{{ .question }}</summary>
-                    <div class="faq-item__answer">
-                        <p>{{ .answer }}</p>
-                    </div>
-                </details>
-                {{ end }}
-            </div>
+            {{ end }}
+            {{ end }}
 
         </div>
     </section>
@@ -80,8 +45,7 @@
                 <p class="overline">Still Have Questions?</p>
                 <h2 data-balance>We're Happy to Help</h2>
                 <p>
-                    Can't find what you're looking for? Give us a call, send a text, or fill out our contact form. We
-                    respond to every message.
+                    The contact form is the best place to start because it collects the property and design details we need for an accurate estimate. You can also call or text if you have a question.
                 </p>
                 <div class="cluster">
                     <a href="/contact/" class="button">Contact Us</a>

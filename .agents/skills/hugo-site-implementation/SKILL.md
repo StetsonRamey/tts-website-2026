@@ -116,7 +116,7 @@ Existing block files:
 * `button.css`, `overline.css`, `text-link.css`, `data-balance.css`
 * `site-header.css`, `breadcrumbs.css`, `site-footer.css`
 * `hero.css`, `trust-bar.css`, `service-cards.css`, `process.css`
-* `gallery.css`, `testimonials.css`, `area-cards.css`, `cta-band.css`
+* `gallery.css`, `testimonials.css`, `area-cards.css`, `neighborhood-list.css`, `cta-band.css`
 * `feature-card.css`, `why-card.css`, `faq-preview.css`, `led-options.css`
 * `contact.css`
 

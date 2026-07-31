@@ -6,8 +6,41 @@ areas:
     image: lees-summit-home.jpg
     neighborhoods:
       - name: Winterset Valley
+        slug: winterset-valley
+      - name: Summit Mill
+        slug: summit-mill
+      - name: Eagle Creek
+        slug: eagle-creek
+      - name: Legacy Wood
+        slug: legacy-wood
+      - name: Northpark Village
+        slug: northpark-village
+      - name: Stoney Creek
+        slug: stoney-creek
+      - name: Napa Valley
+        slug: napa-valley
+      - name: Kensington Farms
+        slug: kensington-farms
       - name: Kessler Ridge
         slug: kessler-ridge
+      - name: New Longview
+        slug: new-longview
+      - name: Raintree Lake Estates
+        slug: raintree-lake-estates
+      - name: Summit Ridge
+        slug: summit-ridge
+      - name: The Villas at Parkwood
+        slug: villas-at-parkwood
+      - name: Hawthorne Ridge
+        slug: hawthorne-ridge
+      - name: Hook Farms
+        slug: hook-farms
+      - name: Hawthorne Hill
+        slug: hawthorne-hill
+      - name: Siena at Longview
+        slug: siena-at-longview
+      - name: Woodside Ridge
+        slug: woodside-ridge
     images:
       hero: "/images/originals/ls/ls-hero.jpg"
       hoods: "/images/originals/ls/ls-hoods.JPG"
@@ -21,6 +54,7 @@ areas:
     image: raymore-home.jpg
     neighborhoods:
       - name: Creekmoor
+        slug: creekmoor
     images:
       hero: "/images/originals/ray/raymore-hero.jpg"
       hoods: "/images/originals/ray/raymore-hoods.jpg"

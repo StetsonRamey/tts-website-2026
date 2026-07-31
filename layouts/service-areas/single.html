@@ -1,8 +1,20 @@
 {{ define "main" }}
 {{- $neighborhood := .Params.neighborhood | default .LinkTitle -}}
-{{- $city := .Params.city | default "Lee's Summit" -}}
-{{- $state := .Params.state | default "MO" -}}
 {{- $parentArea := .Params.parent_area | default "lees-summit" -}}
+{{- $parentAreaData := false -}}
+{{- range (index hugo.Data "service-areas").areas -}}
+    {{- if eq .slug $parentArea -}}
+        {{- $parentAreaData = . -}}
+    {{- end -}}
+{{- end -}}
+{{- $city := .Params.city | default $parentAreaData.name -}}
+{{- $state := .Params.state | default $parentAreaData.state -}}
+{{- $heroImage := $parentAreaData.images.hero -}}
+{{- $hoaImage := $parentAreaData.images.hoods -}}
+{{- with .Params.images -}}
+    {{- with .hero }}{{ $heroImage = . }}{{ end -}}
+    {{- with .hoa }}{{ $hoaImage = . }}{{ end -}}
+{{- end -}}
 <main id="main-content">
     {{ partial "breadcrumbs.html" . }}
 
@@ -19,7 +31,7 @@
                 </div>
             </div>
             <div>
-                {{ partial "image.html" (dict "src" .Params.images.hero "alt" (printf "Professionally installed holiday lights on a home near %s in %s, %s" $neighborhood $city $state) "sizes" "(min-width: 90rem) 45rem, 100vw" "lazy" true "class" "") }}
+                {{ partial "image.html" (dict "src" $heroImage "alt" (printf "Professionally installed holiday lights on a home near %s in %s, %s" $neighborhood $city $state) "sizes" "(min-width: 90rem) 45rem, 100vw" "lazy" true "class" "") }}
             </div>
         </div>
     </section>
@@ -30,6 +42,7 @@
             <p class="overline">Full-Service Holiday Lighting</p>
             <h2 data-balance>Holiday Lighting for {{ $neighborhood }} Homes</h2>
             <p>{{ .Params.community_intro }}</p>
+            {{ with .Params.community_detail }}<p>{{ . }}</p>{{ end }}
             <ul class="area-services" role="list" aria-label="Services included with {{ $neighborhood }} holiday lighting">
                 <li class="area-services__item">
                     <h3>Free Estimate & Design</h3>
@@ -58,16 +71,26 @@
             <div class="flow">
                 <p class="overline">HOA Experience</p>
                 <h2 data-balance>Lighting That Works With {{ $neighborhood }} Guidelines</h2>
-                <p>{{ .Params.hoa.intro }}</p>
+                {{ with .Params.hoa }}
+                <p>{{ .intro }}</p>
                 <ul>
-                    {{ range .Params.hoa.guidelines }}
+                    {{ range .guidelines }}
                     <li>{{ . }}</li>
                     {{ end }}
                 </ul>
-                <p>{{ .Params.hoa.coordination }}</p>
+                <p>{{ .coordination }}</p>
+                {{ else }}
+                <p>Our team has years of experience working in and with the {{ $neighborhood }} HOA. We plan installations around the community’s seasonal lighting schedule.</p>
+                <ul>
+                    <li>Holiday lights may be installed during October and November.</li>
+                    <li>Displays generally remain off until November 15.</li>
+                    <li>Weather permitting, holiday lighting should be removed before February 1.</li>
+                </ul>
+                <p>If a question comes up, we are happy to contact and coordinate with the HOA so your installation follows current community guidance.</p>
+                {{ end }}
             </div>
             <div>
-                {{ partial "image.html" (dict "src" .Params.images.hoa "alt" (printf "Lee's Summit neighborhood home decorated with professional holiday lighting near %s" $neighborhood) "sizes" "(min-width: 90rem) 45rem, 100vw" "lazy" true "class" "") }}
+                {{ partial "image.html" (dict "src" $hoaImage "alt" (printf "%s neighborhood home decorated with professional holiday lighting near %s" $city $neighborhood) "sizes" "(min-width: 90rem) 45rem, 100vw" "lazy" true "class" "") }}
             </div>
         </div>
     </section>
@@ -87,9 +110,15 @@
         <div class="wrapper flow" style="--wrapper-max: 60rem">
             <p class="overline">Plan Your Display</p>
             <h2 data-balance>A Clear Design Before Installation</h2>
-            <p>{{ .Params.estimate.intro }}</p>
-            <p>{{ .Params.estimate.revision }}</p>
-            <p>{{ .Params.estimate.schedule }}</p>
+            {{ with .Params.estimate }}
+            <p>{{ .intro }}</p>
+            <p>{{ .revision }}</p>
+            <p>{{ .schedule }}</p>
+            {{ else }}
+            <p>Start with our contact form so we have the property and design details needed to prepare an accurate estimate. Your estimate includes a marked-up photo showing the proposed light runs on your home.</p>
+            <p>Want lighting in another area? Send us a clear photo of that part of the home. We can update the markup and revise the estimated footage as needed before installation.</p>
+            <p>New-customer installations are booked on a first-booked, first-scheduled basis beginning in late October and early November. We aim to complete installations before Thanksgiving and provide your scheduled date well in advance after routes are built.</p>
+            {{ end }}
             <p><a href="/contact/" class="button">Fill Out the Contact Form</a></p>
         </div>
     </section>
@@ -100,10 +129,25 @@
             <p class="overline">Local Questions</p>
             <h2>{{ $neighborhood }} Holiday Lighting FAQs</h2>
             <div class="flow" style="--flow-space: 1.5rem">
-                {{ range .Params.faq_items }}
+                {{ with .Params.faq_items }}
+                    {{ range . }}
+                    <div class="flow" style="--flow-space: 0.5rem">
+                        <h3>{{ .question }}</h3>
+                        <p>{{ .answer }}</p>
+                    </div>
+                    {{ end }}
+                {{ else }}
                 <div class="flow" style="--flow-space: 0.5rem">
-                    <h3>{{ .question }}</h3>
-                    <p>{{ .answer }}</p>
+                    <h3>Do you work with the {{ $neighborhood }} HOA?</h3>
+                    <p>Yes. We have worked in and with the {{ $neighborhood }} HOA for years, and we are happy to coordinate when a lighting-guideline question comes up.</p>
+                </div>
+                <div class="flow" style="--flow-space: 0.5rem">
+                    <h3>When can holiday lights be installed in {{ $neighborhood }}?</h3>
+                    <p>Installation can take place during October and November. Displays generally remain off until November 15, and weather permitting, lighting should be removed before February 1.</p>
+                </div>
+                <div class="flow" style="--flow-space: 0.5rem">
+                    <h3>What is included with holiday lighting service?</h3>
+                    <p>Our full-service experience includes a free estimate, custom design, professional installation, in-season maintenance, post-season takedown, and off-season storage of the lights.</p>
                 </div>
                 {{ end }}
             </div>
