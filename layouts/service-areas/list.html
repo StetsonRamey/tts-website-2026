@@ -61,9 +61,11 @@
             <div class="grid" style="--grid-min-item-size: 26rem">
                 {{ range (index hugo.Data "service-areas").areas }}
                 {{ $areaSlug := .slug }}
-                <div class="feature-card feature-card--no-border flow">
-                    {{ partial "icon.html" (dict "name" "map" "class" "icon-sm area-card__pin" "variant" "secondary") }}
-                    <h3>{{ .name }}, {{ .state }}</h3>
+                <div class="feature-card feature-card--no-border neighborhood-card">
+                    <div class="flow">
+                        {{ partial "icon.html" (dict "name" "map" "class" "icon-sm area-card__pin" "variant" "secondary") }}
+                        <h3>{{ .name }}, {{ .state }}</h3>
+                    </div>
                     {{ if .neighborhoods }}
                     <ul class="neighborhood-list" role="list">
                         {{ range .neighborhoods }}
@@ -77,7 +79,7 @@
                         {{ end }}
                     </ul>
                     {{ end }}
-                    <p><a href="/service-areas/{{ .slug }}/" class="text-link">Learn More →</a></p>
+                    <p class="neighborhood-card__footer"><a href="/service-areas/{{ .slug }}/" class="text-link">Learn More →</a></p>
                 </div>
                 {{ end }}
             </div>

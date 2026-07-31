@@ -11,4 +11,18 @@
     .neighborhood-list a {
         font-weight: 600;
     }
+
+    /* Card grid: header / links / footer rows, footer pinned to the bottom
+       so Learn More aligns across side-by-side cards */
+    .neighborhood-card {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: var(--space-s);
+    }
+
+    .neighborhood-card__footer {
+        margin-block-start: 0;
+        padding-block-start: var(--space-2xs);
+        border-top: 1px solid var(--color-border);
+    }
 }
