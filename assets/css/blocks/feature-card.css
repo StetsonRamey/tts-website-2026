@@ -8,6 +8,10 @@
         border-bottom: 3px solid var(--color-primary);
     }
 
+    .feature-card--no-border {
+        border-bottom: 0;
+    }
+
     .feature-card > * + * {
         --flow-space: var(--space-3xs);
     }

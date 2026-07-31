@@ -58,10 +58,10 @@
                 Being local means we're familiar with HOA requirements, community guidelines, and the neighborhoods
                 where we install. Here are some of the communities we regularly serve:
             </p>
-            <div class="flow">
+            <div class="grid" style="--grid-min-item-size: 26rem">
                 {{ range (index hugo.Data "service-areas").areas }}
                 {{ $areaSlug := .slug }}
-                <div class="feature-card flow">
+                <div class="feature-card feature-card--no-border flow">
                     {{ partial "icon.html" (dict "name" "map" "class" "icon-sm area-card__pin" "variant" "secondary") }}
                     <h3>{{ .name }}, {{ .state }}</h3>
                     {{ if .neighborhoods }}
