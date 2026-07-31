@@ -61,6 +61,10 @@ TTS/
 - Keep secrets out of the repository. Runtime configuration is supplied by environment variables; see `.env.example` and `SERVICES.md`.
 - Before changing a subsystem, read its source and the relevant documentation. `AGENTS.md` is the starting point for agents.
 
+### Service-area content structure
+
+City service-area pages are Hugo branch bundles at `content/service-areas/<city>/_index.md`. Neighborhood pages live beneath their city at `content/service-areas/<city>/<neighborhood>/index.md`, which preserves the city relationship in URLs, breadcrumbs, and the sitemap. `data/service-areas.yaml` supplies city display data and neighborhood lists; a neighborhood entry with a `slug` links to its published detail page.
+
 ## CSS Architecture (CUBE CSS)
 
 | Path | Purpose |

@@ -48,6 +48,21 @@
 
 {{/* Service schema */}}
 {{- if eq $schemaType "Service" -}}
+{{- $areaServed := slice
+  (dict "@type" "City" "name" "Lee's Summit" "addressRegion" "MO")
+  (dict "@type" "City" "name" "Raymore" "addressRegion" "MO")
+-}}
+{{- with .Params.neighborhood -}}
+  {{- $areaServed = slice (dict
+    "@type" "Place"
+    "name" .
+    "containedInPlace" (dict
+      "@type" "City"
+      "name" ($.Params.city | default "Lee's Summit")
+      "addressRegion" ($.Params.state | default "MO")
+    )
+  ) -}}
+{{- end -}}
 {{- $schema := dict
   "@context" "https://schema.org"
   "@type" "Service"
@@ -55,10 +70,7 @@
   "description" .Description
   "url" .Permalink
   "provider" (dict "@id" (printf "%s#business" site.BaseURL))
-  "areaServed" (slice
-    (dict "@type" "City" "name" "Lee's Summit" "addressRegion" "MO")
-    (dict "@type" "City" "name" "Raymore" "addressRegion" "MO")
-  )
+  "areaServed" $areaServed
 -}}
 <script type="application/ld+json">
 {{ $schema | jsonify (dict "indent" "  ") | safeJS }}

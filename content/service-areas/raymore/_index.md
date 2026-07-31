@@ -1,6 +1,10 @@
 ---
 title: 'Holiday Lighting in Raymore, MO'
 description: 'Professional holiday lighting installation in Raymore, MO. Residential & commercial. Free estimates, LED lights, maintenance, takedown & storage.'
+layout: city
+area_slug: raymore
+outputs:
+  - HTML
 seo:
   og_image: '/images/og/social.jpg'
   og_type: 'website'

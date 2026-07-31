@@ -46,6 +46,7 @@ Tis The Season KC is a holiday-lighting website at `tistheseasonkc.com`.
 
 - Put editable page content in `content/`; use front matter and existing data files where appropriate.
 - Put reusable rendering/SEO/UI work in `layouts/partials/` or the applicable layout.
+- City service-area pages use branch bundles at `content/service-areas/<city>/_index.md`; nested neighborhood pages use `content/service-areas/<city>/<neighborhood>/index.md`. Keep city/neighborhood listings in `data/service-areas.yaml`, adding a neighborhood `slug` only when its detail page is published.
 - Maintain CUBE CSS: `assets/css/main.css` imports global, composition, utilities, blocks, and exceptions layers. Add component styles under `assets/css/blocks/` when that is the established fit.
 - Frontend JavaScript lives in `assets/js/` and is bundled by Hugo. There is no Node/npm build step.
 - Run `make build` or `make build-prod` after applicable Hugo/template/asset changes.

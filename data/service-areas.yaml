@@ -5,7 +5,9 @@ areas:
     primary: true
     image: lees-summit-home.jpg
     neighborhoods:
-      - Winterset Valley
+      - name: Winterset Valley
+      - name: Kessler Ridge
+        slug: kessler-ridge
     images:
       hero: "/images/originals/ls/ls-hero.jpg"
       hoods: "/images/originals/ls/ls-hoods.JPG"
@@ -18,7 +20,7 @@ areas:
     primary: false
     image: raymore-home.jpg
     neighborhoods:
-      - Creekmoor
+      - name: Creekmoor
     images:
       hero: "/images/originals/ray/raymore-hero.jpg"
       hoods: "/images/originals/ray/raymore-hoods.jpg"

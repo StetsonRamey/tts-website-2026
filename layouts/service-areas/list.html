@@ -60,13 +60,20 @@
             </p>
             <div class="grid" style="--grid-min-item-size: 18rem">
                 {{ range (index hugo.Data "service-areas").areas }}
+                {{ $areaSlug := .slug }}
                 <div class="feature-card flow" style="border-bottom: none;">
                     {{ partial "icon.html" (dict "name" "map" "class" "icon-sm area-card__pin" "variant" "secondary") }}
                     <h3>{{ .name }}, {{ .state }}</h3>
                     {{ if .neighborhoods }}
                     <ul role="list">
                         {{ range .neighborhoods }}
-                        <li>{{ . }}</li>
+                        <li>
+                            {{- if .slug -}}
+                            <a href="/service-areas/{{ $areaSlug }}/{{ .slug }}/">{{ .name }}</a>
+                            {{- else -}}
+                            {{ .name }}
+                            {{- end -}}
+                        </li>
                         {{ end }}
                     </ul>
                     {{ end }}

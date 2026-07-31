@@ -1,0 +1,208 @@
+{{ define "main" }}
+{{- $areaName := .Title -}}
+{{- $areaSlug := .Params.area_slug | default .File.ContentBaseName -}}
+{{- $areaData := false -}}
+{{- range (index hugo.Data "service-areas").areas -}}
+    {{- if eq .slug $areaSlug -}}
+        {{- $areaData = . -}}
+    {{- end -}}
+{{- end -}}
+<main id="main-content">
+    {{ partial "breadcrumbs.html" . }} {{/* ── Hero ── */}}
+    <section class="hero region bg-light" aria-label="{{ $areaName }}">
+        <div class="wrapper switcher">
+            <div class="flow">
+                <p class="overline">Service Area</p>
+                <h1 data-balance>{{ $areaName }}</h1>
+                <p>{{ .Description }}</p>
+                <div class="cluster">
+                    <a href="/contact/" class="button">Get Your Free Estimate</a>
+                    <a href="tel:{{ site.Params.phone }}" class="text-link">{{ site.Params.phone }}</a>
+                </div>
+            </div>
+            <div>
+                {{ partial "image.html" (dict "src"  $areaData.images.hero "alt" (printf "Holiday lights installed on a home in %s, %s at twilight" $areaData.name $areaData.state) "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
+            </div>
+        </div>
+    </section>
+
+    {{/* ── What We Provide ── */}}
+    <section class="region" aria-label="Services in {{ $areaData.name | default "your area" }}">
+        <div class="wrapper flow">
+            <p class="overline">Full-Service</p>
+            <h2>What We Provide in {{ $areaData.name | default "Your Area" }}</h2>
+            <p>
+                {{ if $areaData }}
+                    {{ if $areaData.primary }}
+                        As our home base since {{ site.Params.inBusinessSince }}, {{ $areaData.name }} receives our full-service residential and commercial holiday lighting experience.
+                    {{ else }}
+                        {{ $areaData.name }} is one of our core service areas for residential and commercial holiday lighting.
+                    {{ end }}
+                {{ end }}
+            </p>
+            <ul class="area-services" role="list" aria-label="Services included in every project">
+                <li class="area-services__item">
+                    <h3>Free Estimate</h3>
+                    <p>No-hassle estimates with guaranteed first-year pricing.</p>
+                </li>
+                <li class="area-services__item">
+                    <h3>Custom Design</h3>
+                    <p>A lighting plan tailored to your home or business.</p>
+                </li>
+                <li class="area-services__item">
+                    <h3>Professional Installation</h3>
+                    <p>Installed by our fully insured, experienced team.</p>
+                </li>
+                <li class="area-services__item">
+                    <h3>Maintenance, Takedown, and Storage</h3>
+                    <p>Bulb and wire problems are covered during the season, followed by post-season takedown and off-season storage of the lights.</p>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    {{/* ── Neighborhoods ── */}}
+    {{ if and $areaData $areaData.neighborhoods }}
+    <section class="region bg-light" aria-label="Neighborhoods in {{ $areaData.name }}">
+        <div class="wrapper switcher">
+            <div class="flow">
+                <p class="overline">Neighborhoods</p>
+                <h2 data-balance>Neighborhoods We Serve in {{ $areaData.name }}</h2>
+                <p>
+                    We regularly install holiday lighting throughout {{ $areaData.name }}, including:
+                </p>
+                <ul role="list">
+                    {{ range $areaData.neighborhoods }}
+                    <li>
+                        {{- if .slug -}}
+                        <a href="/service-areas/{{ $areaData.slug }}/{{ .slug }}/">{{ .name }}</a>
+                        {{- else -}}
+                        {{ .name }}
+                        {{- end -}}
+                    </li>
+                    {{ end }}
+                    <li>And many other neighborhoods across the {{ $areaData.name }} area</li>
+                </ul>
+                <p>
+                    Have HOA requirements? We're experienced working within community guidelines and happy to coordinate.
+                </p>
+            </div>
+            <div>
+                {{ partial "image.html" (dict "src"  $areaData.images.hoods "alt" (printf "Neighborhood home in %s with professionally installed holiday lights" $areaData.name) "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
+            </div>
+        </div>
+    </section>
+    {{ end }}
+
+    {{/* ── Residential & Commercial ── */}}
+    <section class="region{{ if not (and $areaData $areaData.neighborhoods) }} bg-light{{ end }}" aria-label="Residential and commercial service">
+        <div class="wrapper switcher">
+            <div>
+                {{ partial "image.html" (dict "src"  $areaData.images.commercial "alt" (printf "Commercial building in %s, %s outlined in holiday lights at night" $areaData.name $areaData.state) "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
+            </div>
+            <div class="flow">
+                <p class="overline">Homes & Businesses</p>
+                <h2 data-balance>Residential & Commercial Service</h2>
+                <p>
+                    We provide residential holiday lighting and commercial holiday lighting in {{ $areaData.name | default "your area" }}, Missouri. From residential rooflines and wreaths to commercial storefronts and office buildings, we design and install lighting that makes your property stand out.
+                </p>
+                <p>
+                    Every project includes custom design, professional installation, in-season maintenance, post-season takedown, and off-season storage of the lights.
+                </p>
+                <div class="cluster">
+                    <a href="/services/" class="button">View All Services</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{/* ── Trust / Why Choose Us ── */}}
+    <section class="region bg-dark" aria-label="Why choose us">
+        <div class="wrapper text-center flow">
+            <p class="overline">Why Choose Us</p>
+            <h2>Why {{ $areaData.name | default "Local" }} Customers Trust Us</h2>
+            <div class="grid" style="--grid-min-item-size: 16rem">
+                <div class="why-card flow">
+                    <h3>Locally Operated</h3>
+                    <p>Based in the Lee's Summit area — {{ $areaData.name | default "your city" }} is right in our core service zone.</p>
+                </div>
+                <div class="why-card flow">
+                    <h3>900+ Homes Annually</h3>
+                    <p>Over 900 residential and commercial projects every season.</p>
+                </div>
+                <div class="why-card flow">
+                    <h3>Fully Insured</h3>
+                    <p>Full liability coverage on every job for your peace of mind.</p>
+                </div>
+                <div class="why-card flow">
+                    <h3>Everything Included</h3>
+                    <p>We provide the lights, install them, and store them off-season.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{/* ── Local FAQs ── */}}
+    <section class="region bg-light" aria-label="FAQs for {{ $areaData.name | default "this area" }}">
+        <div class="wrapper flow" style="--wrapper-max: 50rem">
+            <p class="overline">FAQs</p>
+            <h2>{{ $areaData.name | default "Local" }} Holiday Lighting FAQs</h2>
+            <div class="flow" style="--flow-space: 1.5rem">
+                <div class="flow" style="--flow-space: 0.5rem">
+                    <p><strong>Do you serve my neighborhood in {{ $areaData.name | default "this area" }}?</strong></p>
+                    <p>
+                        Most likely, yes. We serve all of {{ $areaData.name | default "this area" }} and surrounding communities. If you're unsure,
+                        <a href="/contact/">contact us</a> and we'll confirm.
+                    </p>
+                </div>
+                <div class="flow" style="--flow-space: 0.5rem">
+                    <p><strong>When should I book?</strong></p>
+                    <p>
+                        We recommend booking your estimate in late summer or early fall to secure your preferred
+                        installation date.
+                    </p>
+                </div>
+                <div class="flow" style="--flow-space: 0.5rem">
+                    <p><strong>Do you work with HOAs?</strong></p>
+                    <p>
+                        Yes. We're familiar with HOA requirements in {{ $areaData.name | default "local" }} neighborhoods and are happy to
+                        coordinate.
+                    </p>
+                </div>
+                <div class="flow" style="--flow-space: 0.5rem">
+                    <p><strong>How much does it cost?</strong></p>
+                    <p>
+                        Pricing depends on your property size and design preferences. We provide free estimates with
+                        guaranteed first-year pricing, so you know exactly what to expect.
+                    </p>
+                </div>
+            </div>
+            <p><a href="/faq/" class="text-link">See All FAQs →</a></p>
+        </div>
+    </section>
+
+    {{/* ── Other Areas ── */}}
+    <section class="region" aria-label="Other service areas">
+        <div class="wrapper flow">
+            <p class="overline">Nearby Areas</p>
+            <h2>We Also Serve</h2>
+            <div class="grid" style="max-width: 50rem; margin-inline: auto;">
+                {{ range (index hugo.Data "service-areas").areas }}
+                {{ if ne .slug $areaSlug }}
+                <a href="/service-areas/{{ .slug }}/" class="area-card" aria-label="{{ .name }}, {{ .state }}">
+                    {{ partial "image.html" (dict "src"  $areaData.images.map "alt" (printf "Map of our %s, %s service area" .name .state) "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
+                    <div class="area-card__overlay">
+                        {{ partial "icon.html" (dict "name" "map" "class" "icon icon-sm area-card__pin" "variant" "secondary") }}
+                        <h3>{{ .name }}, {{ .state }}</h3>
+                    </div>
+                </a>
+                {{ end }}
+                {{ end }}
+            </div>
+        </div>
+    </section>
+
+    {{/* ── CTA ── */}}
+    {{ partial "cta.html" (dict "side" "center" "heading" (printf "Ready to Light Up Your %s Home?" ($areaData.name | default "")) "page" .) }}
+</main>
+{{ end }}
