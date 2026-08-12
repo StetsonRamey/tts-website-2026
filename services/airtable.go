@@ -27,14 +27,15 @@ const (
 	baseID = "appuKBlgPC6igwAMO"
 
 	// Table IDs
-	tableCustomers        = "tblBtIM0f6pCcR7XI"
-	tableYearlyInvoicing  = "tblXtuzgoKSAJwzDa"
+	tableCustomers       = "tblBtIM0f6pCcR7XI"
+	tableServices        = "tblNloDsEVME3OpPv"
+	tableYearlyInvoicing = "tblXtuzgoKSAJwzDa"
 
 	// Yearly Invoicing view: pre-filtered to current season only
 	viewCurrentYear = "viwL8vbspkSX75DS3"
 
 	// ── Customers table field IDs ────────────────────────────────────────────
-	// returnFieldsByFieldId=true is added in atURL() so keys are always IDs.
+	// returnFieldsByFieldId=true is added in atParams() so keys are always IDs.
 	fieldCustomerFullName       = "fldw8mz8mEc3gVnaj" // formula
 	fieldCustomerFirstName      = "fldkDGECRoNhY5PsR" // singleLineText
 	fieldCustomerLastName       = "fldy5NPZ5ttw3y1GZ" // singleLineText
@@ -43,11 +44,16 @@ const (
 	fieldCustomerStripeID       = "fldOI8Qnn58hqTIDh" // singleLineText  e.g. cus_xxx
 	fieldCustomerPaid           = "fldeQz412DaIiDeVN" // singleSelect    "Paid" | empty
 	fieldCustomerReviewDiscount = "fldzCeTrLy9gdFD3m" // checkbox
+	fieldCustomerDiscountCoupon = "fldgGTXCZdmSmc3I6" // linked coupon record in Services
+
+	// ── Services table field IDs ──────────────────────────────────────────────
+	fieldServiceStripeCouponIDProd = "fld03d7VLjq8Pvxk7" // live coupon ID
+	fieldServiceStripeCouponIDDev  = "fldCt8m1scTZjtD1z" // sandbox coupon ID
 
 	// ── Yearly Invoicing table field IDs ─────────────────────────────────────
 	// (lookup fields return arrays — take index [0])
-	fieldInvStripeCustomerID    = "fldFgPy59G2zB9JxJ" // lookup: Stripe ID from Customer
-	fieldInvCustomerRecordID    = "fldNVumkFtJzdUKXR" // lookup: Record ID from Customer
+	fieldInvStripeCustomerID = "fldFgPy59G2zB9JxJ" // lookup: Stripe ID from Customer
+	fieldInvCustomerRecordID = "fldNVumkFtJzdUKXR" // lookup: Record ID from Customer
 	// Product ID fields — two versions, selected at runtime based on APP_ENV
 	// dev  → Stripe TEST IDs (from Services Link)
 	// prod → Stripe Product ID (from Services Link)
@@ -56,7 +62,7 @@ const (
 	fieldInvFinalValue          = "fldh8BoGKbwvdVxAq" // formula: quantity (linear feet or custom)
 	fieldInvUnitCost            = "fldNUT5jTfj4CcN8y" // currency: price per unit
 	fieldInvDescription         = "fldMGQd6Ggh8IZxD0" // singleLineText: line item description
-	fieldInvStripeCouponID      = "fldDNR9C3fPdUwg3k" // singleLineText: optional Stripe coupon
+	fieldInvStripeCouponID      = "fldDNR9C3fPdUwg3k" // legacy optional coupon field
 	fieldInvTotalPrice          = "fldSTxRJQD5P449jv" // formula: total
 	fieldInvLineItemDetail      = "fldSQkAsz0TULhHr7" // formula: human-readable summary
 )
@@ -74,12 +80,14 @@ type Customer struct {
 	StripeID       string // Stripe customer ID (cus_...)
 	Paid           bool   // true if Paid? == "Paid"
 	ReviewDiscount bool   // true if Review Discount? checkbox is checked
+	CouponIDDev    string // sandbox coupon ID from linked Services coupon
+	CouponIDProd   string // live coupon ID from linked Services coupon
 }
 
 // InvoiceLineItem holds one row from the Yearly Invoicing table.
 // A customer may have multiple line items.
 type InvoiceLineItem struct {
-	AirtableID      string
+	AirtableID       string
 	StripeCustomerID string  // lookup from Customer
 	StripeProductID  string  // lookup from Services
 	FinalValue       float64 // quantity
@@ -142,6 +150,28 @@ func atGet(rawURL string) ([]atRecord, error) {
 	return list.Records, nil
 }
 
+// atGetRecord performs a GET request for one Airtable record.
+func atGetRecord(rawURL string) (atRecord, error) {
+	resp, err := http.Get(rawURL) //nolint:noctx
+	if err != nil {
+		return atRecord{}, fmt.Errorf("airtable GET %s: %w", rawURL, err)
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		var e atErrorResponse
+		_ = json.Unmarshal(body, &e)
+		return atRecord{}, fmt.Errorf("airtable %d: %s — %s", resp.StatusCode, e.Error.Type, e.Error.Message)
+	}
+
+	var record atRecord
+	if err := json.Unmarshal(body, &record); err != nil {
+		return atRecord{}, fmt.Errorf("airtable record decode: %w", err)
+	}
+	return record, nil
+}
+
 // atPatch updates specific fields on an Airtable record.
 func atPatch(table, recordID string, fields map[string]interface{}) error {
 	payload, _ := json.Marshal(map[string]interface{}{"fields": fields})
@@ -180,6 +210,7 @@ func GetCustomerByRecordID(recordID string) (*Customer, error) {
 	params.Add("fields[]", fieldCustomerStripeID)
 	params.Add("fields[]", fieldCustomerPaid)
 	params.Add("fields[]", fieldCustomerReviewDiscount)
+	params.Add("fields[]", fieldCustomerDiscountCoupon)
 
 	records, err := atGet(atURL(tableCustomers) + "?" + params.Encode())
 	if err != nil {
@@ -189,7 +220,18 @@ func GetCustomerByRecordID(recordID string) (*Customer, error) {
 		return nil, fmt.Errorf("no customer found for record ID %q", recordID)
 	}
 
-	return parseCustomer(records[0]), nil
+	customer := parseCustomer(records[0])
+	couponServiceID := lookupFirst(records[0].Fields[fieldCustomerDiscountCoupon])
+	if couponServiceID != "" {
+		devCoupon, prodCoupon, err := getServiceCouponIDs(couponServiceID)
+		if err != nil {
+			return nil, fmt.Errorf("load coupon for customer %q: %w", recordID, err)
+		}
+		customer.CouponIDDev = devCoupon
+		customer.CouponIDProd = prodCoupon
+	}
+
+	return customer, nil
 }
 
 // GetCustomerByStripeID fetches a Customer by their Stripe customer ID (cus_...).
@@ -212,6 +254,21 @@ func GetCustomerByStripeID(stripeCustomerID string) (*Customer, error) {
 	}
 
 	return parseCustomer(records[0]), nil
+}
+
+// getServiceCouponIDs loads both environment-specific coupon IDs from a linked
+// Services record. Coupon records live in the Services table but are not invoice
+// line items.
+func getServiceCouponIDs(serviceRecordID string) (dev, prod string, err error) {
+	params := atParams()
+	params.Set("fields[]", fieldServiceStripeCouponIDDev)
+	params.Add("fields[]", fieldServiceStripeCouponIDProd)
+
+	record, err := atGetRecord(atURL(tableServices) + "/" + serviceRecordID + "?" + params.Encode())
+	if err != nil {
+		return "", "", err
+	}
+	return str(record.Fields[fieldServiceStripeCouponIDDev]), str(record.Fields[fieldServiceStripeCouponIDProd]), nil
 }
 
 // GetCurrentYearLineItems returns all Yearly Invoicing rows for a given customer
@@ -263,15 +320,15 @@ func MarkCustomerPaid(airtableRecordID string) error {
 func parseCustomer(r atRecord) *Customer {
 	f := r.Fields
 	return &Customer{
-		AirtableID:      r.ID,
-		RecordID:        str(f[fieldCustomerRecordID]),
-		FullName:        str(f[fieldCustomerFullName]),
-		FirstName:       str(f[fieldCustomerFirstName]),
-		LastName:        str(f[fieldCustomerLastName]),
-		Email:           str(f[fieldCustomerEmail]),
-		StripeID:        str(f[fieldCustomerStripeID]),
-		Paid:            str(f[fieldCustomerPaid]) == "Paid",
-		ReviewDiscount:  boolField(f[fieldCustomerReviewDiscount]),
+		AirtableID:     r.ID,
+		RecordID:       str(f[fieldCustomerRecordID]),
+		FullName:       str(f[fieldCustomerFullName]),
+		FirstName:      str(f[fieldCustomerFirstName]),
+		LastName:       str(f[fieldCustomerLastName]),
+		Email:          str(f[fieldCustomerEmail]),
+		StripeID:       str(f[fieldCustomerStripeID]),
+		Paid:           str(f[fieldCustomerPaid]) == "Paid",
+		ReviewDiscount: boolField(f[fieldCustomerReviewDiscount]),
 	}
 }
 

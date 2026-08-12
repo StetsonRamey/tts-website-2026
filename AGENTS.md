@@ -55,7 +55,7 @@ Tis The Season KC is a holiday-lighting website at `tistheseasonkc.com`.
 
 - Register routes in `server.go`; keep specific routes before the static-site catch-all.
 - Put focused handlers and external-service logic in `services/`; follow existing authorization and error-reporting patterns.
-- Internal automation routes must fail closed and require `WEBHOOK_AUTH_KEY` unless the design explicitly relies on the private exe.dev-gated internal listener.
+- Stripe review discounts use coupon catalog records in the Airtable `Services` table, linked separately from customer line-item services through `Customers.Discount/Coupon`; checkout selects the sandbox/live coupon by `APP_ENV` when `Review Discount?` is checked.
 - Use configuration through environment variables. If adding/changing one, update `.env.example`, `SERVICES.md`, and this file if it changes the architecture map.
 - Build/test with `go test ./...` and `go build -o tts-server .` for backend changes.
 

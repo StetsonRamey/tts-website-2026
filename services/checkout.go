@@ -106,9 +106,21 @@ func createCheckoutSession(cfg *Config, customer *Customer, items []InvoiceLineI
 		return "", fmt.Errorf("no valid line items after filtering")
 	}
 
-	// Review discount coupon
-	if customer.ReviewDiscount && cfg.ReviewCouponID != "" {
-		params.Set("discounts[0][coupon]", cfg.ReviewCouponID)
+	// Review discount coupon. A linked Services coupon takes precedence over
+	// the legacy environment-level fallback. Discounts apply once per Checkout
+	// Session, not as invoice line items.
+	couponID := cfg.ReviewCouponID
+	if cfg.Env == "dev" && customer.CouponIDDev != "" {
+		couponID = customer.CouponIDDev
+	}
+	if cfg.Env == "prod" && customer.CouponIDProd != "" {
+		couponID = customer.CouponIDProd
+	}
+	if customer.ReviewDiscount {
+		if couponID == "" {
+			return "", fmt.Errorf("review discount is enabled but no %s Stripe coupon is configured", cfg.Env)
+		}
+		params.Set("discounts[0][coupon]", couponID)
 		log.Printf("[checkout] applying review discount coupon to %s", customer.FullName)
 	}
 
