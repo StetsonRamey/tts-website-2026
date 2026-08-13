@@ -261,14 +261,19 @@ func GetCustomerByStripeID(stripeCustomerID string) (*Customer, error) {
 // line items.
 func getServiceCouponIDs(serviceRecordID string) (dev, prod string, err error) {
 	params := atParams()
+	params.Set("filterByFormula", fmt.Sprintf("RECORD_ID() = '%s'", serviceRecordID))
 	params.Set("fields[]", fieldServiceStripeCouponIDDev)
 	params.Add("fields[]", fieldServiceStripeCouponIDProd)
 
-	record, err := atGetRecord(atURL(tableServices) + "/" + serviceRecordID + "?" + params.Encode())
+	records, err := atGet(atURL(tableServices) + "?" + params.Encode())
 	if err != nil {
 		return "", "", err
 	}
-	return str(record.Fields[fieldServiceStripeCouponIDDev]), str(record.Fields[fieldServiceStripeCouponIDProd]), nil
+	if len(records) == 0 {
+		return "", "", fmt.Errorf("no Services record found for coupon %q", serviceRecordID)
+	}
+
+	return str(records[0].Fields[fieldServiceStripeCouponIDDev]), str(records[0].Fields[fieldServiceStripeCouponIDProd]), nil
 }
 
 // GetCurrentYearLineItems returns all Yearly Invoicing rows for a given customer
