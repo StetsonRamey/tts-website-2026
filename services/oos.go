@@ -53,7 +53,7 @@ func OOSHandler(cfg *Config) http.HandlerFunc {
 			return
 		}
 
-		if err := sendOOSEmail(lead.Email, lead.FirstName); err != nil {
+		if err := sendOOSEmail(resolveRecipient(lead.Email), lead.FirstName); err != nil {
 			log.Printf("[oos] email send failed: %v", err)
 			http.Error(w, `{"error":"email send failed"}`, http.StatusInternalServerError)
 			return

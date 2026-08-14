@@ -142,7 +142,7 @@ func EstimateHandler(cfg *Config) http.HandlerFunc {
 		subject := fmt.Sprintf("Holiday Lighting Estimate - %s", lead.FirstName)
 		// TODO: call sendHTMLEmail(lead.Email, subject, htmlBuf.String())
 		// TODO: return 500 on error
-		if err := sendHTMLEmail(lead.Email, subject, htmlBuf.String()); err != nil {
+		if err := sendHTMLEmail(resolveRecipient(lead.Email), subject, htmlBuf.String()); err != nil {
 			log.Printf("[estimate] email send failed: %v", err)
 			http.Error(w, `{"error":"email send failed"}`, http.StatusInternalServerError)
 			return

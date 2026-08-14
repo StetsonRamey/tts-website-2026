@@ -26,6 +26,7 @@ TTS/
 │   ├── estimate.go                 # POST /estimate/send and GET /photos/*
 │   ├── confirmation.go             # POST /confirmation/send
 │   ├── oos.go                      # POST /oos/send
+│   ├── emailtest.go                # EMAIL_TEST_TO recipient override for customer emails
 │   ├── sold_sync.go                # POST /sold/sync
 │   ├── invoice.go                  # POST /invoice/create
 │   ├── bottrack.go                 # Crawler logging and /internal/bots dashboard
@@ -82,6 +83,7 @@ Startup logs identify the selected mode. Do not switch modes casually: validate 
 | `GMAIL_USER` | Optional SMTP authentication account; defaults to `GMAIL_SEND_AS` when unset |
 | `GMAIL_SEND_AS` | SMTP envelope/from address and visible sender alias |
 | `GMAIL_APP_PASSWORD` | Gmail App Password used for SMTP |
+| `EMAIL_TEST_TO` | Optional test-recipient override; when set, all automated customer emails (estimate, confirmation, out-of-service) go to this address instead of the lead's email |
 | `ERROR_EMAIL_TO` | Recipient for backend error alerts; defaults to `stetson@tts.lighting` |
 | `SENTRY_DSN` | Optional Sentry DSN; unset disables Sentry reporting |
 | `INTERNAL_PORT` | Internal owner-only listener port; defaults to `3001`, or `0` disables it |
@@ -150,6 +152,8 @@ The authenticated estimate endpoint accepts `{"recordId":"rec..."}`, loads a lea
 **Code:** `services/confirmation.go`, `services/oos.go`
 
 Both authenticated endpoints accept an Airtable record ID, fetch the lead, and send Gmail SMTP communication. The confirmation flow renders `services/email_templates/confirmation.html`; the out-of-service flow sends a plain-text notice.
+
+All three customer-facing email handlers (estimate, confirmation, oos) route the recipient through `resolveRecipient` (`services/emailtest.go`): when `EMAIL_TEST_TO` is set, mail is delivered to that address instead of the lead's email and the redirect is logged. Unset/empty means normal delivery.
 
 ### Sold Sync
 

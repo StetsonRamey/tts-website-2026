@@ -91,7 +91,7 @@ func ConfirmationHandler(cfg *Config) http.HandlerFunc {
 
 		// ── 6. Send email ──────────────────────────────────────────────────────
 		// TODO: call sendConfirmationEmail
-		if err := sendConfirmationEmail(lead.Email, lead.FirstName, buf.Bytes()); err != nil {
+		if err := sendConfirmationEmail(resolveRecipient(lead.Email), lead.FirstName, buf.Bytes()); err != nil {
 			log.Printf("[confirmation] email send failed: %v", err)
 			http.Error(w, `{"error":"email send failed"}`, http.StatusInternalServerError)
 			return
