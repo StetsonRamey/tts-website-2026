@@ -4,7 +4,7 @@ dev:
 	hugo server --disableFastRender
 
 build:
-	hugo
+	hugo --baseURL 'https://tistheseasonkc.com/'
 
 build-prod:
 	hugo --minify --gc --environment production --baseURL 'https://tistheseasonkc.com/'
