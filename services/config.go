@@ -131,8 +131,12 @@ func (cfg *Config) sendErrorEmail(message string) {
 
 	smtpHost := "smtp.gmail.com"
 	smtpPort := "587"
+	user := os.Getenv("GMAIL_USER")
 	from := os.Getenv("GMAIL_SEND_AS")
 	pass := os.Getenv("GMAIL_APP_PASSWORD")
+	if user == "" {
+		user = from // backward compat
+	}
 
 	if from == "" || pass == "" {
 		log.Printf("[error-email] GMAIL_SEND_AS or GMAIL_APP_PASSWORD not set; cannot send alert: %s", message)
@@ -142,7 +146,7 @@ func (cfg *Config) sendErrorEmail(message string) {
 	body := fmt.Sprintf("To: %s\r\nFrom: %s\r\nSubject: TTS Backend Error [%s]\r\n\r\n%s",
 		cfg.ErrorEmailTo, from, cfg.Env, message)
 
-	auth := smtp.PlainAuth("", from, pass, smtpHost)
+	auth := smtp.PlainAuth("", user, pass, smtpHost)
 	if err := smtp.SendMail(
 		smtpHost+":"+smtpPort,
 		auth,
