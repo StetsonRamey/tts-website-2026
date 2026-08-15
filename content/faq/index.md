@@ -62,7 +62,7 @@ faq_items:
     answer: 'C7 bulbs are approximately 1.5 inches long and use 5 to 7 watts. C9 bulbs are approximately 2.25 inches long, use 7 to 10 watts, and create a larger, brighter look; C9 is the style shown in most of our gallery photos.'
   - category: 'Design & Installation'
     question: 'Can I choose custom colors for my holiday lighting?'
-    answer: 'Yes. Choose warm white (2600–2800 K), pure white (3950–4050 K), our standard red-yellow-green-orange-blue multicolor pattern, or a custom combination. Most designs cost no extra, but a complex custom multicolor design may require a small first-year setup charge.'
+    answer: 'Yes. Choose warm white (2600–2800 K), pure white (9000-11000 K), our standard red-yellow-green-orange-blue multicolor pattern, or a custom combination. Most designs cost no extra, but a complex custom multicolor design may require a small first-year setup charge.'
   - category: 'Design & Installation'
     question: 'Do you install lights on trees and bushes, or just rooflines?'
     answer: 'We currently install lighting on rooflines and around garage doors, doors, and windows, and we offer wreaths. We do not currently install lighting on trees, bushes, or walkways.'

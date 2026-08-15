@@ -15,11 +15,19 @@ enableRobotsTXT = true
   priority = 0.5
 
 [outputs]
-  home = ['HTML', 'RSS', 'RobotsTXT']
+  home = ['HTML', 'RSS', 'RobotsTXT', 'Markdown']
+  page = ['HTML', 'Markdown']
+  section = ['HTML', 'Markdown']
 
 [outputFormats.RobotsTXT]
   mediaType = 'text/plain'
   baseName = 'robots'
+  isPlainText = true
+  notAlternative = true
+
+[outputFormats.Markdown]
+  mediaType = 'text/markdown'
+  baseName = 'index'
   isPlainText = true
   notAlternative = true
 

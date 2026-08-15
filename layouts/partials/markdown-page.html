@@ -1,0 +1,168 @@
+{{- /* Markdown output for AI agents: renders page content as clean markdown. */ -}}
+{{- $title := .Title -}}
+{{- $description := .Description -}}
+{{- $permalink := .Permalink -}}
+{{- $p := . -}}
+{{- printf "# %s\n\n" $title | safeHTML -}}
+{{- with $description -}}
+{{- printf "> %s\n\n" . | safeHTML -}}
+{{- end -}}
+{{- printf "Source: %s\n\n" $permalink -}}
+{{- printf "---\n\n" -}}
+
+{{- /* Pages with body content (homepage, services, terms, thank-you) */ -}}
+{{- with .Content -}}
+{{- . | plainify | replaceRE "\n{3,}" "\n\n" | replaceRE "&amp;" "&" | replaceRE "&#39;" "'" | replaceRE "&quot;" "\"" | replaceRE "&gt;" ">" | replaceRE "&lt;" "<" | replaceRE "&rsquo;" "'" | replaceRE "&lsquo;" "'" | replaceRE "&ldquo;" "\"" | replaceRE "&rdquo;" "\"" | replaceRE "&nbsp;" " " | safeHTML -}}
+{{- else -}}
+
+{{- /* FAQ page: render structured faq_items as markdown Q&A */ -}}
+{{- with .Params.faq_items -}}
+{{- $faqs := . -}}
+{{- $categories := slice "Pricing & Estimates" "Scheduling" "Service Area & HOAs" "Design & Installation" "Service & Maintenance" -}}
+{{- range $cat := $categories -}}
+{{- $items := where $faqs "category" $cat -}}
+{{- if $items -}}
+{{- printf "## %s\n\n" $cat | safeHTML -}}
+{{- range $items -}}
+{{- printf "**Q: %s**\n\n" .question | safeHTML -}}
+{{- printf "A: %s\n\n" (.answer | markdownify | plainify | replaceRE "\n{2,}" "\n" | replaceRE "&amp;" "&" | replaceRE "&#39;" "'" | replaceRE "&quot;" "\"" | replaceRE "&gt;" ">" | replaceRE "&lt;" "<" | replaceRE "&rsquo;" "'" | replaceRE "&lsquo;" "'" | replaceRE "&ldquo;" "\"" | replaceRE "&rdquo;" "\"" | replaceRE "&nbsp;" " ") | safeHTML -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- /* Holiday lighting page: render structured bulb/color/process data */ -}}
+{{- with .Params.bulb_intro -}}
+{{- printf "## Bulb Types and Options\n\n%s\n\n" . | safeHTML -}}
+{{- end -}}
+{{- with .Params.bulb_options -}}
+{{- range . -}}
+{{- printf "- **%s** — %s\n" .name .description | safeHTML -}}
+{{- end -}}
+{{- printf "\n" -}}
+{{- end -}}
+{{- with .Params.color_intro -}}
+{{- printf "## Color Choices\n\n%s\n\n" . | safeHTML -}}
+{{- end -}}
+{{- with .Params.color_options -}}
+{{- range . -}}
+{{- printf "- **%s** — %s\n" .name .description | safeHTML -}}
+{{- end -}}
+{{- printf "\n" -}}
+{{- end -}}
+{{- with .Params.scope_intro -}}
+{{- printf "## What We Install\n\n%s\n\n" . | safeHTML -}}
+{{- end -}}
+{{- with .Params.attachment_intro -}}
+{{- printf "## How Lights Attach\n\n%s\n\n" . | safeHTML -}}
+{{- end -}}
+{{- with .Params.design_process -}}
+{{- printf "## The Design Process\n\n" | safeHTML -}}
+{{- range $i, $step := . -}}
+{{- printf "%d. **%s** — %s\n" (add $i 1) .name .description | safeHTML -}}
+{{- end -}}
+{{- printf "\n" -}}
+{{- end -}}
+
+{{- /* Gallery page: render image list as markdown */ -}}
+{{- with .Params.gallery_images -}}
+{{- range . -}}
+{{- printf "- %s ([view](%s))\n" .caption .src | safeHTML -}}
+{{- end -}}
+{{- printf "\n" -}}
+{{- end -}}
+
+{{- /* Service-area neighborhood pages: render structured HOA/estimate data */ -}}
+{{- with .Params.neighborhood -}}
+{{- $city := $p.Params.city -}}
+{{- $state := $p.Params.state -}}
+{{- with $p.Params.parent_area -}}
+{{- $areaSlug := . -}}
+{{- range (index hugo.Data "service-areas").areas -}}
+{{- if eq .slug $areaSlug -}}
+{{- $city = $city | default .name -}}
+{{- $state = $state | default .state -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- printf "## Holiday Lighting for %s, %s, %s\n\n" . $city $state | safeHTML -}}
+{{- end -}}
+{{- with .Params.hero_text -}}
+{{- printf "%s\n\n" . | safeHTML -}}
+{{- end -}}
+{{- with .Params.community_intro -}}
+{{- printf "%s\n\n" . | safeHTML -}}
+{{- end -}}
+{{- with .Params.community_detail -}}
+{{- printf "%s\n\n" . | safeHTML -}}
+{{- end -}}
+{{- with .Params.hoa -}}
+{{- printf "### HOA Guidelines\n\n%s\n\n" .intro | safeHTML -}}
+{{- range .guidelines -}}
+{{- printf "- %s\n" . | safeHTML -}}
+{{- end -}}
+{{- printf "\n%s\n\n" .coordination | safeHTML -}}
+{{- end -}}
+{{- with .Params.estimate -}}
+{{- printf "### Getting an Estimate\n\n%s\n\n" .intro | safeHTML -}}
+{{- with .revision -}}
+{{- printf "%s\n\n" . | safeHTML -}}
+{{- end -}}
+{{- with .schedule -}}
+{{- printf "%s\n\n" . | safeHTML -}}
+{{- end -}}
+{{- end -}}
+
+{{- /* Neighborhood FAQ items */ -}}
+{{- with .Params.faq_items -}}
+{{- printf "### Frequently Asked Questions\n\n" | safeHTML -}}
+{{- range . -}}
+{{- printf "**Q: %s**\n\n" .question | safeHTML -}}
+{{- printf "A: %s\n\n" .answer | safeHTML -}}
+{{- end -}}
+{{- end -}}
+
+{{- /* Service-area city pages: render from data file */ -}}
+{{- with .Params.area_slug -}}
+{{- $areaSlug := . -}}
+{{- range (index hugo.Data "service-areas").areas -}}
+{{- if eq .slug $areaSlug -}}
+{{- printf "## About %s, %s\n\n" .name .state | safeHTML -}}
+{{- if .primary -}}
+{{- printf "As our home base since 2015, %s receives our full-service residential and commercial holiday lighting experience.\n\n" .name | safeHTML -}}
+{{- else -}}
+{{- printf "%s is one of our core service areas for residential and commercial holiday lighting.\n\n" .name | safeHTML -}}
+{{- end -}}
+{{- with .neighborhoods -}}
+{{- printf "### Neighborhoods We Serve\n\n" | safeHTML -}}
+{{- range . -}}
+{{- printf "- %s\n" . | safeHTML -}}
+{{- end -}}
+{{- printf "\n" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- /* Contact page */ -}}
+{{- if eq .File.Dir "contact/" -}}
+{{- printf "## Contact Tis The Season Holiday Lighting\n\n" | safeHTML -}}
+{{- printf "- **Phone:** %s\n" site.Params.phone | safeHTML -}}
+{{- printf "- **Text:** %s\n" site.Params.textPhone | safeHTML -}}
+{{- printf "- **Email:** %s\n" site.Params.email | safeHTML -}}
+{{- printf "- **Online form:** https://tistheseasonkc.com/contact/\n\n" | safeHTML -}}
+{{- printf "Call, text, or fill out our online form for a free, no-hassle estimate with guaranteed first-year pricing.\n" | safeHTML -}}
+{{- end -}}
+
+{{- /* About page */ -}}
+{{- if eq .File.Dir "about/" -}}
+{{- printf "Tis the Season Holiday Lighting is a locally operated, fully insured holiday lighting company serving Lee's Summit, MO since 2015. We provide residential and commercial holiday lighting with design, installation, maintenance, takedown, and storage included.\n\n" | safeHTML -}}
+{{- printf "- In business since 2015\n- Over 900 homes serviced annually\n- Fully insured\n- We provide the lights and materials\n- Off-season storage included\n\n" | safeHTML -}}
+{{- printf "[Get a free estimate](/contact/) or call %s.\n" site.Params.phone | safeHTML -}}
+{{- end -}}
+
+{{- end -}}
+
+{{- /* Universal footer */ -}}
+{{- printf "\n---\n\n" -}}
+{{- printf "**Tis The Season Holiday Lighting** | %s | %s | %s\n" site.Params.phone site.Params.textPhone site.Params.email | safeHTML -}}

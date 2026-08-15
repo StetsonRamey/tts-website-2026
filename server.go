@@ -543,6 +543,62 @@ func securityHeadersMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// markdownNegotiationMiddleware intercepts requests for HTML pages and serves
+// the corresponding markdown file (index.md) when the client sends
+// Accept: text/markdown. This lets AI agents that support content negotiation
+// pull clean markdown instead of parsing HTML. It also sets a Link header
+// pointing at /llms.txt on every response so crawlers can discover it.
+func markdownNegotiationMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Always advertise llms.txt
+		w.Header().Set("Link", `</llms.txt>; rel="describedby"; type="text/markdown"`)
+
+		// Only negotiate for GET/HEAD requests that accept markdown
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		accept := r.Header.Get("Accept")
+		if !strings.Contains(accept, "text/markdown") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		p := r.URL.Path
+		// Skip non-page paths (assets, API routes, etc.)
+		if strings.HasSuffix(p, ".css") || strings.HasSuffix(p, ".js") ||
+			strings.HasSuffix(p, ".png") || strings.HasSuffix(p, ".jpg") ||
+			strings.HasSuffix(p, ".jpeg") || strings.HasSuffix(p, ".webp") ||
+			strings.HasSuffix(p, ".svg") || strings.HasSuffix(p, ".ico") ||
+			strings.HasSuffix(p, ".xml") || strings.HasSuffix(p, ".json") ||
+			strings.HasSuffix(p, ".pdf") || strings.HasSuffix(p, ".woff") ||
+			strings.HasSuffix(p, ".woff2") || strings.HasSuffix(p, ".map") ||
+			strings.HasPrefix(p, "/analytics/") || strings.HasPrefix(p, "/photos/") ||
+			strings.HasPrefix(p, "/api/") || strings.HasPrefix(p, "/internal") ||
+			p == "/robots.txt" || p == "/llms.txt" || p == "/sitemap.xml" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Look for index.md in the same directory
+		mdPath := "public" + p
+		if !strings.HasSuffix(mdPath, "/") {
+			mdPath += "/"
+		}
+		mdPath += "index.md"
+
+		if _, err := os.Stat(mdPath); err == nil {
+			w.Header().Set("Content-Type", "text/markdown; charset=utf-8")
+			http.ServeFile(w, r, mdPath)
+			return
+		}
+
+		// No markdown available — fall through to HTML
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	// Initialize Sentry first so panics during startup are captured.
 	// No-op if SENTRY_DSN is unset (local dev). Flush on exit.
@@ -624,7 +680,7 @@ func main() {
 
 	log.Fatal(http.ListenAndServe(":8000",
 		services.SentryRecovery(
-			securityHeadersMiddleware(termsRedirect(wwwRedirect(services.BotTrackMiddleware(mux)))))))
+			securityHeadersMiddleware(markdownNegotiationMiddleware(termsRedirect(wwwRedirect(services.BotTrackMiddleware(mux))))))))
 }
 
 // notFoundWriter buffers the FileServer's response just long enough to see

@@ -23,6 +23,9 @@
 {{- end }}
 <link rel="canonical" href="{{ .Permalink }}">
 
+{{/* Tell AI agents and browsers that a markdown version of this page exists. */}}
+<link rel="alternate" type="text/markdown" href="{{ .Permalink }}index.md" title="{{ $title }} (Markdown)">
+
 <meta property="og:title" content="{{ $title }}">
 <meta property="og:description" content="{{ $description }}">
 <meta property="og:type" content="{{ $ogType }}">

@@ -5,6 +5,7 @@ layout: city
 area_slug: raymore
 outputs:
   - HTML
+  - Markdown
 seo:
   og_image: '/images/og/social.jpg'
   og_type: 'website'

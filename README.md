@@ -50,12 +50,12 @@ TTS/
 ## Responsibilities
 
 - **Hugo** — page content, page rendering, templates, SEO/meta tags, schema, generated `robots.txt`, and asset bundling.
-- **Go** — contact form intake, Stripe checkout/webhooks, email and internal automation endpoints, staged-photo hosting, first-party analytics proxy, bot-crawl tracking, redirects, caching, security headers, and custom 404 handling.
+- **Go** — contact form intake, Stripe checkout/webhooks, email and internal automation endpoints, staged-photo hosting, first-party analytics proxy, markdown content negotiation for AI agents (AEO), bot-crawl tracking, redirects, caching, security headers, and custom 404 handling.
 - **`services/`** — focused backend integrations for Airtable, Stripe, Gmail, CompanyCam, Sentry, Umami, and bot tracking.
 
 ## Workflow Conventions
 
-- Use Hugo for content, rendering, and frontend asset changes; use Go only for server/runtime behavior.
+- Use Hugo for content, rendering, and frontend asset changes; use Go only for server/runtime behavior. Hugo outputs both HTML and Markdown for every page.
 - Use `make dev`, `make build`, `make build-prod`, and `make clean` for Hugo tasks. The Makefile does not build or run the Go backend.
 - There is no Node/npm build step. Hugo Pipes builds CSS and JavaScript from `assets/`.
 - Keep secrets out of the repository. Runtime configuration is supplied by environment variables; see `.env.example` and `SERVICES.md`.

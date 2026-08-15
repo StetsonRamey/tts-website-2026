@@ -106,7 +106,7 @@ Typical services include:
 * C9 bulbs are 2.25 inches long and use 7 to 10 watts.
 * All bulbs are diamond faceted, which is the standard finish.
 * Warm white is 2600–2800 K.
-* Pure white is 3950–4050 K.
+* Pure white is 9000–11000 K.
 * The standard multicolor pattern is red, yellow, green, orange, and blue; it can be customized if desired.
 * Most designs are included at no additional cost. Complex custom multicolor designs may require a small first-year setup charge.
 

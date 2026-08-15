@@ -29,7 +29,7 @@ color_options:
   - name: 'Warm White'
     description: 'A classic, cozy look with a 2600–2800 K color temperature.'
   - name: 'Pure White'
-    description: 'A clean, bright look with a 3950–4050 K color temperature.'
+    description: 'A clean, bright look with a 9000–11000 K color temperature.'
   - name: 'Standard Multicolor'
     description: 'Our festive repeating pattern uses red, yellow, green, orange, and blue.'
   - name: 'Custom Combinations'

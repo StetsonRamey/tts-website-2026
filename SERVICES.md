@@ -10,7 +10,7 @@ For the site structure and local build workflow, see `README.md`. For agent work
 
 ## Architecture and Code Map
 
-The public Go server starts in `server.go`. It serves Hugo's generated `public/` directory, registers backend handlers from `services/`, and applies redirects, security headers, caching, bot tracking, Sentry recovery, and custom 404 handling.
+The public Go server starts in `server.go`. It serves Hugo's generated `public/` directory, registers backend handlers from `services/`, and applies redirects, security headers, caching, markdown content negotiation for AI agents, bot tracking, Sentry recovery, and custom 404 handling.
 
 ```text
 TTS/
@@ -192,6 +192,17 @@ The public Go server proxies the self-hosted Umami tracker and collection endpoi
 | `contact_form_submit` | `assets/js/form-submit.js` | Successful submission |
 
 In the Umami dashboard, a goal of type "Custom event" with name `contact_form_submit` measures conversions. The Funnel report can chain `/contact/` → `contact_form_start` → `contact_form_submit` (and optionally intermediate `contact_form_field` steps) to visualize where visitors drop off. The Events → Properties tab and Breakdown report show which specific fields people reach.
+
+### AEO / Markdown Content Negotiation
+
+**Routes:** all page paths (e.g., `/about/`, `/faq/`, `/service-areas/lees-summit/northpark-village/`)
+**Code:** `server.go` (`markdownNegotiationMiddleware`), `layouts/partials/markdown-page.html`, `layouts/_default/*.md`
+
+Hugo generates both HTML and Markdown versions of every page. The Go server's `markdownNegotiationMiddleware` serves the markdown version when a client sends `Accept: text/markdown`, enabling AI agents that support content negotiation to pull clean markdown instead of parsing HTML. Markdown files are also accessible directly at `{path}/index.md`.
+
+Every response includes a `Link: </llms.txt>; rel="describedby"; type="text/markdown"` header advertising the site's `llms.txt` file. Each HTML page also includes `<link rel="alternate" type="text/markdown">` in its `<head>` pointing to the corresponding markdown file.
+
+The `llms.txt` file at `/llms.txt` (served from `static/llms.txt`) provides a human- and machine-readable summary of the site's content, services, service areas, and important page URLs.
 
 ### Sentry and Status
 
