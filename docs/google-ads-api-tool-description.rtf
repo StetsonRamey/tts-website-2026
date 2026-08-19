@@ -1,0 +1,51 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}{\f1 Courier New;}}
+\fs24
+\b Google Ads API Tool Documentation\b0\par
+\par
+\b Organization:\b0 Tis the Season Holiday Lighting\par
+\b Website:\b0 https://tistheseasonkc.com\par
+\b Date:\b0 August 19, 2026\par
+\par
+\b 1. Tool Overview\b0\par
+Tis the Season Holiday Lighting is developing a small internal advertising reporting and optimization tool for its own Google Ads account. The tool will help the business understand campaign performance, improve lead quality, and measure advertising results against qualified leads and completed jobs.\par
+\par
+The tool is not a public product, will not be offered to other advertisers, and will not resell or share Google Ads data. It is intended solely for internal use by the business owner and authorized agents working on behalf of Tis the Season Holiday Lighting.\par
+\par
+\b 2. Business\b0\par
+Tis the Season Holiday Lighting is a local residential and commercial holiday lighting company serving Lee's Summit, Raymore, and nearby Missouri communities. The company has operated since 2015 and provides design, professional installation, in-season maintenance, post-season takedown, and off-season storage.\par
+\par
+\b 3. Intended Google Ads API Use\b0\par
+The initial integration will use the Google Ads API for:\par
+\bullet\tab Reading campaign, ad group, keyword, search term, geographic, impression, click, cost, and conversion performance.\par
+\bullet\tab Producing internal weekly performance reports.\par
+\bullet\tab Comparing advertising leads with qualified leads, estimates, booked work, and completed jobs maintained in the company's internal lead system.\par
+\bullet\tab Detecting unusual spend, broken conversion tracking, irrelevant search terms, and underperforming campaigns.\par
+\bullet\tab Recommending campaign, keyword, budget, landing-page, and ad-copy improvements.\par
+\par
+The first production phase will be read-only. Any future campaign or budget changes will be limited, logged, reversible, and subject to owner approval.\par
+\par
+\b 4. Conversion Measurement\b0\par
+The website currently records first-party analytics events for contact-form engagement and successful contact-form submissions. The business plans to improve attribution using campaign parameters and click identifiers, then connect advertising leads to qualified leads, estimates, booked work, and completed jobs.\par
+\par
+The business may later use Google Ads offline conversion imports for qualified leads or completed jobs. These conversions will be based on the company's own customer and lead records and will be used only to improve measurement and campaign optimization for this business.\par
+\par
+\b 5. Data Handling and Security\b0\par
+The tool will access only the business's own Google Ads account. Credentials will be held outside source code and will not be committed to the repository. The VM will use short-lived access tokens where supported. Access will initially be limited to the minimum permissions needed for reporting.\par
+\par
+The system will not sell, publish, or disclose Google Ads data to third parties. Reports will be delivered only to the business owner and authorized operators.\par
+\par
+\b 6. API Access and Frequency\b0\par
+The tool will make scheduled reporting requests rather than continuously poll the API. Data collection is expected to run daily or several times per week during the seasonal advertising period, with a consolidated report generated approximately once per week. Requests will be limited to the required customer account, date ranges, and reporting resources.\par
+\par
+\b 7. App Conversion Tracking and Remarketing API\b0\par
+No. The developer token will not initially be used for App Conversion Tracking or the Remarketing API. This is a website-based local-service advertising system, not a mobile application, and the initial scope is campaign reporting, website lead measurement, and later offline conversion measurement.\par
+\par
+If the business later adds a mobile application or intentionally implements remarketing functionality, the API scope and documentation will be reviewed and updated before those features are enabled.\par
+\par
+\b 8. Contact\b0\par
+Tis the Season Holiday Lighting\par
+Lee's Summit, Missouri\par
+Phone: 816-281-7032\par
+Email: hello@tts.lighting\par
+}
