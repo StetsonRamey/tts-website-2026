@@ -4,3 +4,5 @@ import './validation.js';
 import './form-tracking.js';
 import './form-submit.js';
 import './theme-toggle.js';
+
+import './header-scroll.js';

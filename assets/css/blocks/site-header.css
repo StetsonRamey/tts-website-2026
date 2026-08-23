@@ -1,6 +1,18 @@
 @layer blocks {
     /* ── Site Header ── */
     .site-header {
+        background: var(--color-surface);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    /* Once scrolled, swap the solid surface for a gradient that fades to
+       transparent over a fluid bottom padding so content dissolves into the
+       page background instead of hitting a hard edge. At the very top the
+       solid background is kept so the fade zone doesn't reveal a contrasting
+       hero background. */
+    .site-header.is-scrolled {
         background: linear-gradient(
             to bottom,
             rgb(var(--color-surface-rgb)) 0%,
@@ -8,9 +20,6 @@
             rgba(var(--color-surface-rgb), 0) 100%
         );
         padding-bottom: var(--header-fade);
-        position: sticky;
-        top: 0;
-        z-index: 100;
     }
 
     .site-header__inner {
