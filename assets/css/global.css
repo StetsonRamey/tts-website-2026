@@ -108,8 +108,8 @@ ol[role='list'] {
   /* Header height (logo + padding) — used for sticky offsets */
   --header-height: 4.5rem;
 
-  /* Fluid header fade — ~20px at 400px, ~40px at 1140px */
-  --header-fade: clamp(20px, 16px + 1.7vw, 40px);
+  /* Fluid header fade — 40px at small, 64px at wide (matches earendil) */
+  --header-fade: clamp(40px, 38px + 0.9vw, 64px);
 
   /* Border radius */
   --radius-s: 0.25rem;
