@@ -1,8 +1,13 @@
 @layer blocks {
     /* ── Site Header ── */
     .site-header {
-        background: var(--color-surface);
-        box-shadow: var(--shadow-soft);
+        background: linear-gradient(
+            to bottom,
+            rgb(var(--color-surface-rgb)) 0%,
+            rgb(var(--color-surface-rgb)) calc(100% - var(--header-fade)),
+            rgba(var(--color-surface-rgb), 0) 100%
+        );
+        padding-bottom: var(--header-fade);
         position: sticky;
         top: 0;
         z-index: 100;

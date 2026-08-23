@@ -51,6 +51,7 @@ ol[role='list'] {
   --color-bg: var(--color-white);
   --color-bg-accent: var(--color-light);
   --color-surface: var(--color-white);
+  --color-surface-rgb: 255, 255, 255;
   --color-band: var(--color-black);
   --color-border: #e0e0d8;
 
@@ -107,6 +108,9 @@ ol[role='list'] {
   /* Header height (logo + padding) — used for sticky offsets */
   --header-height: 4.5rem;
 
+  /* Fluid header fade — ~20px at 400px, ~40px at 1140px */
+  --header-fade: clamp(20px, 16px + 1.7vw, 40px);
+
   /* Border radius */
   --radius-s: 0.25rem;
   --radius-m: 0.5rem;
@@ -137,6 +141,7 @@ ol[role='list'] {
     --color-bg: var(--color-dark);
     --color-bg-accent: #222236;
     --color-surface: #2e2e46;
+    --color-surface-rgb: 46, 46, 70;
     --color-border: #4d4d6e;
     --color-band: #131322;
     --color-on-dark: var(--color-white);
@@ -157,6 +162,7 @@ ol[role='list'] {
     --color-bg: var(--color-dark);
     --color-bg-accent: #222236;
     --color-surface: #2e2e46;
+    --color-surface-rgb: 46, 46, 70;
     --color-border: #4d4d6e;
     --color-band: #131322;
     --color-on-dark: var(--color-white);
