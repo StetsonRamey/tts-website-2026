@@ -7,19 +7,24 @@
         z-index: 100;
     }
 
-    /* Once scrolled, swap the solid surface for a gradient that fades to
-       transparent over a fluid bottom padding so content dissolves into the
-       page background instead of hitting a hard edge. At the very top the
-       solid background is kept so the fade zone doesn't reveal a contrasting
-       hero background. */
-    .site-header.is-scrolled {
+    /* Fade overlay — a pseudo-element pinned below the header paints a
+       surface-to-transparent gradient over content scrolling under the
+       sticky header. Unlike padding-bottom, this adds no height and needs
+       no scroll listener, so there is no layout shift or jank. The header
+       keeps its solid surface background for the nav content itself. */
+    .site-header::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        height: var(--header-fade);
         background: linear-gradient(
             to bottom,
             rgb(var(--color-surface-rgb)) 0%,
-            rgb(var(--color-surface-rgb)) calc(100% - var(--header-fade)),
             rgba(var(--color-surface-rgb), 0) 100%
         );
-        padding-bottom: var(--header-fade);
+        pointer-events: none;
     }
 
     .site-header__inner {
