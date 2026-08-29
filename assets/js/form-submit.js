@@ -63,6 +63,16 @@
       const html = await response.text();
 
       // ── Conversion tracking ──
+      // Fire Google Ads conversion after the form is accepted. The site-wide
+      // Google tag is loaded in layouts/partials/head.html.
+      if (typeof gtag === "function") {
+        try {
+          gtag("event", "conversion", {
+            send_to: "AW-17686347200/utHpCODyheocEMD7wPFB",
+          });
+        } catch (_) {}
+      }
+
       // Fire a Umami custom event so conversion goals can be measured.
       // In Umami, create a goal of type "Custom event" with name "contact_form_submit".
       if (typeof umami === "object" && typeof umami.track === "function") {

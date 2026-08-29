@@ -183,7 +183,9 @@ Middleware records known AI, search, and other crawler requests to `~/.local/sha
 
 The public Go server proxies the self-hosted Umami tracker and collection endpoint to the configured local Umami upstream. This keeps browser tracking first-party while leaving the Umami dashboard itself private. The tracker script builds its collect URL from `data-host-url` + `/api/send`, producing `/analytics/api/send`; both that and the legacy `/analytics/send` path are proxied to Umami's `/api/send`. Unknown `/analytics/*` paths return 404.
 
-**Conversion tracking:** The contact form fires a sequence of Umami custom events so conversion goals and the Funnel report can measure engagement and drop-off:
+**Google Ads conversion tracking:** The global Google tag (`AW-17686347200`) is loaded once in `layouts/partials/head.html`. After a successful contact-form submission, `assets/js/form-submit.js` fires the Google Ads `Submit lead form` conversion (`AW-17686347200/utHpCODyheocEMD7wPFB`) alongside the existing Umami event. Phone calls from Google Ads are tracked separately through the Google Ads call asset/conversion action and do not use this website event.
+
+**Umami conversion tracking:** The contact form fires a sequence of Umami custom events so conversion goals and the Funnel report can measure engagement and drop-off:
 
 | Event | Fired from | When |
 |---|---|---|
