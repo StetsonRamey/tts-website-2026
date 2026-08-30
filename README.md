@@ -87,6 +87,11 @@ Frontend JavaScript is progressively enhanced through Hugo-bundled files in `ass
 
 Shared Hugo partials also provide canonical URLs, Open Graph/Twitter metadata, schema.org JSON-LD, analytics markup, and the CSS/JS bundles.
 
+## Special-Purpose Pages
+
+- `/thank-you/` — post-contact confirmation with next steps (`content/thank-you/`, custom layout).
+- `/review/ — customer-facing Google review solicitation page for the annual review drawing (5 winners, $75 off install). Linked from the Fillout signup form; `noindex` and excluded from the sitemap since it is not organic-search content (`content/review/`, custom layout).
+
 ## Running the Production Server
 
 ```bash

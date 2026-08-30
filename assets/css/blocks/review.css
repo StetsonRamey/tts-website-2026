@@ -1,0 +1,20 @@
+@layer blocks {
+  /* ── Review Offer ── */
+  .review-intro__lead {
+    font-size: var(--step-1);
+    color: var(--color-text-muted);
+    line-height: 1.6;
+  }
+
+  .review-intro__body {
+    margin-inline: auto;
+  }
+
+  .review-card {
+    text-align: left;
+    padding: var(--space-m);
+    background: var(--color-bg-accent);
+    border-radius: var(--radius-s);
+    border-left: 4px solid var(--color-primary);
+  }
+}

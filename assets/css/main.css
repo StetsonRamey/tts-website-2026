@@ -30,5 +30,6 @@
 @import "blocks/icon.css";
 @import "blocks/neighborhood-list.css";
 @import "blocks/thank-you.css";
+@import "blocks/review.css";
 
 @import "exceptions.css";

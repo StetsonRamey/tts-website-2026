@@ -1,0 +1,46 @@
+{{ define "main" }}
+<main id="main-content">
+    <!-- Offer intro -->
+    <section class="review-intro region" aria-label="Review offer">
+        <div class="wrapper flow text-center" style="--wrapper-max: 44rem">
+            <h1 data-balance>Leave a Review, Win $75 Off Your Install</h1>
+            <p class="review-intro__lead">5 winners, chosen by random drawing on <strong>September 11th</strong>.</p>
+            {{ with .Content }}
+            <div class="prose review-intro__body text-left">
+                {{ . }}
+            </div>
+            {{ end }}
+        </div>
+    </section>
+
+    <!-- Review options -->
+    <section class="review-options region bg-light" aria-label="How to leave a review">
+        <div class="wrapper flow" style="--wrapper-max: 44rem">
+            <div class="review-card flow">
+                <h2>On Your Phone? Use Google Maps</h2>
+                <p>If you have the Google Maps app on your phone, this button opens our listing — tap our name, scroll to “Rate and review,” and tap the stars.</p>
+                <a class="button" href="https://maps.app.goo.gl/bdjgS22M35UoBgaY6">Open Google Maps</a>
+            </div>
+            <div class="review-card flow">
+                <h2>On a Computer — or No Maps App?</h2>
+                <p>This button opens our Google review page in any web browser. Sign in with your Google account, pick your stars, and write a sentence or two.</p>
+                <a class="button" href="https://g.page/r/CUS9HZbtYiL3EBM/review">Leave a Google Review</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rules -->
+    <section class="review-rules region" aria-label="Drawing rules">
+        <div class="wrapper flow" style="--wrapper-max: 44rem">
+            <h2>A Few Quick Rules</h2>
+            <ol>
+                <li>You must have a Google account to leave a review — <a href="https://accounts.google.com/signup">create one for free</a> if you don't.</li>
+                <li>Only Google reviews count as entries.</li>
+                <li>Five winners will be selected, each receiving $75 off this year's install.</li>
+                <li>Reviews from previous years have already been counted — only reviews dated 2026 qualify for this drawing.</li>
+            </ol>
+            <p>Questions? Call <a href="tel:{{ site.Params.phone }}">{{ site.Params.phone }}</a> or text <a href="sms:{{ site.Params.textPhone }}">{{ site.Params.textPhone }}</a>.</p>
+        </div>
+    </section>
+</main>
+{{ end }}
