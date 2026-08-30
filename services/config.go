@@ -6,8 +6,8 @@ package services
 // on this server. The proxy injects the Authorization header automatically.
 //
 //   dev  → https://stripe-test-mode.int.exe.xyz  (sandbox, livemode=false)
-//   prod → https://stripe-live-mode.int.exe.xyz   (live, livemode=true)
-//        └─ add this integration when ready to go live
+//   prod → https://stripe-prod.int.exe.xyz   (live, livemode=true)
+//        └─ live Stripe integration attached to this VM
 //
 // To switch modes: change APP_ENV in the systemd service and restart.
 // No other changes needed.
@@ -24,7 +24,7 @@ import (
 const (
 	// Stripe proxy base URLs — the exe.dev integration injects the API key
 	StripeProxyDev  = "https://stripe-test-mode.int.exe.xyz"
-	StripeProxyProd = "https://stripe-live-mode.int.exe.xyz"
+	StripeProxyProd = "https://stripe-prod.int.exe.xyz"
 )
 
 // Config is passed to every service handler.
