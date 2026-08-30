@@ -1,12 +1,12 @@
 {{ define "main" }}
 <main id="main-content">
     <!-- Offer intro -->
-    <section class="review-intro region" aria-label="Review offer">
-        <div class="wrapper flow text-center" style="--wrapper-max: 44rem">
-            <h1 data-balance>Leave a Review, Win $75 Off Your Install</h1>
-            <p class="review-intro__lead">5 winners, chosen by random drawing on <strong>September 11th</strong>.</p>
+    <section class="review-intro region bg-light" aria-label="Review offer">
+        <div class="wrapper flow" style="--wrapper-max: 44rem">
+            <p class="overline">Customer Appreciation Drawing</p>
+            <h1 data-balance style="--flow-space: .75rem">Leave a Review, Win $75 Off Your Install</h1>
             {{ with .Content }}
-            <div class="prose review-intro__body text-left">
+            <div class="prose review-intro__body">
                 {{ . }}
             </div>
             {{ end }}

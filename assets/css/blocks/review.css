@@ -1,13 +1,8 @@
 @layer blocks {
   /* ── Review Offer ── */
-  .review-intro__lead {
-    font-size: var(--step-1);
-    color: var(--color-text-muted);
-    line-height: 1.6;
-  }
-
   .review-intro__body {
-    margin-inline: auto;
+    font-size: var(--step-0);
+    line-height: 1.7;
   }
 
   .review-card {
