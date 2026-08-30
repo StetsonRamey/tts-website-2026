@@ -123,7 +123,7 @@ journalctl -u tts.service -n 50 --no-pager
 
 The backend has separate typed clients for the customer/yearly-invoicing data and the leads data. They support checkout/webhook state changes, lead lookups, photo metadata, sold-job sync, invoice-link updates, and coupon catalog lookups. Airtable requests use the exe.dev proxy integration in the deployed environment.
 
-The customer `Discount/Coupon` link points to a coupon catalog record in the Services table. Coupon catalog records use `Catalog Type = Coupon`, `Stripe TEST Coupon ID`, and `Stripe Coupon ID`; they are intentionally separate from the customer's `Products/Services` line-item links. The 2026 Google Review Drawing coupon is configured as a one-time $75 discount with a five-redemption cap; its sandbox coupon is populated and the live coupon is pending the production Stripe integration. The payment handler selects the sandbox or live coupon based on `APP_ENV` and only applies it when `Review Discount?` is checked.
+The customer `Discount/Coupon` link points to a coupon catalog record in the Services table. Coupon catalog records use `Catalog Type = Coupon`, `Stripe TEST Coupon ID`, and `Stripe Coupon ID`; they are intentionally separate from the customer's `Products/Services` line-item links. The 2026 Google Review Drawing coupon is configured as a one-time $75 discount with a five-redemption cap in both Stripe modes. The payment handler selects the sandbox or live coupon based on `APP_ENV` and only applies it when `Review Discount?` is checked.
 
 ### Stripe Checkout
 **Code:** `services/checkout.go`
