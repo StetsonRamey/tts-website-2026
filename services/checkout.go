@@ -128,11 +128,20 @@ func createCheckoutSession(cfg *Config, customer *Customer, items []InvoiceLineI
 		log.Printf("[checkout] applying review discount coupon to %s", customer.FullName)
 	}
 
-	resp, err := http.Post(
+	req, err := http.NewRequest(
+		http.MethodPost,
 		cfg.StripeBaseURL+"/v1/checkout/sessions",
-		"application/x-www-form-urlencoded",
 		strings.NewReader(params.Encode()),
 	)
+	if err != nil {
+		return "", fmt.Errorf("create POST /v1/checkout/sessions request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	// Adaptive Pricing's session override was introduced in this Stripe API
+	// version. Pin this request because the account default is older.
+	req.Header.Set("Stripe-Version", "2024-11-20.acacia")
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("POST /v1/checkout/sessions: %w", err)
 	}
