@@ -128,7 +128,7 @@ The customer `Discount/Coupon` link points to a coupon catalog record in the Ser
 ### Stripe Checkout
 **Code:** `services/checkout.go`
 
-The handler loads the customer and current-year line items from Airtable, prevents duplicate payment when the customer is already paid, creates a Stripe Checkout Session through the selected exe.dev proxy, and redirects to Stripe. If the customer's `Review Discount?` checkbox is set, the handler applies the linked environment-specific coupon from the customer's `Discount/Coupon` Services link. The legacy `STRIPE_REVIEW_COUPON_ID` remains an optional fallback when no linked coupon is configured. A coupon is applied once to the Checkout Session, not as a Yearly Invoicing line item.
+The handler loads the customer and current-year line items from Airtable, prevents duplicate payment when the customer is already paid, creates a Stripe Checkout Session through the selected exe.dev proxy, and redirects to Stripe. Checkout prices and Adaptive Pricing are explicitly set to USD/off for every session, so a Stripe Dashboard default cannot localize the amount into a customer’s currency. If the customer's `Review Discount?` checkbox is set, the handler applies the linked environment-specific coupon from the customer's `Discount/Coupon` Services link. The legacy `STRIPE_REVIEW_COUPON_ID` remains an optional fallback when no linked coupon is configured. A coupon is applied once to the Checkout Session, not as a Yearly Invoicing line item.
 
 ### Stripe Webhook
 

@@ -89,6 +89,10 @@ func createCheckoutSession(cfg *Config, customer *Customer, items []InvoiceLineI
 	params.Set("mode", "payment")
 	params.Set("success_url", "https://tistheseasonkc.com/payment-success")
 
+	// Always charge and present checkout in USD. This overrides any future
+	// Dashboard-level Adaptive Pricing default for this session.
+	params.Set("adaptive_pricing[enabled]", "false")
+
 	// Line items — Stripe uses indexed form params for arrays
 	i := 0
 	for _, item := range items {
