@@ -81,6 +81,7 @@ City service-area pages are Hugo branch bundles at `content/service-areas/<city>
 Frontend JavaScript is progressively enhanced through Hugo-bundled files in `assets/js/`:
 
 - form validation and asynchronous contact submission
+- paid-landing attribution capture for Google click IDs and UTM parameters
 - phone-number formatting
 - address autocomplete
 - theme toggle
@@ -89,6 +90,7 @@ Shared Hugo partials also provide canonical URLs, Open Graph/Twitter metadata, s
 
 ## Special-Purpose Pages
 
+- `/free-estimate/` — focused paid-campaign landing page with a minimal header, estimate form above the fold, paid-click attribution capture, and noindex metadata while it is used as an ad destination.
 - `/thank-you/` — post-contact confirmation with next steps (`content/thank-you/`, custom layout).
 - `/review/ — customer-facing Google review solicitation page for the annual review drawing (5 winners, $75 off install). Linked from the Fillout signup form; `noindex` and excluded from the sitemap since it is not organic-search content (`content/review/`, custom layout).
 

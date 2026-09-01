@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="{{ site.LanguageCode }}">
+<head>
+  {{ partial "head.html" . }}
+</head>
+<body class="landing-page" data-landing-page="free-estimate">
+  <a href="#main-content" class="visually-hidden">Skip to content</a>
+  <header class="landing-header" role="banner">
+    <div class="landing-header__inner wrapper">
+      <a href="/" class="landing-header__logo" aria-label="{{ site.Params.companyName }} — Home">
+        <img src="/images/logo.svg" alt="{{ site.Params.companyName }}" width="180" height="40">
+      </a>
+      <div class="landing-header__actions cluster">
+        <a href="tel:{{ site.Params.phone }}" class="landing-header__phone">{{ site.Params.phone }}</a>
+        <a href="#estimate-form" class="button" data-landing-cta="header">Free Estimate</a>
+      </div>
+    </div>
+  </header>
+  {{ block "main" . }}{{ end }}
+  <footer class="landing-footer" role="contentinfo">
+    <div class="wrapper flow">
+      <p>&copy; {{ now.Year }} {{ site.Params.companyName }}. Serving Lee's Summit and Raymore, Missouri.</p>
+      <p><a href="tel:{{ site.Params.phone }}">Call {{ site.Params.phone }}</a> · <a href="sms:{{ site.Params.textPhone }}">Text {{ site.Params.textPhone }}</a> · <a href="/terms/">Terms</a></p>
+    </div>
+  </footer>
+  {{ partial "analytics.html" . }}
+  {{ partial "js-bundle.html" . }}
+</body>
+</html>

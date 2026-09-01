@@ -1,0 +1,251 @@
+@layer blocks {
+    .landing-header {
+        background: var(--color-surface);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .landing-header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-s);
+        padding-block: var(--space-xs);
+    }
+
+    .landing-header__logo img {
+        width: auto;
+        height: 2.25rem;
+    }
+
+    .landing-header__actions {
+        gap: var(--space-s);
+    }
+
+    .landing-header__phone {
+        color: var(--color-text);
+        font-size: var(--step--1);
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .landing-header__phone:hover {
+        color: var(--color-primary);
+    }
+
+    .estimate-hero {
+        background: var(--color-band);
+        color: var(--color-on-dark);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .estimate-hero::before {
+        background-image: radial-gradient(circle, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+        background-size: 10px 10px;
+        content: "";
+        inset: 0;
+        mask-image: linear-gradient(to bottom, black, transparent);
+        opacity: 0.6;
+        pointer-events: none;
+        position: absolute;
+    }
+
+    .estimate-hero__grid {
+        align-items: start;
+        display: grid;
+        gap: var(--space-l);
+        grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.9fr);
+        position: relative;
+    }
+
+    .estimate-hero__content {
+        --flow-space: var(--space-s);
+        max-width: 42rem;
+    }
+
+    .estimate-hero__content .overline,
+    .estimate-hero__content p {
+        color: var(--color-on-dark);
+    }
+
+    .estimate-hero__content h1 {
+        font-size: var(--step-5);
+        line-height: 1.08;
+    }
+
+    .estimate-hero__intro {
+        font-size: var(--step-1);
+    }
+
+    .estimate-hero__proof {
+        display: grid;
+        gap: var(--space-xs);
+        list-style: none;
+        margin: var(--space-m) 0 0;
+        padding: 0;
+    }
+
+    .estimate-hero__proof li {
+        align-items: center;
+        display: flex;
+        font-weight: 600;
+        gap: var(--space-xs);
+    }
+
+    .estimate-hero__proof span {
+        color: var(--color-primary);
+        font-size: var(--step-1);
+    }
+
+    .estimate-form-card {
+        --flow-space: var(--space-s);
+        background: var(--color-surface);
+        border-radius: var(--radius-l);
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25);
+        color: var(--color-text);
+        padding: var(--space-m);
+    }
+
+    .estimate-form-card h2 {
+        font-size: var(--step-2);
+    }
+
+    .estimate-form-card__intro {
+        color: var(--color-text-muted);
+        font-size: var(--step--1);
+    }
+
+    .estimate-form-card .contact-form__row--address {
+        grid-template-columns: minmax(0, 2fr) minmax(7rem, 1fr);
+    }
+
+    .estimate-form-card .contact-form__field--state {
+        display: none;
+    }
+
+    .estimate-form-card .contact-form__submit {
+        background: var(--color-secondary);
+        font-size: var(--step-1);
+    }
+
+    .estimate-form-card .contact-form__submit:hover {
+        background: var(--color-band);
+    }
+
+    .estimate-form-card__privacy {
+        color: var(--color-text-muted);
+        font-size: var(--step--2);
+        text-align: center;
+    }
+
+    .estimate-proof__grid {
+        margin-block-start: var(--space-l);
+    }
+
+    .estimate-photo-card {
+        background: var(--color-surface);
+        border-radius: var(--radius-l);
+        box-shadow: var(--shadow-soft);
+        margin: 0;
+        overflow: hidden;
+    }
+
+    .estimate-photo-card img {
+        aspect-ratio: 3 / 2;
+        height: 100%;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .estimate-photo-card figcaption {
+        color: var(--color-text-muted);
+        font-size: var(--step--1);
+        padding: var(--space-xs) var(--space-s);
+    }
+
+    .estimate-steps {
+        counter-reset: estimate-step;
+        margin-block-start: var(--space-l);
+    }
+
+    .estimate-step {
+        --flow-space: var(--space-2xs);
+        background: var(--color-on-dark-panel);
+        border-radius: var(--radius-l);
+        padding: var(--space-m);
+    }
+
+    .estimate-step__number {
+        align-items: center;
+        background: var(--color-primary);
+        border-radius: 50%;
+        color: var(--color-dark);
+        display: flex;
+        font-size: var(--step-1);
+        font-weight: 700;
+        height: 2.5rem;
+        justify-content: center;
+        width: 2.5rem;
+    }
+
+    .estimate-step h3,
+    .estimate-step p {
+        color: var(--color-on-dark);
+    }
+
+    .estimate-step p {
+        color: var(--color-on-dark-muted);
+    }
+
+    .estimate-final-cta {
+        --flow-space: var(--space-s);
+    }
+
+    .estimate-final-cta p {
+        font-size: var(--step-1);
+        margin-inline: auto;
+        max-width: 45rem;
+    }
+
+    .landing-footer {
+        background: var(--color-band);
+        color: var(--color-on-dark-faint);
+        font-size: var(--step--2);
+        padding-block: var(--space-m);
+        text-align: center;
+    }
+
+    .landing-footer a {
+        color: var(--color-on-dark);
+    }
+
+    @media (max-width: 52rem) {
+        .estimate-hero__grid {
+            grid-template-columns: 1fr;
+        }
+
+        .estimate-hero__content h1 {
+            font-size: var(--step-4);
+        }
+
+        .estimate-hero__proof,
+        .estimate-hero__content > p:last-child {
+            display: none;
+        }
+
+        .estimate-form-card .contact-form__row--address {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 38rem) {
+        .landing-header__phone {
+            display: none;
+        }
+
+        .landing-header__actions .button {
+            font-size: var(--step--2);
+            padding: 0.5rem 0.75rem;
+        }
+    }
+}

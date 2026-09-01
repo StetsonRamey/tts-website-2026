@@ -115,6 +115,7 @@ journalctl -u tts.service -n 50 --no-pager
 - `GET` and `HEAD` redirect to the canonical Hugo page at `/contact/`.
 - `POST` accepts HTML form submissions and JSON submissions.
 - The handler validates data, rate-limits by IP, rejects implausibly fast submissions, checks non-US traffic, records outcomes, and sends accepted leads to Airtable.
+- The paid landing page (`/free-estimate/`) stores its allow-listed Google click IDs and UTM parameters with the lead's Airtable comments, enabling later reconciliation of Google Ads traffic with qualified and sold jobs without changing the Leads table schema.
 - Standard HTML form posts redirect to `/thank-you/`; JavaScript-enhanced HTML requests receive a thank-you fragment; JSON clients receive JSON.
 
 ### Airtable Clients
@@ -189,11 +190,15 @@ The public Go server proxies the self-hosted Umami tracker and collection endpoi
 
 | Event | Fired from | When |
 |---|---|---|
+| `free_estimate_view` | `assets/js/landing-tracking.js` | A visit to the paid `/free-estimate/` landing page; records UTM source when available. |
+| `free_estimate_cta` (property: `placement`) | `assets/js/landing-tracking.js` | Clicks on the paid landing page's header or final estimate CTA. |
 | `contact_form_start` | `assets/js/form-tracking.js` | First field focus |
 | `contact_form_field` (property: `field`) | `assets/js/form-tracking.js` | Each field's first focus (once per field) |
 | `contact_form_submit` | `assets/js/form-submit.js` | Successful submission |
 
-In the Umami dashboard, a goal of type "Custom event" with name `contact_form_submit` measures conversions. The Funnel report can chain `/contact/` → `contact_form_start` → `contact_form_submit` (and optionally intermediate `contact_form_field` steps) to visualize where visitors drop off. The Events → Properties tab and Breakdown report show which specific fields people reach.
+In the Umami dashboard, a goal of type "Custom event" with name `contact_form_submit` measures conversions. The Funnel report can chain `/free-estimate/` → `free_estimate_view` → `contact_form_start` → `contact_form_submit` to measure paid-landing engagement and conversion; the existing `/contact/` funnel remains useful for general site traffic. The Events → Properties tab and Breakdown report show which specific fields people reach.
+
+The landing page stores only the allow-listed `gclid`, `gbraid`, `wbraid`, and standard UTM values submitted with the form; the Go handler appends a labeled summary to the lead's Airtable comments. This supports manual campaign/lead-quality reconciliation now and preserves identifiers needed for a later offline-conversion import workflow.
 
 ### AEO / Markdown Content Negotiation
 

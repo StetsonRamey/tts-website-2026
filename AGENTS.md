@@ -24,6 +24,7 @@ Tis The Season KC is a holiday-lighting website at `tistheseasonkc.com`.
 | Backend integrations and handlers | `services/` |
 | Page content | `content/` |
 | Page layouts and shared SEO/UI partials | `layouts/` |
+| Paid Google Ads estimate landing page | `content/free-estimate/`, `layouts/free-estimate/`, `assets/js/landing-tracking.js` |
 | CSS and progressive-enhancement JavaScript | `assets/css/`, `assets/js/` |
 | Passthrough public assets | `static/` |
 | Generated site output — do not hand-edit | `public/` |
@@ -56,6 +57,7 @@ Tis The Season KC is a holiday-lighting website at `tistheseasonkc.com`.
 - Register routes in `server.go`; keep specific routes before the static-site catch-all.
 - Put focused handlers and external-service logic in `services/`; follow existing authorization and error-reporting patterns.
 - Stripe review discounts use coupon catalog records in the Airtable `Services` table, linked separately from customer line-item services through `Customers.Discount/Coupon`; checkout selects the sandbox/live coupon by `APP_ENV` when `Review Discount?` is checked.
+- The paid Google Ads landing page is `/free-estimate/`. It uses the same `/contact` form handler and Google Ads conversion event as `/contact/`, and saves allow-listed Google click IDs/UTMs in the lead comments for later quality reconciliation. Keep it `noindex` unless its purpose is intentionally expanded to organic search.
 - Use configuration through environment variables. If adding/changing one, update `.env.example`, `SERVICES.md`, and this file if it changes the architecture map.
 - Build/test with `go test ./...` and `go build -o tts-server .` for backend changes.
 

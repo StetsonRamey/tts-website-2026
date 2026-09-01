@@ -28,6 +28,7 @@ type FormData struct {
 	State         string  `json:"state"`
 	Zip           string  `json:"zip"`
 	Message       string  `json:"message"`
+	Attribution   string  `json:"_attribution"`
 	FillTime      float64 `json:"_fillTime"`
 }
 
@@ -112,6 +113,58 @@ func validate(d FormData) []string {
 	}
 
 	return errs
+}
+
+// appendAttribution stores a concise, allow-listed summary alongside the lead's
+// comments. This keeps paid-click attribution available in Airtable without
+// requiring a schema change to the existing Leads table.
+func appendAttribution(message, raw string) string {
+	if raw == "" {
+		return message
+	}
+
+	var values map[string]string
+	if err := json.Unmarshal([]byte(raw), &values); err != nil {
+		return message
+	}
+
+	fields := []struct {
+		key   string
+		label string
+	}{
+		{"landing_page", "Landing page"},
+		{"utm_source", "UTM source"},
+		{"utm_medium", "UTM medium"},
+		{"utm_campaign", "UTM campaign"},
+		{"utm_content", "UTM content"},
+		{"utm_term", "UTM term"},
+		{"gclid", "Google click ID"},
+		{"gbraid", "Google iOS click ID"},
+		{"wbraid", "Google web-to-app ID"},
+	}
+
+	var lines []string
+	for _, field := range fields {
+		value := strings.TrimSpace(values[field.key])
+		if value == "" {
+			continue
+		}
+		value = strings.ReplaceAll(value, "\r", " ")
+		value = strings.ReplaceAll(value, "\n", " ")
+		if len(value) > 200 {
+			value = value[:200]
+		}
+		lines = append(lines, fmt.Sprintf("%s: %s", field.label, value))
+	}
+	if len(lines) == 0 {
+		return message
+	}
+
+	summary := "Lead attribution:\n" + strings.Join(lines, "\n")
+	if message == "" {
+		return summary
+	}
+	return message + "\n\n" + summary
 }
 
 // ── Client IP ──
@@ -203,6 +256,7 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 			State:         strings.TrimSpace(r.FormValue("state")),
 			Zip:           strings.TrimSpace(r.FormValue("zip")),
 			Message:       strings.TrimSpace(r.FormValue("message")),
+			Attribution:   strings.TrimSpace(r.FormValue("_attribution")),
 			FillTime:      fillTime,
 		}
 	}
@@ -254,6 +308,8 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]any{"success": false, "errors": errs})
 		return
 	}
+
+	fd.Message = appendAttribution(fd.Message, fd.Attribution)
 
 	// ── Accepted ──
 
