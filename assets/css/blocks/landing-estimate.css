@@ -143,6 +143,7 @@
     }
 
     .estimate-photo-card {
+        align-self: start;
         background: var(--color-surface);
         border-radius: var(--radius-l);
         box-shadow: var(--shadow-soft);
@@ -151,9 +152,9 @@
     }
 
     .estimate-photo-card img {
-        aspect-ratio: 3 / 2;
-        height: 100%;
-        object-fit: cover;
+        background-image: none !important;
+        height: auto;
+        object-fit: contain;
         width: 100%;
     }
 
