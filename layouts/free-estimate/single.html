@@ -142,4 +142,14 @@
     </div>
   </section>
 </main>
+{{/* Google Places API — uses the same address-autocomplete module and callback as /contact/. */}}
+{{ with site.Params.googleMapsApiKey }}
+<script>
+  var initAddressAutocomplete = function () {};
+</script>
+<script
+  src="https://maps.googleapis.com/maps/api/js?key={{ . }}&libraries=places&callback=initAddressAutocomplete&loading=async"
+  async
+  defer></script>
+{{ end }}
 {{ end }}
