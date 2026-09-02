@@ -7,7 +7,7 @@ package services
 // Flow:
 //   1. Read customer record ID from query string
 //   2. Fetch customer from Airtable — check if already paid
-//   3. Fetch their current-year line items from Yearly Invoicing
+//   3. Fetch the line items matching the customer's Invoice Build Year
 //   4. POST to Stripe /v1/checkout/sessions via proxy
 //   5. Apply review discount coupon if Review Discount? checkbox is set
 //   6. Redirect customer to Stripe-hosted checkout page
@@ -34,6 +34,10 @@ func CheckoutHandler(cfg *Config) http.HandlerFunc {
 			http.Error(w, "Payment link required. Please use the link from your invoice.", http.StatusBadRequest)
 			return
 		}
+		if !isAirtableRecordID(recordID) {
+			http.Error(w, "Invalid payment link. Please use the complete link from your invoice.", http.StatusBadRequest)
+			return
+		}
 
 		ref := newRefCode()
 
@@ -53,7 +57,7 @@ func CheckoutHandler(cfg *Config) http.HandlerFunc {
 		}
 
 		// ── 3. Fetch line items ───────────────────────────────────
-		items, err := GetCurrentYearLineItems(recordID, cfg.Env)
+		items, err := GetInvoiceBuildYearLineItems(customer, cfg.Env)
 		if err != nil {
 			log.Printf("[checkout] ref=%s GetLineItems(%s): %v", ref, recordID, err)
 			cfg.sendErrorEmail(fmt.Sprintf("checkout: ref=%s GetLineItems(%s) customer=%s: %v", ref, recordID, customer.FullName, err))

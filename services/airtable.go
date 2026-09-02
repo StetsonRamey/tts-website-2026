@@ -15,17 +15,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 )
 
 const (
-	// Base URL for the exe.dev Airtable proxy
-	airtableBase = "https://airtable.int.exe.xyz/v0"
-
 	// Master Customer DB base ID
 	baseID = "appuKBlgPC6igwAMO"
 
@@ -34,23 +31,19 @@ const (
 	tableServices        = "tblNloDsEVME3OpPv"
 	tableYearlyInvoicing = "tblXtuzgoKSAJwzDa"
 
-	// Yearly Invoicing view: pre-filtered to current season only.
-	// NOTE: no longer used for /pay — the view filter depends on formula fields
-	// that Airtable's API can serve stale. Checkout filters on the raw Year
-	// single-select instead. Kept for reference.
-	viewCurrentYear = "viwL8vbspkSX75DS3"
-
 	// ── Customers table field IDs ────────────────────────────────────────────
 	// returnFieldsByFieldId=true is added in atParams() so keys are always IDs.
-	fieldCustomerFullName       = "fldw8mz8mEc3gVnaj" // formula
-	fieldCustomerFirstName      = "fldkDGECRoNhY5PsR" // singleLineText
-	fieldCustomerLastName       = "fldy5NPZ5ttw3y1GZ" // singleLineText
-	fieldCustomerEmail          = "fldri14MY0YKwnPFw" // singleLineText
-	fieldCustomerRecordID       = "fldgfXPisSW52URiL" // formula — RECORD_ID()
-	fieldCustomerStripeID       = "fldOI8Qnn58hqTIDh" // singleLineText  e.g. cus_xxx
-	fieldCustomerPaid           = "fldeQz412DaIiDeVN" // singleSelect    "Paid" | empty
-	fieldCustomerReviewDiscount = "fldzCeTrLy9gdFD3m" // checkbox
-	fieldCustomerDiscountCoupon = "fldgGTXCZdmSmc3I6" // linked coupon record in Services
+	fieldCustomerFullName         = "fldw8mz8mEc3gVnaj" // formula
+	fieldCustomerFirstName        = "fldkDGECRoNhY5PsR" // singleLineText
+	fieldCustomerLastName         = "fldy5NPZ5ttw3y1GZ" // singleLineText
+	fieldCustomerEmail            = "fldri14MY0YKwnPFw" // singleLineText
+	fieldCustomerRecordID         = "fldgfXPisSW52URiL" // formula — RECORD_ID()
+	fieldCustomerStripeID         = "fldOI8Qnn58hqTIDh" // singleLineText  e.g. cus_xxx
+	fieldCustomerPaid             = "fldeQz412DaIiDeVN" // singleSelect    "Paid" | empty
+	fieldCustomerReviewDiscount   = "fldzCeTrLy9gdFD3m" // checkbox
+	fieldCustomerDiscountCoupon   = "fldgGTXCZdmSmc3I6" // linked coupon record in Services
+	fieldCustomerInvoices         = "fldgsZDOSayIYUtwG" // raw reciprocal links to Yearly Invoicing
+	fieldCustomerInvoiceBuildYear = "fldGKPjdAYrqRCaR1" // number: season built by automation
 
 	// ── Services table field IDs ──────────────────────────────────────────────
 	fieldServiceStripeCouponIDProd = "fld03d7VLjq8Pvxk7" // live coupon ID
@@ -59,7 +52,6 @@ const (
 	// ── Yearly Invoicing table field IDs ─────────────────────────────────────
 	// (lookup fields return arrays — take index [0])
 	fieldInvStripeCustomerID = "fldFgPy59G2zB9JxJ" // lookup: Stripe ID from Customer
-	fieldInvCustomerRecordID = "fldNVumkFtJzdUKXR" // lookup: Record ID from Customer
 	fieldInvCustomerLink     = "fldIELNteHoebkqxE" // multipleRecordLinks: raw link to Customers
 	fieldInvYear             = "flddSd62O3sMmMq7C" // singleSelect: invoice year, written by build automation
 	// Product ID fields — two versions, selected at runtime based on APP_ENV
@@ -75,21 +67,25 @@ const (
 	fieldInvLineItemDetail      = "fldSQkAsz0TULhHr7" // formula: human-readable summary
 )
 
+var airtableBase = "https://airtable.int.exe.xyz/v0"
+
 // ── Structs ───────────────────────────────────────────────────────────────────
 
 // Customer holds the fields we need from the Customers table.
 type Customer struct {
-	AirtableID     string // Airtable record ID (rec...)
-	RecordID       string // same value, from the formula field
-	FullName       string
-	FirstName      string
-	LastName       string
-	Email          string
-	StripeID       string // Stripe customer ID (cus_...)
-	Paid           bool   // true if Paid? == "Paid"
-	ReviewDiscount bool   // true if Review Discount? checkbox is checked
-	CouponIDDev    string // sandbox coupon ID from linked Services coupon
-	CouponIDProd   string // live coupon ID from linked Services coupon
+	AirtableID         string // Airtable record ID (rec...)
+	RecordID           string // same value, from the formula field
+	FullName           string
+	FirstName          string
+	LastName           string
+	Email              string
+	StripeID           string   // Stripe customer ID (cus...)
+	Paid               bool     // true if Paid? == "Paid"
+	ReviewDiscount     bool     // true if Review Discount? checkbox is checked
+	CouponIDDev        string   // sandbox coupon ID from linked Services coupon
+	CouponIDProd       string   // live coupon ID from linked Services coupon
+	InvoiceBuildYear   int      // raw season selected by the invoice-build automation
+	InvoiceLineItemIDs []string // raw reciprocal links to Yearly Invoicing rows
 }
 
 // InvoiceLineItem holds one row from the Yearly Invoicing table.
@@ -223,11 +219,17 @@ func atPatch(table, recordID string, fields map[string]interface{}) error {
 
 // ── Public functions ──────────────────────────────────────────────────────────
 
-// GetCustomerByRecordID fetches a single Customer record by its Airtable Record ID
-// (the rec... string stored in the Record ID formula field and used in payment URLs).
+// GetCustomerByRecordID fetches a single Customer record by its Airtable record ID
+// (the rec... value used in payment URLs). RECORD_ID() is intrinsic Airtable
+// metadata, so this lookup does not depend on the Customer table's Record ID
+// formula field being recalculated.
 func GetCustomerByRecordID(recordID string) (*Customer, error) {
+	if !isAirtableRecordID(recordID) {
+		return nil, fmt.Errorf("invalid Airtable customer record ID %q", recordID)
+	}
+
 	params := atParams()
-	params.Set("filterByFormula", fmt.Sprintf("{Record ID} = '%s'", recordID))
+	params.Set("filterByFormula", fmt.Sprintf("RECORD_ID() = '%s'", recordID))
 	params.Set("fields[]", fieldCustomerFullName)
 	params.Add("fields[]", fieldCustomerFirstName)
 	params.Add("fields[]", fieldCustomerLastName)
@@ -237,6 +239,8 @@ func GetCustomerByRecordID(recordID string) (*Customer, error) {
 	params.Add("fields[]", fieldCustomerPaid)
 	params.Add("fields[]", fieldCustomerReviewDiscount)
 	params.Add("fields[]", fieldCustomerDiscountCoupon)
+	params.Add("fields[]", fieldCustomerInvoices)
+	params.Add("fields[]", fieldCustomerInvoiceBuildYear)
 
 	records, err := atGet(atURL(tableCustomers) + "?" + params.Encode())
 	if err != nil {
@@ -302,35 +306,40 @@ func getServiceCouponIDs(serviceRecordID string) (dev, prod string, err error) {
 	return str(records[0].Fields[fieldServiceStripeCouponIDDev]), str(records[0].Fields[fieldServiceStripeCouponIDProd]), nil
 }
 
-// GetCurrentYearLineItems returns all Yearly Invoicing rows for a given customer
-// in the current season.
+// GetInvoiceBuildYearLineItems returns a customer's Yearly Invoicing rows for
+// their raw Invoice Build Year.
 //
-// Filtering strategy (deliberately avoids formula fields): Airtable's API can
-// serve stale results for queries that depend on formula evaluation or view
-// filters — freshly created rows may not match a view/formula filter for
-// minutes or longer. This bit us on 2026-09-02 when customers clicked payment
-// links before their rows registered in the "Current Year" view. So we filter
-// server-side only on the raw `Year` single-select (written directly by the
-// build-invoices automation), fetch the raw `Customer Link` values, and match
-// the customer record ID in Go.
+// The customer record contains raw reciprocal links to its Yearly Invoicing
+// rows. We query only those exact record IDs, then inspect the raw Year and
+// Customer Link fields in Go. This avoids the mutable formula, lookup, and view
+// filters that intermittently hid valid invoice rows, while also avoiding a
+// full scan of every invoice row for the year.
 //
 // env should be "dev" or "prod" — selects the correct Stripe product ID field.
-func GetCurrentYearLineItems(customerRecordID string, env string) ([]InvoiceLineItem, error) {
+func GetInvoiceBuildYearLineItems(customer *Customer, env string) ([]InvoiceLineItem, error) {
+	if customer == nil {
+		return nil, fmt.Errorf("customer is required")
+	}
+	if customer.InvoiceBuildYear == 0 || len(customer.InvoiceLineItemIDs) == 0 {
+		return []InvoiceLineItem{}, nil
+	}
+
 	// Pick sandbox or live product ID field based on environment
 	productIDField := fieldInvStripeProductIDProd
 	if env == "dev" {
 		productIDField = fieldInvStripeProductIDDev
 	}
 
-	// Current season year — matches the Year single-select value the
-	// build-invoices automation writes. Calendar-year semantics, same as the
-	// old "Year Today" formula, but computed locally with zero formula
-	// involvement on the Airtable side.
-	currentYear := strconv.Itoa(time.Now().Year())
+	invoiceYear := strconv.Itoa(customer.InvoiceBuildYear)
+	filter, err := recordIDsFilter(customer.InvoiceLineItemIDs)
+	if err != nil {
+		return nil, fmt.Errorf("build Yearly Invoicing record filter: %w", err)
+	}
 
 	params := atParams()
-	params.Set("filterByFormula", fmt.Sprintf("({Year} = '%s')", currentYear))
+	params.Set("filterByFormula", filter)
 	params.Set("fields[]", fieldInvCustomerLink)
+	params.Add("fields[]", fieldInvYear)
 	params.Add("fields[]", fieldInvStripeCustomerID)
 	params.Add("fields[]", productIDField) // dev=TEST IDs, prod=live IDs
 	params.Add("fields[]", fieldInvFinalValue)
@@ -345,15 +354,26 @@ func GetCurrentYearLineItems(customerRecordID string, env string) ([]InvoiceLine
 		return nil, err
 	}
 
+	items := lineItemsForCustomerYear(records, customer.AirtableID, invoiceYear)
+	if len(items) == 0 {
+		log.Printf("[checkout] no matching raw invoice rows: customer=%s build_year=%s linked=%d fetched=%d",
+			customer.AirtableID, invoiceYear, len(customer.InvoiceLineItemIDs), len(records))
+	}
+	return items, nil
+}
+
+func lineItemsForCustomerYear(records []atRecord, customerRecordID, year string) []InvoiceLineItem {
 	items := make([]InvoiceLineItem, 0, len(records))
 	for _, r := range records {
-		// Match on the raw Customer Link values (Airtable record IDs).
+		if strings.TrimSpace(str(r.Fields[fieldInvYear])) != year {
+			continue
+		}
 		if !linkContains(r.Fields[fieldInvCustomerLink], customerRecordID) {
 			continue
 		}
 		items = append(items, parseLineItem(r))
 	}
-	return items, nil
+	return items
 }
 
 // MarkCustomerPaid sets Paid? = "Paid" and clears Review Discount? in one PATCH.
@@ -370,15 +390,17 @@ func MarkCustomerPaid(airtableRecordID string) error {
 func parseCustomer(r atRecord) *Customer {
 	f := r.Fields
 	return &Customer{
-		AirtableID:     r.ID,
-		RecordID:       str(f[fieldCustomerRecordID]),
-		FullName:       str(f[fieldCustomerFullName]),
-		FirstName:      str(f[fieldCustomerFirstName]),
-		LastName:       str(f[fieldCustomerLastName]),
-		Email:          str(f[fieldCustomerEmail]),
-		StripeID:       str(f[fieldCustomerStripeID]),
-		Paid:           str(f[fieldCustomerPaid]) == "Paid",
-		ReviewDiscount: boolField(f[fieldCustomerReviewDiscount]),
+		AirtableID:         r.ID,
+		RecordID:           str(f[fieldCustomerRecordID]),
+		FullName:           str(f[fieldCustomerFullName]),
+		FirstName:          str(f[fieldCustomerFirstName]),
+		LastName:           str(f[fieldCustomerLastName]),
+		Email:              str(f[fieldCustomerEmail]),
+		StripeID:           str(f[fieldCustomerStripeID]),
+		Paid:               str(f[fieldCustomerPaid]) == "Paid",
+		ReviewDiscount:     boolField(f[fieldCustomerReviewDiscount]),
+		InvoiceBuildYear:   int(numField(f[fieldCustomerInvoiceBuildYear])),
+		InvoiceLineItemIDs: stringSlice(f[fieldCustomerInvoices]),
 	}
 }
 
@@ -447,6 +469,59 @@ func lookupFirst(v interface{}) string {
 	}
 	s, _ := arr[0].(string)
 	return s
+}
+
+// stringSlice extracts string values from Airtable link and lookup arrays.
+func stringSlice(v interface{}) []string {
+	arr, ok := v.([]interface{})
+	if !ok {
+		return nil
+	}
+	out := make([]string, 0, len(arr))
+	for _, item := range arr {
+		if s, ok := item.(string); ok {
+			out = append(out, s)
+		}
+	}
+	return out
+}
+
+// isAirtableRecordID accepts rec-prefixed alphanumeric Airtable IDs.
+// Validating public /pay input also prevents filterByFormula injection.
+func isAirtableRecordID(id string) bool {
+	if len(id) <= 3 || len(id) > 64 || !strings.HasPrefix(id, "rec") {
+		return false
+	}
+	for _, r := range id[3:] {
+		if (r < 'a' || r > 'z') && (r < 'A' || r > 'Z') && (r < '0' || r > '9') {
+			return false
+		}
+	}
+	return true
+}
+
+// recordIDsFilter builds a stable Airtable list filter from raw linked record
+// IDs. It depends only on Airtable's intrinsic RECORD_ID(), not mutable fields.
+func recordIDsFilter(ids []string) (string, error) {
+	clauses := make([]string, 0, len(ids))
+	seen := make(map[string]struct{}, len(ids))
+	for _, id := range ids {
+		if !isAirtableRecordID(id) {
+			return "", fmt.Errorf("invalid linked record ID %q", id)
+		}
+		if _, exists := seen[id]; exists {
+			continue
+		}
+		seen[id] = struct{}{}
+		clauses = append(clauses, fmt.Sprintf("RECORD_ID() = '%s'", id))
+	}
+	if len(clauses) == 0 {
+		return "", fmt.Errorf("no linked record IDs")
+	}
+	if len(clauses) == 1 {
+		return clauses[0], nil
+	}
+	return "OR(" + strings.Join(clauses, ",") + ")", nil
 }
 
 // linkContains reports whether a multipleRecordLinks field value (array of
