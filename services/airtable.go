@@ -17,6 +17,9 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
+	"time"
 )
 
 const (
@@ -31,7 +34,10 @@ const (
 	tableServices        = "tblNloDsEVME3OpPv"
 	tableYearlyInvoicing = "tblXtuzgoKSAJwzDa"
 
-	// Yearly Invoicing view: pre-filtered to current season only
+	// Yearly Invoicing view: pre-filtered to current season only.
+	// NOTE: no longer used for /pay — the view filter depends on formula fields
+	// that Airtable's API can serve stale. Checkout filters on the raw Year
+	// single-select instead. Kept for reference.
 	viewCurrentYear = "viwL8vbspkSX75DS3"
 
 	// ── Customers table field IDs ────────────────────────────────────────────
@@ -54,6 +60,8 @@ const (
 	// (lookup fields return arrays — take index [0])
 	fieldInvStripeCustomerID = "fldFgPy59G2zB9JxJ" // lookup: Stripe ID from Customer
 	fieldInvCustomerRecordID = "fldNVumkFtJzdUKXR" // lookup: Record ID from Customer
+	fieldInvCustomerLink     = "fldIELNteHoebkqxE" // multipleRecordLinks: raw link to Customers
+	fieldInvYear             = "flddSd62O3sMmMq7C" // singleSelect: invoice year, written by build automation
 	// Product ID fields — two versions, selected at runtime based on APP_ENV
 	// dev  → Stripe TEST IDs (from Services Link)
 	// prod → Stripe Product ID (from Services Link)
@@ -128,26 +136,44 @@ func atParams() url.Values {
 	return v
 }
 
-// atGet performs a GET request to the Airtable proxy.
+// atGet performs a GET request to the Airtable proxy, following Airtable's
+// offset-based pagination until all pages are consumed.
 func atGet(rawURL string) ([]atRecord, error) {
-	resp, err := http.Get(rawURL) //nolint:noctx
-	if err != nil {
-		return nil, fmt.Errorf("airtable GET %s: %w", rawURL, err)
+	// Follow pagination — Airtable returns max 100 records per page.
+	// Without this, any query matching >100 rows silently misses records.
+	var all []atRecord
+	offset := ""
+	for {
+		var list atListResponse
+		pageURL := rawURL
+		if offset != "" {
+			sep := "&"
+			if !strings.Contains(rawURL, "?") {
+				sep = "?"
+			}
+			pageURL = rawURL + sep + "offset=" + url.QueryEscape(offset)
+		}
+		resp, err := http.Get(pageURL) //nolint:noctx
+		if err != nil {
+			return nil, fmt.Errorf("airtable GET %s: %w", pageURL, err)
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if resp.StatusCode != 200 {
+			var e atErrorResponse
+			_ = json.Unmarshal(body, &e)
+			return nil, fmt.Errorf("airtable %d: %s — %s", resp.StatusCode, e.Error.Type, e.Error.Message)
+		}
+		if err := json.Unmarshal(body, &list); err != nil {
+			return nil, fmt.Errorf("airtable decode: %w", err)
+		}
+		all = append(all, list.Records...)
+		if list.Offset == "" {
+			break
+		}
+		offset = list.Offset
 	}
-	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
-
-	if resp.StatusCode != 200 {
-		var e atErrorResponse
-		_ = json.Unmarshal(body, &e)
-		return nil, fmt.Errorf("airtable %d: %s — %s", resp.StatusCode, e.Error.Type, e.Error.Message)
-	}
-
-	var list atListResponse
-	if err := json.Unmarshal(body, &list); err != nil {
-		return nil, fmt.Errorf("airtable decode: %w", err)
-	}
-	return list.Records, nil
+	return all, nil
 }
 
 // atGetRecord performs a GET request for one Airtable record.
@@ -277,7 +303,17 @@ func getServiceCouponIDs(serviceRecordID string) (dev, prod string, err error) {
 }
 
 // GetCurrentYearLineItems returns all Yearly Invoicing rows for a given customer
-// in the current season (uses the "Current Year" view which pre-filters by year).
+// in the current season.
+//
+// Filtering strategy (deliberately avoids formula fields): Airtable's API can
+// serve stale results for queries that depend on formula evaluation or view
+// filters — freshly created rows may not match a view/formula filter for
+// minutes or longer. This bit us on 2026-09-02 when customers clicked payment
+// links before their rows registered in the "Current Year" view. So we filter
+// server-side only on the raw `Year` single-select (written directly by the
+// build-invoices automation), fetch the raw `Customer Link` values, and match
+// the customer record ID in Go.
+//
 // env should be "dev" or "prod" — selects the correct Stripe product ID field.
 func GetCurrentYearLineItems(customerRecordID string, env string) ([]InvoiceLineItem, error) {
 	// Pick sandbox or live product ID field based on environment
@@ -286,11 +322,16 @@ func GetCurrentYearLineItems(customerRecordID string, env string) ([]InvoiceLine
 		productIDField = fieldInvStripeProductIDDev
 	}
 
+	// Current season year — matches the Year single-select value the
+	// build-invoices automation writes. Calendar-year semantics, same as the
+	// old "Year Today" formula, but computed locally with zero formula
+	// involvement on the Airtable side.
+	currentYear := strconv.Itoa(time.Now().Year())
+
 	params := atParams()
-	params.Set("view", viewCurrentYear)
-	params.Set("filterByFormula", fmt.Sprintf("{Record ID (from Customer Link)} = '%s'", customerRecordID))
-	params.Set("fields[]", fieldInvStripeCustomerID)
-	params.Add("fields[]", fieldInvCustomerRecordID)
+	params.Set("filterByFormula", fmt.Sprintf("({Year} = '%s')", currentYear))
+	params.Set("fields[]", fieldInvCustomerLink)
+	params.Add("fields[]", fieldInvStripeCustomerID)
 	params.Add("fields[]", productIDField) // dev=TEST IDs, prod=live IDs
 	params.Add("fields[]", fieldInvFinalValue)
 	params.Add("fields[]", fieldInvUnitCost)
@@ -306,6 +347,10 @@ func GetCurrentYearLineItems(customerRecordID string, env string) ([]InvoiceLine
 
 	items := make([]InvoiceLineItem, 0, len(records))
 	for _, r := range records {
+		// Match on the raw Customer Link values (Airtable record IDs).
+		if !linkContains(r.Fields[fieldInvCustomerLink], customerRecordID) {
+			continue
+		}
 		items = append(items, parseLineItem(r))
 	}
 	return items, nil
@@ -402,4 +447,19 @@ func lookupFirst(v interface{}) string {
 	}
 	s, _ := arr[0].(string)
 	return s
+}
+
+// linkContains reports whether a multipleRecordLinks field value (array of
+// Airtable record IDs) contains the given record ID.
+func linkContains(v interface{}, recordID string) bool {
+	arr, ok := v.([]interface{})
+	if !ok {
+		return false
+	}
+	for _, item := range arr {
+		if s, _ := item.(string); s == recordID {
+			return true
+		}
+	}
+	return false
 }
