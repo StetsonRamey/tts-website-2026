@@ -168,6 +168,14 @@
         border-left: 0;
     }
 
+    .landing-page .thank-you-links {
+        color: var(--color-text);
+    }
+
+    .landing-page .thank-you-links p {
+        color: var(--color-text-muted);
+    }
+
     .estimate-steps {
         counter-reset: estimate-step;
         margin-block-start: var(--space-l);
