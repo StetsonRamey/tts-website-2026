@@ -115,7 +115,7 @@ journalctl -u tts.service -n 50 --no-pager
 - `GET` and `HEAD` redirect to the canonical Hugo page at `/contact/`.
 - `POST` accepts HTML form submissions and JSON submissions.
 - The handler validates data, rate-limits by IP, rejects implausibly fast submissions, checks non-US traffic, records outcomes, and sends accepted leads to Airtable.
-- The paid landing page (`/free-estimate/`) stores its allow-listed Google click IDs and UTM parameters with the lead's Airtable comments, enabling later reconciliation of Google Ads traffic with qualified and sold jobs without changing the Leads table schema.
+- The paid landing page (`/free-estimate/`) sets the Lead record's `Which Form` single select to `/free-estimate/ ads lander` and stores its allow-listed Google click IDs and UTM parameters with the lead's Airtable comments. This enables later reconciliation of Google Ads traffic with qualified and sold jobs without changing the Leads table schema.
 - Standard HTML form posts redirect to `/thank-you/`; JavaScript-enhanced HTML requests receive a thank-you fragment; JSON clients receive JSON.
 
 ### Airtable Clients
@@ -198,7 +198,7 @@ The public Go server proxies the self-hosted Umami tracker and collection endpoi
 
 In the Umami dashboard, a goal of type "Custom event" with name `contact_form_submit` measures conversions. The Funnel report can chain `/free-estimate/` → `free_estimate_view` → `contact_form_start` → `contact_form_submit` to measure paid-landing engagement and conversion; the existing `/contact/` funnel remains useful for general site traffic. The Events → Properties tab and Breakdown report show which specific fields people reach.
 
-The landing page stores only the allow-listed `gclid`, `gbraid`, `wbraid`, and standard UTM values submitted with the form; the Go handler appends a labeled summary to the lead's Airtable comments. This supports manual campaign/lead-quality reconciliation now and preserves identifiers needed for a later offline-conversion import workflow.
+The landing page sets the existing Airtable `Which Form` single-select field to `/free-estimate/ ads lander`. It also stores only the allow-listed `gclid`, `gbraid`, `wbraid`, and standard UTM values in the lead's Airtable comments. This supports manual campaign/lead-quality reconciliation now and preserves identifiers needed for a later offline-conversion import workflow.
 
 ### AEO / Markdown Content Negotiation
 

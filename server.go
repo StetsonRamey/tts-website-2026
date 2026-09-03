@@ -28,6 +28,7 @@ type FormData struct {
 	State         string  `json:"state"`
 	Zip           string  `json:"zip"`
 	Message       string  `json:"message"`
+	FormSource    string  `json:"formSource"`
 	Attribution   string  `json:"_attribution"`
 	FillTime      float64 `json:"_fillTime"`
 }
@@ -113,6 +114,13 @@ func validate(d FormData) []string {
 	}
 
 	return errs
+}
+
+func whichForm(source string) string {
+	if source == "/free-estimate/ ads lander" {
+		return source
+	}
+	return "Main Contact"
 }
 
 // appendAttribution stores a concise, allow-listed summary alongside the lead's
@@ -256,6 +264,7 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 			State:         strings.TrimSpace(r.FormValue("state")),
 			Zip:           strings.TrimSpace(r.FormValue("zip")),
 			Message:       strings.TrimSpace(r.FormValue("message")),
+			FormSource:    strings.TrimSpace(r.FormValue("formSource")),
 			Attribution:   strings.TrimSpace(r.FormValue("_attribution")),
 			FillTime:      fillTime,
 		}
@@ -400,16 +409,16 @@ func sendToAirtable(fd FormData) error {
 		"records": []map[string]any{
 			{
 				"fields": map[string]any{
-					"fldZWX56UF9UNbZOW": "Main Contact",   // Which Form
-					"fldplXExIaztUlnVf": fd.FirstName,     // First Name
-					"fldiVRdwdOumpsrCh": fd.LastName,      // Last Name
-					"fldsvJF0WoUqKWOtq": fd.Email,         // Email
-					"fldGCBMLm7Ks1KD6N": fd.Phone,         // Phone
-					"flduHz8NtmIzaTakp": fd.StreetAddress, // Street Address
-					"fldRHrzLnl0dIEScW": fd.City,          // City
-					"flddThKQZrXUkq2LD": fd.State,         // State
-					"fldSe1UzJLxSb5yWW": zipNum,           // Zip Code
-					"fldGhAjDinMRV827I": fd.Message,       // Comments
+					"fldZWX56UF9UNbZOW": whichForm(fd.FormSource), // Which Form
+					"fldplXExIaztUlnVf": fd.FirstName,             // First Name
+					"fldiVRdwdOumpsrCh": fd.LastName,              // Last Name
+					"fldsvJF0WoUqKWOtq": fd.Email,                 // Email
+					"fldGCBMLm7Ks1KD6N": fd.Phone,                 // Phone
+					"flduHz8NtmIzaTakp": fd.StreetAddress,         // Street Address
+					"fldRHrzLnl0dIEScW": fd.City,                  // City
+					"flddThKQZrXUkq2LD": fd.State,                 // State
+					"fldSe1UzJLxSb5yWW": zipNum,                   // Zip Code
+					"fldGhAjDinMRV827I": fd.Message,               // Comments
 				},
 			},
 		},
