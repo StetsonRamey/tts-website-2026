@@ -136,7 +136,9 @@ The handler loads the customer and the Yearly Invoicing rows linked directly fro
 **Route:** `POST /stripe/webhook`
 **Code:** `services/webhook.go`
 
-Receives `checkout.session.completed`, verifies the `Stripe-Signature` header with the mode-specific webhook secret, finds the customer through the Stripe customer ID, and marks the customer paid in Airtable.
+Receives `checkout.session.completed` for website Checkout payments and `payment_intent.succeeded` for successful manually-entered phone payments. It verifies the `Stripe-Signature` header with the mode-specific webhook secret, finds the customer through the Stripe customer ID, and marks the customer paid in Airtable. Both events can be emitted for a Checkout payment; applying the same paid update twice is safe.
+
+The Stripe Dashboard endpoint must subscribe to both event types in the applicable mode.
 
 Configure Stripe Dashboard endpoints for the actual deployed public hostname and mode. This is deployment state, not a repository guarantee.
 
@@ -278,6 +280,7 @@ sudo systemctl restart tts.service
 □ Confirm the service is running and logs are clean
 □ Verify APP_ENV is correct before customer traffic
 □ Verify the matching Stripe webhook secret and invoice product are configured
+□ Confirm the Stripe webhook endpoint subscribes to `checkout.session.completed` and `payment_intent.succeeded`
 □ Make a controlled payment/webhook test in the intended mode
 □ Check Airtable schemas and automations for seasonal changes
 □ Verify Gmail sender/authentication and CompanyCam integration

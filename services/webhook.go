@@ -2,7 +2,9 @@ package services
 
 // Stripe webhook handler — POST /stripe/webhook
 //
-// Listens for checkout.session.completed events from Stripe.
+// Listens for Stripe payment-completion events:
+//   - checkout.session.completed for website Checkout payments
+//   - payment_intent.succeeded for manually-entered phone payments
 // When a payment completes:
 //   1. Verify the Stripe-Signature header (prevents spoofed requests)
 //   2. Find the customer in Airtable by their Stripe customer ID
@@ -70,7 +72,7 @@ func WebhookHandler(cfg *Config) http.HandlerFunc {
 		// ── Handle events ───────────────────────────────────────────
 		switch event.Type {
 
-		case "checkout.session.completed":
+		case "checkout.session.completed", "payment_intent.succeeded":
 			if err := handlePaymentCompleted(cfg, event.Data.Object.Customer, event.Data.Object.ID); err != nil {
 				log.Printf("[webhook] handlePaymentCompleted: %v", err)
 				cfg.sendErrorEmail(fmt.Sprintf("webhook: payment completed but Airtable update failed: %v", err))
@@ -86,12 +88,12 @@ func WebhookHandler(cfg *Config) http.HandlerFunc {
 	}
 }
 
-func handlePaymentCompleted(cfg *Config, stripeCustomerID, sessionID string) error {
+func handlePaymentCompleted(cfg *Config, stripeCustomerID, paymentID string) error {
 	if stripeCustomerID == "" {
-		return fmt.Errorf("checkout.session.completed has no customer ID (session %s)", sessionID)
+		return fmt.Errorf("completed payment event has no customer ID (payment %s)", paymentID)
 	}
 
-	log.Printf("[webhook] payment completed for Stripe customer %s (session %s)", stripeCustomerID, sessionID)
+	log.Printf("[webhook] payment completed for Stripe customer %s (payment %s)", stripeCustomerID, paymentID)
 
 	customer, err := GetCustomerByStripeID(stripeCustomerID)
 	if err != nil {
