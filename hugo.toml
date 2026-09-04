@@ -59,13 +59,17 @@ enableRobotsTXT = true
     pageRef = '/service-areas/'
     weight = 30
   [[menus.main]]
+    name = 'Gallery'
+    pageRef = '/gallery/'
+    weight = 40
+  [[menus.main]]
     name = 'About'
     pageRef = '/about/'
-    weight = 40
+    weight = 50
   [[menus.main]]
     name = 'Contact'
     pageRef = '/contact/'
-    weight = 50
+    weight = 60
 
   [[menus.footer]]
     name = 'Holiday Lighting'
