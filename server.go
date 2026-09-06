@@ -2,12 +2,14 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"html"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -42,7 +44,20 @@ var (
 	countryLookup    = countryForIP
 	createLead       = sendToAirtable
 	recordSubmission = logSubmission
+	sendMetaLead     = deliverMetaLead
 )
+
+// metaClient is the Conversions API client loaded at startup. It is disabled
+// (a safe no-op) until META_PIXEL_ID and META_CAPI_ACCESS_TOKEN are configured.
+var metaClient *services.MetaClient
+
+// deliverMetaLead sends the server-side Meta Lead event with a bounded timeout.
+// It runs after Airtable confirms the save, so a Meta failure only logs.
+func deliverMetaLead(e services.MetaLeadEvent) {
+	ctx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
+	defer cancel()
+	_ = metaClient.SendLead(ctx, e)
+}
 
 const (
 	airtableProxy      = "https://airtable.int.exe.xyz"
@@ -134,14 +149,10 @@ func whichForm(source string) string {
 // appendAttribution stores a concise, allow-listed summary alongside the lead's
 // comments. This keeps paid-click attribution available in Airtable without
 // requiring a schema change to the existing Leads table.
-func appendAttribution(message, raw string) string {
-	if raw == "" {
-		return message
-	}
-
-	var values map[string]string
-	if err := json.Unmarshal([]byte(raw), &values); err != nil {
-		return message
+func appendAttribution(message, raw, metaEventID string) string {
+	values := parseAttribution(raw)
+	if metaEventID != "" {
+		values["meta_event_id"] = metaEventID
 	}
 
 	fields := []struct {
@@ -157,6 +168,10 @@ func appendAttribution(message, raw string) string {
 		{"gclid", "Google click ID"},
 		{"gbraid", "Google iOS click ID"},
 		{"wbraid", "Google web-to-app ID"},
+		{"fbclid", "Meta click ID"},
+		{"fbc", "Meta fbc"},
+		{"fbp", "Meta browser ID"},
+		{"meta_event_id", "Meta event ID"},
 	}
 
 	var lines []string
@@ -181,6 +196,77 @@ func appendAttribution(message, raw string) string {
 		return summary
 	}
 	return message + "\n\n" + summary
+}
+
+// parseAttribution decodes the browser-supplied session attribution JSON.
+// Invalid or missing input yields an empty map so callers never fail on it.
+func parseAttribution(raw string) map[string]string {
+	values := map[string]string{}
+	if raw == "" {
+		return values
+	}
+	if err := json.Unmarshal([]byte(raw), &values); err != nil {
+		return map[string]string{}
+	}
+	return values
+}
+
+// metaLeadEvent assembles the server-side Lead event for a saved lead.
+//
+// Identifiers come, in order of preference, from the Pixel's own _fbc/_fbp
+// cookies on the request, then from the session attribution the browser
+// captured on the landing page (fbc/fbp values, or a real fbclid from that
+// visitor's URL). No click ID is ever synthesized. Inquiry text, quote
+// details, and addresses are intentionally excluded.
+func metaLeadEvent(r *http.Request, fd FormData, eventID string, savedAt time.Time) services.MetaLeadEvent {
+	attr := parseAttribution(fd.Attribution)
+	e := services.MetaLeadEvent{
+		EventID:   eventID,
+		EventTime: savedAt,
+		SourceURL: metaSourceURL(r, attr),
+		Email:     fd.Email,
+		Phone:     fd.Phone,
+		ClientIP:  clientIP(r),
+		UserAgent: r.UserAgent(),
+	}
+	if c, err := r.Cookie("_fbc"); err == nil {
+		e.FBC = c.Value
+	}
+	if c, err := r.Cookie("_fbp"); err == nil {
+		e.FBP = c.Value
+	}
+	if e.FBC == "" {
+		e.FBC = attr["fbc"]
+	}
+	if e.FBC == "" && attr["fbclid"] != "" {
+		clickedAt := savedAt
+		if ms, err := strconv.ParseInt(attr["fbclid_ts"], 10, 64); err == nil && ms > 0 {
+			clickedAt = time.UnixMilli(ms)
+		}
+		e.FBC = services.BuildFBC(attr["fbclid"], clickedAt)
+	}
+	if e.FBP == "" {
+		e.FBP = attr["fbp"]
+	}
+	return e
+}
+
+// metaSourceURL returns the public page the form was submitted from. Only the
+// path is trusted from the client; the host is always the canonical site.
+func metaSourceURL(r *http.Request, attr map[string]string) string {
+	path := ""
+	if ref := r.Referer(); ref != "" {
+		if u, err := url.Parse(ref); err == nil && u.Path != "" {
+			path = u.Path
+		}
+	}
+	if path == "" {
+		path = attr["page"]
+	}
+	if path == "" || !strings.HasPrefix(path, "/") {
+		path = "/contact/"
+	}
+	return "https://tistheseasonkc.com" + path
 }
 
 // ── Client IP ──
@@ -288,7 +374,7 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 		go recordSubmission(fd, ip, "too_fast", fmt.Sprintf("filled in %.1fs", fd.FillTime))
 		// Still return a neutral success response to avoid tipping off bots.
 		// It intentionally omits the lead-saved signal used by conversion tracking.
-		respondSuccess(w, r, false)
+		respondSuccess(w, r, false, "")
 		return
 	}
 
@@ -298,7 +384,7 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 	} else if country != "US" {
 		log.Printf("REJECTED non_us_ip from %s (country=%s): %s %s", ip, country, fd.FirstName, fd.LastName)
 		go recordSubmission(fd, ip, "non_us_ip", fmt.Sprintf("country=%s", country))
-		respondSuccess(w, r, false)
+		respondSuccess(w, r, false, "")
 		return
 	}
 
@@ -306,7 +392,7 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 	if !limiter.allow(ip) {
 		log.Printf("REJECTED rate_limited from %s: %s %s", ip, fd.FirstName, fd.LastName)
 		go recordSubmission(fd, ip, "rate_limited", fmt.Sprintf(">%d submissions/hour", maxSubmitsPerHour))
-		respondSuccess(w, r, false)
+		respondSuccess(w, r, false, "")
 		return
 	}
 
@@ -327,7 +413,11 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fd.Message = appendAttribution(fd.Message, fd.Attribution)
+	// One Meta event ID is minted per accepted submission and shared by the
+	// server Conversions API event, the browser Pixel event, and the Airtable
+	// comments so the two channels deduplicate and can be reconciled later.
+	metaEventID := services.NewMetaEventID()
+	fd.Message = appendAttribution(fd.Message, fd.Attribution, metaEventID)
 
 	// ── Accepted ──
 
@@ -341,16 +431,23 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 		respondAirtableFailure(w, r, fd)
 		return
 	}
+	savedAt := time.Now()
 	go recordSubmission(fd, ip, "accepted", "")
+	// Server-side Meta Lead. Runs only after Airtable confirmed the save and
+	// never affects the response; the browser reuses the same ID for the Pixel.
+	go sendMetaLead(metaLeadEvent(r, fd, metaEventID, savedAt))
 
-	respondSuccess(w, r, true)
+	respondSuccess(w, r, true, metaEventID)
 }
 
-func respondSuccess(w http.ResponseWriter, r *http.Request, leadSaved bool) {
+func respondSuccess(w http.ResponseWriter, r *http.Request, leadSaved bool, metaEventID string) {
 	if leadSaved {
 		// This header is the authoritative conversion signal for JavaScript clients.
 		// It is set only after Airtable has confirmed lead creation.
 		w.Header().Set("X-Lead-Saved", "true")
+		// The browser Pixel must send its Lead with this exact event_id so Meta
+		// deduplicates it against the server-side Conversions API event.
+		w.Header().Set("X-Meta-Event-Id", metaEventID)
 	}
 	ct := r.Header.Get("Content-Type")
 	isForm := strings.Contains(ct, "application/x-www-form-urlencoded")
@@ -702,6 +799,7 @@ func main() {
 
 	// Load config — reads APP_ENV and Stripe keys, logs active mode
 	cfg := services.LoadConfig()
+	metaClient = services.LoadMetaClient(cfg.Env)
 
 	loadCustom404()
 
@@ -756,13 +854,16 @@ func main() {
 	if internalPort != "0" {
 		imux := http.NewServeMux()
 		imux.HandleFunc("/internal/bots", services.BotDashboardHandler(cfg, false))
+		// Synthetic Meta Lead (test_event_code required) for Events Manager checks.
+		imux.HandleFunc("/internal/meta-test", services.MetaTestHandler(metaClient))
 		imux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			fmt.Fprintf(w, "<!doctype html><meta charset=utf-8><title>TTS Internal</title>"+
 				"<style>body{font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:#0f1115;color:#e6e6e6;padding:40px}"+
 				"h1{font-size:18px}a{color:#6fb6ff}code{background:#1a1d24;padding:2px 6px;border-radius:4px}</style>"+
 				"<h1>TTS — Internal tools</h1>"+
-				"<ul><li><a href=\"/internal/bots\">🤖 Bot Crawl Dashboard</a></li></ul>"+
+				"<ul><li><a href=\"/internal/bots\">🤖 Bot Crawl Dashboard</a></li>"+
+				"<li><a href=\"/internal/meta-test\">📡 Meta test event (Pixel + CAPI dedup check)</a></li></ul>"+
 				"<p style=color:#8a93a4;font-size:13px>Private to VM owner — gated by exe.dev login.</p>")
 		})
 		go func() {

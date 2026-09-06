@@ -25,6 +25,7 @@ Tis The Season KC is a holiday-lighting website at `tistheseasonkc.com`.
 | Page content | `content/` |
 | Page layouts and shared SEO/UI partials | `layouts/` |
 | Paid Google Ads estimate landing page | `content/free-estimate/`, `layouts/free-estimate/`, `assets/js/landing-tracking.js` |
+| Campaign attribution + conversion tracking (Google Ads, Meta Pixel/CAPI, Umami) | `assets/js/attribution.js`, `assets/js/form-submit.js`, `layouts/partials/meta-pixel.html`, `services/meta.go`, `SERVICES.md` |
 | CSS and progressive-enhancement JavaScript | `assets/css/`, `assets/js/` |
 | Passthrough public assets | `static/` |
 | Generated site output — do not hand-edit | `public/` |
@@ -58,6 +59,7 @@ Tis The Season KC is a holiday-lighting website at `tistheseasonkc.com`.
 - Put focused handlers and external-service logic in `services/`; follow existing authorization and error-reporting patterns.
 - Stripe review discounts use coupon catalog records in the Airtable `Services` table, linked separately from customer line-item services through `Customers.Discount/Coupon`; checkout selects the sandbox/live coupon by `APP_ENV` when `Review Discount?` is checked.
 - The paid Google Ads landing page is `/free-estimate/`. It uses the same `/contact` form handler and Google Ads conversion event as `/contact/`, and saves allow-listed Google click IDs/UTMs in the lead comments for later quality reconciliation. A browser conversion may fire only after `/contact` returns `X-Lead-Saved: true`, which is sent after Airtable confirms creation. Keep it `noindex` unless its purpose is intentionally expanded to organic search.
+- Meta tracking: the Pixel (`params.metaPixelId` in `hugo.toml`) fires PageView on public marketing pages only; opt a page out with `tracking.metaPixel: false` front matter. `/contact` mints one `tts-lead-…` event ID per accepted lead, returns it as `X-Meta-Event-Id`, sends a server-side CAPI `Lead` with it after the Airtable save, and stores it in the lead comments. The browser Lead must reuse that ID. Never fire a Lead from `/thank-you/`, never send inquiry text/addresses to Meta, never synthesize click IDs, and keep `META_CAPI_ACCESS_TOKEN` out of Hugo assets and logs. Session attribution in `assets/js/attribution.js` replaces (never merges) stored values when a URL carries campaign identifiers.
 - Use configuration through environment variables. If adding/changing one, update `.env.example`, `SERVICES.md`, and this file if it changes the architecture map.
 - Build/test with `go test ./...` and `go build -o tts-server .` for backend changes.
 

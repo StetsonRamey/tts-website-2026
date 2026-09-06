@@ -8,6 +8,8 @@ seo:
   noindex: true
 sitemap:
   disable: true
+tracking:
+  metaPixel: false
 ---
 
 Leave us a Google review and we'll enter you in a random drawing. We'll select 5 winners — each gets **$75 off** their holiday lighting install this year.

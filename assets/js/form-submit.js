@@ -45,6 +45,11 @@
     // Collect form data
     const formData = new FormData(form);
     const data = Object.fromEntries(formData);
+    // Attach the current session attribution (includes Meta _fbc/_fbp cookies
+    // when the Pixel has set them). Only allow-listed keys reach Airtable.
+    if (window.ttsAttribution) {
+      try { data._attribution = JSON.stringify(window.ttsAttribution.snapshot()); } catch (_) {}
+    }
     // Compute fill time in seconds and swap out the raw timestamp
     var loaded = parseInt(data._loaded) || 0;
     data._fillTime = loaded ? (Date.now() - loaded) / 1000 : 0;
@@ -81,6 +86,7 @@
 
       const html = await response.text();
       const leadSaved = response.headers.get("X-Lead-Saved") === "true";
+      const metaEventId = response.headers.get("X-Meta-Event-Id") || "";
 
       // ── Conversion tracking ──
       // The server supplies X-Lead-Saved only after Airtable confirms creation.
@@ -90,6 +96,12 @@
             send_to: "AW-17686347200/utHpCODyheocEMD7wPFB",
           });
         } catch (_) {}
+      }
+
+      // Meta Pixel Lead: same event name + event ID as the server's Conversions
+      // API event so Meta deduplicates the pair. No customer data is attached.
+      if (leadSaved && metaEventId && typeof fbq === "function") {
+        try { fbq("track", "Lead", {}, { eventID: metaEventId }); } catch (_) {}
       }
 
       // Fire a Umami custom event only for a lead Airtable confirmed as saved.

@@ -44,6 +44,10 @@ enableRobotsTXT = true
   ogImage = '/images/og/social.jpg'
   # Google Places API key (restricted to tistheseasonkc.com referrer + Places API only)
   googleMapsApiKey = 'AIzaSyAtwWskZSb5_b3HOIxCAnaG4I8jS4paqaM'
+  # Meta Pixel / dataset ID ("TTS Website"). Public by nature; the Conversions
+  # API token is server-side only (META_CAPI_ACCESS_TOKEN). Leave empty to
+  # omit the Pixel from the build. Per-page opt-out: `tracking.metaPixel: false`.
+  metaPixelId = '1737341487496114'
 
 [menus]
   [[menus.main]]

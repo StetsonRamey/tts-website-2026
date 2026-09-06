@@ -6,4 +6,6 @@ seo:
   noindex: true
 sitemap:
   disable: true
+tracking:
+  metaPixel: false
 ---

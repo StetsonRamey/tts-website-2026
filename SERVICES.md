@@ -87,6 +87,10 @@ Startup logs identify the selected mode. Do not switch modes casually: validate 
 | `ERROR_EMAIL_TO` | Recipient for backend error alerts; defaults to `stetson@tts.lighting` |
 | `SENTRY_DSN` | Optional Sentry DSN; unset disables Sentry reporting |
 | `INTERNAL_PORT` | Internal owner-only listener port; defaults to `3001`, or `0` disables it |
+| `META_PIXEL_ID` | Meta dataset / Pixel ID for the Conversions API (`1737341487496114`, "TTS Website"). Must match `params.metaPixelId` in `hugo.toml`, which embeds the public Pixel |
+| `META_CAPI_ACCESS_TOKEN` | Server-only Meta Conversions API system-user token. Never placed in Hugo assets, Git, or logs. Both this and `META_PIXEL_ID` are required or CAPI stays disabled |
+| `META_GRAPH_API_VERSION` | Optional explicit Graph API version for CAPI; defaults to `v25.0` |
+| `META_TEST_EVENT_CODE` | Optional Events Manager test code applied to every CAPI event. Honored only when `APP_ENV` is not `prod`; in prod it is logged and ignored so real visitors are never tagged as test events. Use `/internal/meta-test` for production checks instead |
 | `UMIAMI_URL` | Umami upstream URL; intentionally matches the spelling used by the code, defaults to `http://127.0.0.1:3000` |
 
 Outbound Stripe and Airtable calls use exe.dev proxy integrations in the deployed environment, so Stripe API keys and Airtable PATs are not stored in this repository or expected as normal backend environment variables.
@@ -115,8 +119,9 @@ journalctl -u tts.service -n 50 --no-pager
 - `GET` and `HEAD` redirect to the canonical Hugo page at `/contact/`.
 - `POST` accepts HTML form submissions and JSON submissions.
 - The handler validates data, rate-limits by IP, rejects implausibly fast submissions, checks non-US traffic, records outcomes, and writes accepted leads to Airtable before acknowledging them as saved.
-- Airtable-confirmed saves set `X-Lead-Saved: true`; `assets/js/form-submit.js` fires the Google Ads and Umami conversion events only when that signal is present. Neutral responses for spam rejections intentionally omit it, and Airtable failures return a retryable error without a thank-you redirect.
-- The paid landing page (`/free-estimate/`) sets the Lead record's `Which Form` single select to `/free-estimate/ ads lander` and stores its allow-listed Google click IDs and UTM parameters with the lead's Airtable comments. This enables later reconciliation of Google Ads traffic with qualified and sold jobs without changing the Leads table schema.
+- Airtable-confirmed saves set `X-Lead-Saved: true` and `X-Meta-Event-Id: <id>`; `assets/js/form-submit.js` fires the Google Ads, Meta Pixel, and Umami conversion events only when the saved signal is present. Neutral responses for spam rejections intentionally omit both headers, and Airtable failures return a retryable error without a thank-you redirect.
+- After the Airtable save the handler also sends a server-side Meta `Lead` through the Conversions API (see [Meta Pixel and Conversions API](#meta-pixel-and-conversions-api)). It runs in the background and never changes the form response.
+- Both forms submit an allow-listed `_attribution` JSON snapshot (Google click IDs, Meta `fbclid`/`_fbc`/`_fbp`, UTMs, landing page). The handler stores those values plus the Meta event ID in the lead's Airtable comments. The paid landing page (`/free-estimate/`) additionally sets the Lead record's `Which Form` single select to `/free-estimate/ ads lander`. This enables later reconciliation of paid traffic with qualified and sold jobs without changing the Leads table schema.
 - Standard HTML form posts redirect to `/thank-you/`; JavaScript-enhanced HTML requests receive a thank-you fragment; JSON clients receive JSON.
 
 ### Airtable Clients
@@ -201,7 +206,29 @@ The public Go server proxies the self-hosted Umami tracker and collection endpoi
 
 In the Umami dashboard, a goal of type "Custom event" with name `contact_form_submit` measures conversions. The Funnel report can chain `/free-estimate/` → `free_estimate_view` → `contact_form_start` → `contact_form_submit` to measure paid-landing engagement and conversion; the existing `/contact/` funnel remains useful for general site traffic. The Events → Properties tab and Breakdown report show which specific fields people reach.
 
-The landing page sets the existing Airtable `Which Form` single-select field to `/free-estimate/ ads lander`. It also stores only the allow-listed `gclid`, `gbraid`, `wbraid`, and standard UTM values in the lead's Airtable comments. This supports manual campaign/lead-quality reconciliation now and preserves identifiers needed for a later offline-conversion import workflow.
+The landing page sets the existing Airtable `Which Form` single-select field to `/free-estimate/ ads lander`. Session attribution (`assets/js/attribution.js`) runs on every page and stores only the allow-listed `gclid`, `gbraid`, `wbraid`, `fbclid`, and standard UTM values in `sessionStorage`. A URL that carries any of those keys **replaces** the stored attribution (never merges), so a new campaign visit cannot inherit identifiers from an earlier one; pages without them carry the session values forward, so a visitor who lands on `/free-estimate/` and submits on `/contact/` keeps the landing attribution. At submit time the Pixel's `_fbc`/`_fbp` cookies (when present) and the form page path are added. The server writes the allow-listed values and the Meta event ID into the lead's Airtable comments. This supports manual campaign/lead-quality reconciliation now and preserves identifiers needed for later offline-conversion import workflows.
+
+### Meta Pixel and Conversions API
+
+**Code:** `services/meta.go`, `server.go` (`metaLeadEvent`, `deliverMetaLead`), `layouts/partials/meta-pixel.html`, `assets/js/form-submit.js`, `assets/js/attribution.js`
+**Dataset:** `1737341487496114` ("TTS Website"), ad account `1432154495518650`
+
+Browser side:
+
+- `layouts/partials/meta-pixel.html` (included by `analytics.html`) loads the Pixel and fires `PageView` when `params.metaPixelId` is set in `hugo.toml`. It is omitted on the 404 page and on pages whose front matter sets `tracking.metaPixel: false` (`/payment-success/`, `/create-fix-request/`, `/review/`). Internal tools on the Go listeners never include it.
+- `form-submit.js` fires `fbq('track', 'Lead', {}, { eventID })` only when `/contact` returned `X-Lead-Saved: true`, using the server's `X-Meta-Event-Id`. No customer data is attached to the browser event. Loading `/thank-you/` never fires a Lead.
+- If the Pixel script is blocked, the form still works and the server event is the only one Meta receives.
+
+Server side (`POST /contact`, after Airtable confirms the save):
+
+- One `Lead` event with `event_id` (the same ID returned to the browser), the actual save time, `event_source_url` (canonical host + referring page path, falling back to the attribution's `page`, then `/contact/`), and `action_source: website`.
+- `user_data`: email and phone normalized per Meta's rules (trimmed/lowercased email; digits-only phone with `1` country code) and SHA-256 hashed; `client_ip_address`, `client_user_agent`, `fbc`, `fbp` unhashed. `fbc`/`fbp` come from the request's `_fbc`/`_fbp` cookies first, then the stored attribution snapshot, then — for `fbc` only — `fb.1.<landingMs>.<fbclid>` built from a real `fbclid` the visitor arrived with. No click ID is ever synthesized. Inquiry text, quote details, and addresses are never sent (no `custom_data`).
+- Delivery uses a 5 s HTTP timeout with one retry on transport/5xx errors (same event ID), a 12 s overall bound, and logs only `event_id` plus a sanitized Meta error (token redacted). Failures never affect the saved lead or the form response. There is no persistent queue: an event that fails both attempts is lost from Meta reporting but remains reconcilable via the `Meta event ID` line in Airtable comments.
+- Missing `META_PIXEL_ID`/`META_CAPI_ACCESS_TOKEN` disables CAPI; lead intake is unaffected.
+
+Deduplication: Meta matches browser and server events on `event_name` + `event_id`. Both channels send `Lead` with the same `tts-lead-…` ID.
+
+Verification without real leads: on the internal listener, `GET /internal/meta-test` (no bearer token; exe.dev-gated) sends one synthetic server Lead tagged with a required `TEST…` code from Events Manager → Test events and renders a page that fires the matching browser Lead with the same ID. Expect a Server row and a Browser row with one marked deduplicated. Keep the Events Manager Test events tab open in the same browser so the browser event is labelled as a test. Booking/status conversions and offline conversion uploads are not implemented.
 
 ### AEO / Markdown Content Negotiation
 
@@ -239,6 +266,7 @@ The `llms.txt` file at `/llms.txt` (served from `static/llms.txt`) provides a hu
 | `POST` | `/invoice/create` | Bearer token required |
 | `GET` | `/photos/{filename}` | Public permanent email-photo URLs |
 | `GET` | `/internal/bots` | Bearer token on public listener; no bearer token on internal listener |
+| `GET` | `/internal/meta-test` | Internal listener only; synthetic Meta Lead test (requires `?code=TEST…`) |
 | `GET` | `/analytics/script.js` | Public Umami script proxy |
 | `POST` | `/analytics/send` | Public Umami collection proxy (legacy path) |
 | `POST` | `/analytics/api/send` | Public Umami collection proxy (tracker default) |
