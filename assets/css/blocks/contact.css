@@ -113,6 +113,15 @@
         background-color: var(--color-error-bg) !important;
     }
 
+    .contact-form__submission-error {
+        margin: 0;
+        padding: var(--space-xs);
+        border-left: 4px solid var(--color-error);
+        border-radius: var(--radius-s);
+        background: var(--color-error-bg);
+        color: var(--color-error);
+    }
+
     .contact-form__submit {
         width: 100%;
         text-align: center;

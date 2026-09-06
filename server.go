@@ -36,6 +36,14 @@ type FormData struct {
 var emailRe = regexp.MustCompile(`^[^\s@]+@[^\s@]+\.[^\s@]+$`)
 var digitsRe = regexp.MustCompile(`\D`)
 
+// These variables keep the contact handler testable without making real Airtable
+// or GeoIP requests. Production uses the functions assigned here.
+var (
+	countryLookup    = countryForIP
+	createLead       = sendToAirtable
+	recordSubmission = logSubmission
+)
+
 const (
 	airtableProxy      = "https://airtable.int.exe.xyz"
 	airtableBaseID     = "appg9012rLh2diVLq"
@@ -277,27 +285,28 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 	// Timing check (0 means JS never ran — bot; <4s means filled too fast)
 	if fd.FillTime < minFillTimeSeconds {
 		log.Printf("REJECTED too_fast (%.1fs) from %s: %s %s", fd.FillTime, ip, fd.FirstName, fd.LastName)
-		go logSubmission(fd, ip, "too_fast", fmt.Sprintf("filled in %.1fs", fd.FillTime))
-		// Still return success to not tip off bots
-		respondSuccess(w, r)
+		go recordSubmission(fd, ip, "too_fast", fmt.Sprintf("filled in %.1fs", fd.FillTime))
+		// Still return a neutral success response to avoid tipping off bots.
+		// It intentionally omits the lead-saved signal used by conversion tracking.
+		respondSuccess(w, r, false)
 		return
 	}
 
 	// Geo-IP check: reject non-US IPs
-	if country, err := countryForIP(ip); err != nil {
+	if country, err := countryLookup(ip); err != nil {
 		log.Printf("GeoIP lookup failed for %s: %v (allowing)", ip, err)
 	} else if country != "US" {
 		log.Printf("REJECTED non_us_ip from %s (country=%s): %s %s", ip, country, fd.FirstName, fd.LastName)
-		go logSubmission(fd, ip, "non_us_ip", fmt.Sprintf("country=%s", country))
-		respondSuccess(w, r)
+		go recordSubmission(fd, ip, "non_us_ip", fmt.Sprintf("country=%s", country))
+		respondSuccess(w, r, false)
 		return
 	}
 
 	// Rate limit check
 	if !limiter.allow(ip) {
 		log.Printf("REJECTED rate_limited from %s: %s %s", ip, fd.FirstName, fd.LastName)
-		go logSubmission(fd, ip, "rate_limited", fmt.Sprintf(">%d submissions/hour", maxSubmitsPerHour))
-		respondSuccess(w, r)
+		go recordSubmission(fd, ip, "rate_limited", fmt.Sprintf(">%d submissions/hour", maxSubmitsPerHour))
+		respondSuccess(w, r, false)
 		return
 	}
 
@@ -327,17 +336,22 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 		fd.StreetAddress, fd.City, fd.State, fd.Zip, fd.Message,
 		fd.FillTime, ip)
 
-	go func() {
-		if err := sendToAirtable(fd); err != nil {
-			log.Printf("Airtable error: %v", err)
-		}
-	}()
-	go logSubmission(fd, ip, "accepted", "")
+	if err := createLead(fd); err != nil {
+		log.Printf("Airtable error: %v", err)
+		respondAirtableFailure(w, r, fd)
+		return
+	}
+	go recordSubmission(fd, ip, "accepted", "")
 
-	respondSuccess(w, r)
+	respondSuccess(w, r, true)
 }
 
-func respondSuccess(w http.ResponseWriter, r *http.Request) {
+func respondSuccess(w http.ResponseWriter, r *http.Request, leadSaved bool) {
+	if leadSaved {
+		// This header is the authoritative conversion signal for JavaScript clients.
+		// It is set only after Airtable has confirmed lead creation.
+		w.Header().Set("X-Lead-Saved", "true")
+	}
 	ct := r.Header.Get("Content-Type")
 	isForm := strings.Contains(ct, "application/x-www-form-urlencoded")
 	accept := r.Header.Get("Accept")
@@ -353,6 +367,22 @@ func respondSuccess(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]any{"success": true, "message": "Form submitted successfully"})
+}
+
+func respondAirtableFailure(w http.ResponseWriter, r *http.Request, fd FormData) {
+	const message = "We couldn't save your request right now. Please try again in a moment."
+
+	ct := r.Header.Get("Content-Type")
+	if strings.Contains(ct, "application/x-www-form-urlencoded") {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusServiceUnavailable)
+		fmt.Fprint(w, errorHTML(fd, []string{message}))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusServiceUnavailable)
+	json.NewEncoder(w).Encode(map[string]any{"success": false, "error": message})
 }
 
 // ── Thank You HTML ──

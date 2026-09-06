@@ -1,7 +1,6 @@
 /**
- * Progressive enhancement: submit form via fetch with graceful fallback
- * - With JS: fetch + instant redirect (no loading spinner)
- * - Without JS: native form POST + browser redirect
+ * Progressive enhancement: submit form via fetch with graceful fallback.
+ * Browser conversion events require the server's Airtable-confirmed lead signal.
  */
 (function () {
   "use strict";
@@ -10,6 +9,23 @@
   if (!form) return;
 
   const ENDPOINT = "/contact";
+
+  function restoreSubmitButton(submitBtn, originalText) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+  }
+
+  function showSubmissionError(message) {
+    let error = form.querySelector(".contact-form__submission-error");
+    if (!error) {
+      error = document.createElement("p");
+      error.className = "contact-form__submission-error";
+      error.setAttribute("role", "alert");
+      const submitBtn = form.querySelector(".contact-form__submit");
+      submitBtn.insertAdjacentElement("beforebegin", error);
+    }
+    error.textContent = message;
+  }
 
   form.addEventListener("submit", async (e) => {
     // Only hijack if form is valid (validation.js has already run)
@@ -42,7 +58,7 @@
       submitBtn.disabled = true;
       submitBtn.textContent = "Submitting...";
 
-      // Send to Val Town endpoint
+      // Send only after browser validation succeeds.
       const response = await fetch(ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "text/html" },
@@ -50,22 +66,25 @@
       });
 
       if (!response.ok) {
-        // Try to parse as JSON for validation errors
+        let message = "";
         try {
           const result = await response.json();
-          console.error("Form errors:", result.errors);
-        } catch (_) {}
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+          if (result.error) message = result.error;
+          if (result.errors) console.error("Form errors:", result.errors);
+        } catch (_) {
+          message = "We couldn't save your request right now. Please try again in a moment.";
+        }
+        if (message) showSubmissionError(message);
+        restoreSubmitButton(submitBtn, originalText);
         return;
       }
 
       const html = await response.text();
+      const leadSaved = response.headers.get("X-Lead-Saved") === "true";
 
       // ── Conversion tracking ──
-      // Fire Google Ads conversion after the form is accepted. The site-wide
-      // Google tag is loaded in layouts/partials/head.html.
-      if (typeof gtag === "function") {
+      // The server supplies X-Lead-Saved only after Airtable confirms creation.
+      if (leadSaved && typeof gtag === "function") {
         try {
           gtag("event", "conversion", {
             send_to: "AW-17686347200/utHpCODyheocEMD7wPFB",
@@ -73,9 +92,8 @@
         } catch (_) {}
       }
 
-      // Fire a Umami custom event so conversion goals can be measured.
-      // In Umami, create a goal of type "Custom event" with name "contact_form_submit".
-      if (typeof umami === "object" && typeof umami.track === "function") {
+      // Fire a Umami custom event only for a lead Airtable confirmed as saved.
+      if (leadSaved && typeof umami === "object" && typeof umami.track === "function") {
         try { umami.track("contact_form_submit"); } catch (_) {}
       }
 
@@ -92,11 +110,8 @@
       }, 50);
     } catch (error) {
       console.error("Form submission error:", error);
-      // Restore button state
-      const submitBtn = form.querySelector(".contact-form__submit");
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalText;
-      // Optionally show error message to user
+      restoreSubmitButton(submitBtn, originalText);
+      showSubmissionError("We couldn't save your request right now. Please check your connection and try again.");
     }
   });
 })();

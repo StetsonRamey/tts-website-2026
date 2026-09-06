@@ -106,7 +106,7 @@ The public Go listener runs on port `8000`. It serves `public/` and backend rout
 
 ### Server Features
 
-- **Contact intake** (`/contact`) — accepts HTML form and JSON POSTs; validates fields, applies anti-spam checks, logs submissions, and writes accepted leads to Airtable.
+- **Contact intake** (`/contact`) — accepts HTML form and JSON POSTs; validates fields, applies anti-spam checks, writes accepted leads to Airtable before acknowledging success, and exposes an Airtable-confirmed signal for browser conversion tracking.
 - **Payments** (`/pay`, `/stripe/webhook`) — Stripe Checkout and signed webhook handling.
 - **Operational automations** (`/estimate/send`, `/confirmation/send`, `/oos/send`, `/sold/sync`, `/invoice/create`) — authenticated email, CRM, CompanyCam, and invoicing workflows.
 - **Analytics and observability** — first-party Umami proxy (`/analytics/*`), Sentry error reporting, and a bot/crawler dashboard (`/internal/bots`).

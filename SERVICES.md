@@ -114,7 +114,8 @@ journalctl -u tts.service -n 50 --no-pager
 
 - `GET` and `HEAD` redirect to the canonical Hugo page at `/contact/`.
 - `POST` accepts HTML form submissions and JSON submissions.
-- The handler validates data, rate-limits by IP, rejects implausibly fast submissions, checks non-US traffic, records outcomes, and sends accepted leads to Airtable.
+- The handler validates data, rate-limits by IP, rejects implausibly fast submissions, checks non-US traffic, records outcomes, and writes accepted leads to Airtable before acknowledging them as saved.
+- Airtable-confirmed saves set `X-Lead-Saved: true`; `assets/js/form-submit.js` fires the Google Ads and Umami conversion events only when that signal is present. Neutral responses for spam rejections intentionally omit it, and Airtable failures return a retryable error without a thank-you redirect.
 - The paid landing page (`/free-estimate/`) sets the Lead record's `Which Form` single select to `/free-estimate/ ads lander` and stores its allow-listed Google click IDs and UTM parameters with the lead's Airtable comments. This enables later reconciliation of Google Ads traffic with qualified and sold jobs without changing the Leads table schema.
 - Standard HTML form posts redirect to `/thank-you/`; JavaScript-enhanced HTML requests receive a thank-you fragment; JSON clients receive JSON.
 
@@ -186,7 +187,7 @@ Middleware records known AI, search, and other crawler requests to `~/.local/sha
 
 The public Go server proxies the self-hosted Umami tracker and collection endpoint to the configured local Umami upstream. This keeps browser tracking first-party while leaving the Umami dashboard itself private. The tracker script builds its collect URL from `data-host-url` + `/api/send`, producing `/analytics/api/send`; both that and the legacy `/analytics/send` path are proxied to Umami's `/api/send`. Unknown `/analytics/*` paths return 404.
 
-**Google Ads conversion tracking:** The global Google tag (`AW-17686347200`) is loaded once in `layouts/partials/head.html`. After a successful contact-form submission, `assets/js/form-submit.js` fires the Google Ads `Submit lead form` conversion (`AW-17686347200/utHpCODyheocEMD7wPFB`) alongside the existing Umami event. Phone calls from Google Ads are tracked separately through the Google Ads call asset/conversion action and do not use this website event.
+**Google Ads conversion tracking:** The global Google tag (`AW-17686347200`) is loaded once in `layouts/partials/head.html`. `assets/js/form-submit.js` fires the Google Ads `Submit lead form` conversion (`AW-17686347200/utHpCODyheocEMD7wPFB`) only when `/contact` returns `X-Lead-Saved: true`, which the server sets after Airtable confirms lead creation. Phone calls from Google Ads are tracked separately through the Google Ads call asset/conversion action and do not use this website event.
 
 **Umami conversion tracking:** The contact form fires a sequence of Umami custom events so conversion goals and the Funnel report can measure engagement and drop-off:
 
@@ -196,7 +197,7 @@ The public Go server proxies the self-hosted Umami tracker and collection endpoi
 | `free_estimate_cta` (property: `placement`) | `assets/js/landing-tracking.js` | Clicks on the paid landing page's header or final estimate CTA. |
 | `contact_form_start` | `assets/js/form-tracking.js` | First field focus |
 | `contact_form_field` (property: `field`) | `assets/js/form-tracking.js` | Each field's first focus (once per field) |
-| `contact_form_submit` | `assets/js/form-submit.js` | Successful submission |
+| `contact_form_submit` | `assets/js/form-submit.js` | Airtable-confirmed lead creation (`X-Lead-Saved: true`) |
 
 In the Umami dashboard, a goal of type "Custom event" with name `contact_form_submit` measures conversions. The Funnel report can chain `/free-estimate/` → `free_estimate_view` → `contact_form_start` → `contact_form_submit` to measure paid-landing engagement and conversion; the existing `/contact/` funnel remains useful for general site traffic. The Events → Properties tab and Breakdown report show which specific fields people reach.
 
