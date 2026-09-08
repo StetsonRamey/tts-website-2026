@@ -146,6 +146,27 @@ func whichForm(source string) string {
 	return "Main Contact"
 }
 
+// leadSource maps session attribution to the existing Airtable lead-source
+// single-select field ("Which Form"). The exact printed van-QR combination
+// maps to the literal value "QR Code"; every other combination keeps the
+// form-based labeling so Google Ads, Meta, and ordinary leads are unchanged.
+func leadSource(formSource, rawAttribution string) string {
+	if isVanQR(rawAttribution) {
+		return "QR Code"
+	}
+	return whichForm(formSource)
+}
+
+// isVanQR reports whether the session attribution carries exactly the UTM
+// combination printed on the van QR code. Missing or mismatched tags never
+// match, and unrelated URL parameters are ignored.
+func isVanQR(rawAttribution string) bool {
+	values := parseAttribution(rawAttribution)
+	return values["utm_source"] == "van" &&
+		values["utm_medium"] == "qr" &&
+		values["utm_campaign"] == "van_wrap"
+}
+
 // appendAttribution stores a concise, allow-listed summary alongside the lead's
 // comments. This keeps paid-click attribution available in Airtable without
 // requiring a schema change to the existing Leads table.
@@ -528,28 +549,7 @@ func thankYouHTML() string {
 // ── Airtable: Create Lead ──
 
 func sendToAirtable(fd FormData) error {
-	zipDigits := digitsRe.ReplaceAllString(fd.Zip, "")
-	zipNum, _ := strconv.Atoi(zipDigits)
-
-	payload := map[string]any{
-		"typecast": true,
-		"records": []map[string]any{
-			{
-				"fields": map[string]any{
-					"fldZWX56UF9UNbZOW": whichForm(fd.FormSource), // Which Form
-					"fldplXExIaztUlnVf": fd.FirstName,             // First Name
-					"fldiVRdwdOumpsrCh": fd.LastName,              // Last Name
-					"fldsvJF0WoUqKWOtq": fd.Email,                 // Email
-					"fldGCBMLm7Ks1KD6N": fd.Phone,                 // Phone
-					"flduHz8NtmIzaTakp": fd.StreetAddress,         // Street Address
-					"fldRHrzLnl0dIEScW": fd.City,                  // City
-					"flddThKQZrXUkq2LD": fd.State,                 // State
-					"fldSe1UzJLxSb5yWW": zipNum,                   // Zip Code
-					"fldGhAjDinMRV827I": fd.Message,               // Comments
-				},
-			},
-		},
-	}
+	payload := airtableLeadPayload(fd)
 
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -576,6 +576,35 @@ func sendToAirtable(fd FormData) error {
 
 	log.Printf("Airtable lead created for %s %s", fd.FirstName, fd.LastName)
 	return nil
+}
+
+// airtableLeadPayload builds the records payload for a new lead. The "Which
+// Form" single-select field carries the lead source: the exact van-QR UTM
+// combination becomes "QR Code", the paid landing page keeps its own label,
+// and everything else stays "Main Contact".
+func airtableLeadPayload(fd FormData) map[string]any {
+	zipDigits := digitsRe.ReplaceAllString(fd.Zip, "")
+	zipNum, _ := strconv.Atoi(zipDigits)
+
+	return map[string]any{
+		"typecast": true,
+		"records": []map[string]any{
+			{
+				"fields": map[string]any{
+					"fldZWX56UF9UNbZOW": leadSource(fd.FormSource, fd.Attribution), // Which Form
+					"fldplXExIaztUlnVf": fd.FirstName,                              // First Name
+					"fldiVRdwdOumpsrCh": fd.LastName,                               // Last Name
+					"fldsvJF0WoUqKWOtq": fd.Email,                                  // Email
+					"fldGCBMLm7Ks1KD6N": fd.Phone,                                  // Phone
+					"flduHz8NtmIzaTakp": fd.StreetAddress,                          // Street Address
+					"fldRHrzLnl0dIEScW": fd.City,                                   // City
+					"flddThKQZrXUkq2LD": fd.State,                                  // State
+					"fldSe1UzJLxSb5yWW": zipNum,                                    // Zip Code
+					"fldGhAjDinMRV827I": fd.Message,                                // Comments
+				},
+			},
+		},
+	}
 }
 
 // ── Airtable: Log Submission ──

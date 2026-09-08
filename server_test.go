@@ -23,6 +23,118 @@ func TestWhichForm(t *testing.T) {
 	}
 }
 
+// vanQRAttribution is the session snapshot a visitor gets from the exact
+// printed van QR URL: https://tistheseasonkc.com/free-estimate/?utm_source=van&utm_medium=qr&utm_campaign=van_wrap
+const vanQRAttribution = `{"landing_page":"/free-estimate/","utm_source":"van","utm_medium":"qr","utm_campaign":"van_wrap"}`
+
+func TestIsVanQR(t *testing.T) {
+	if !isVanQR(vanQRAttribution) {
+		t.Fatalf("isVanQR() = false, want true for exact van QR combination")
+	}
+}
+
+func TestIsVanQRRequiresExactCombination(t *testing.T) {
+	tests := []struct {
+		name        string
+		attribution string
+	}{
+		{name: "missing tags", attribution: `{"utm_source":"van"}`},
+		{name: "wrong source", attribution: `{"utm_source":"facebook","utm_medium":"qr","utm_campaign":"van_wrap"}`},
+		{name: "wrong medium", attribution: `{"utm_source":"van","utm_medium":"print","utm_campaign":"van_wrap"}`},
+		{name: "wrong campaign", attribution: `{"utm_source":"van","utm_medium":"qr","utm_campaign":"other"}`},
+		{name: "empty", attribution: ""},
+		{name: "invalid JSON", attribution: "not json"},
+		{name: "extra campaign only is not enough", attribution: `{"utm_campaign":"van_wrap"}`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if isVanQR(tt.attribution) {
+				t.Fatalf("isVanQR(%q) = true, want false", tt.attribution)
+			}
+		})
+	}
+}
+
+func TestLeadSourceMapsExactVanQRToQRCode(t *testing.T) {
+	// Regardless of which form the visitor submits from, the exact UTM
+	// combination (carried by session attribution from the QR landing page)
+	// maps to the literal "QR Code" lead source.
+	if got := leadSource("/free-estimate/ ads lander", vanQRAttribution); got != "QR Code" {
+		t.Fatalf("leadSource() from free-estimate = %q, want %q", got, "QR Code")
+	}
+	if got := leadSource("", vanQRAttribution); got != "QR Code" {
+		t.Fatalf("leadSource() from contact = %q, want %q", got, "QR Code")
+	}
+}
+
+func TestLeadSourcePreservesNonQRBehavior(t *testing.T) {
+	tests := []struct {
+		name        string
+		formSource  string
+		attribution string
+		want        string
+	}{
+		{name: "ordinary contact lead", formSource: "", attribution: "", want: "Main Contact"},
+		{name: "free-estimate with no UTMs", formSource: "/free-estimate/ ads lander", attribution: `{"landing_page":"/free-estimate/"}`, want: "/free-estimate/ ads lander"},
+		{name: "Google Ads lead", formSource: "", attribution: `{"gclid":"abc123","utm_source":"google","utm_medium":"cpc","utm_campaign":"holiday_lighting_2026"}`, want: "Main Contact"},
+		{name: "Meta lead", formSource: "", attribution: `{"fbclid":"IwARxyz","utm_source":"facebook"}`, want: "Main Contact"},
+		{name: "van but wrong source", formSource: "", attribution: `{"utm_source":"google","utm_medium":"qr","utm_campaign":"van_wrap"}`, want: "Main Contact"},
+		{name: "van but wrong campaign", formSource: "/free-estimate/ ads lander", attribution: `{"utm_source":"van","utm_medium":"qr","utm_campaign":"spring_promo"}`, want: "/free-estimate/ ads lander"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := leadSource(tt.formSource, tt.attribution); got != tt.want {
+				t.Fatalf("leadSource() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAirtablePayloadUsesQRCodeAndRetainsUTMDetails(t *testing.T) {
+	fd := validFormData()
+	fd.FormSource = "/free-estimate/ ads lander"
+	fd.Attribution = vanQRAttribution
+	fd.Message = appendAttribution(fd.Message, fd.Attribution, "")
+
+	payload := airtableLeadPayload(fd)
+	records, ok := payload["records"].([]map[string]any)
+	if !ok || len(records) != 1 {
+		t.Fatalf("payload records = %#v, want one lead record", payload["records"])
+	}
+	fields, ok := records[0]["fields"].(map[string]any)
+	if !ok {
+		t.Fatalf("lead fields = %#v, want map", records[0]["fields"])
+	}
+
+	if got := fields["fldZWX56UF9UNbZOW"]; got != "QR Code" {
+		t.Fatalf("Which Form = %q, want %q", got, "QR Code")
+	}
+
+	// The original UTM details ride along in the comments via the existing
+	// attribution storage so van leads stay distinguishable from future QR
+	// campaigns.
+	comments, _ := fields["fldGhAjDinMRV827I"].(string)
+	for _, want := range []string{"UTM source: van", "UTM medium: qr", "UTM campaign: van_wrap"} {
+		if !strings.Contains(comments, want) {
+			t.Fatalf("comments %q do not retain %q", comments, want)
+		}
+	}
+}
+
+func TestAirtablePayloadKeepsWhichFormValue(t *testing.T) {
+	// A regular free-estimate lead (no van UTMs) keeps its existing label.
+	fd := validFormData()
+	fd.FormSource = "/free-estimate/ ads lander"
+	fd.Attribution = `{"gclid":"abc123"}`
+
+	payload := airtableLeadPayload(fd)
+	records := payload["records"].([]map[string]any)
+	fields := records[0]["fields"].(map[string]any)
+	if got := fields["fldZWX56UF9UNbZOW"]; got != "/free-estimate/ ads lander" {
+		t.Fatalf("Which Form = %q, want %q", got, "/free-estimate/ ads lander")
+	}
+}
+
 func TestAppendAttribution(t *testing.T) {
 	got := appendAttribution("Needs roofline lighting", `{"landing_page":"/free-estimate/","utm_source":"google","utm_campaign":"holiday_lighting_2026","gclid":"abc123","ignored":"nope"}`, "")
 	want := "Needs roofline lighting\n\nLead attribution:\nLanding page: /free-estimate/\nUTM source: google\nUTM campaign: holiday_lighting_2026\nGoogle click ID: abc123"
