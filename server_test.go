@@ -94,7 +94,7 @@ func TestAirtablePayloadUsesQRCodeAndRetainsUTMDetails(t *testing.T) {
 	fd := validFormData()
 	fd.FormSource = "/free-estimate/ ads lander"
 	fd.Attribution = vanQRAttribution
-	fd.Message = appendAttribution(fd.Message, fd.Attribution, "")
+	fd.TrackingMetrics = formatAttribution(fd.Attribution, "")
 
 	payload := airtableLeadPayload(fd)
 	records, ok := payload["records"].([]map[string]any)
@@ -110,14 +110,17 @@ func TestAirtablePayloadUsesQRCodeAndRetainsUTMDetails(t *testing.T) {
 		t.Fatalf("Which Form = %q, want %q", got, "QR Code")
 	}
 
-	// The original UTM details ride along in the comments via the existing
-	// attribution storage so van leads stay distinguishable from future QR
-	// campaigns.
-	comments, _ := fields["fldGhAjDinMRV827I"].(string)
+	// The original UTM details ride along in the Tracking Metrics field so van
+	// leads stay distinguishable from future QR campaigns, and the comments
+	// field carries only the customer's own notes.
+	metrics, _ := fields["fldqlM7utGqqVnVa7"].(string)
 	for _, want := range []string{"UTM source: van", "UTM medium: qr", "UTM campaign: van_wrap"} {
-		if !strings.Contains(comments, want) {
-			t.Fatalf("comments %q do not retain %q", comments, want)
+		if !strings.Contains(metrics, want) {
+			t.Fatalf("tracking metrics %q do not retain %q", metrics, want)
 		}
+	}
+	if comments, _ := fields["fldGhAjDinMRV827I"].(string); comments != fd.Message {
+		t.Fatalf("comments %q must contain only the customer message %q", comments, fd.Message)
 	}
 }
 
@@ -135,29 +138,29 @@ func TestAirtablePayloadKeepsWhichFormValue(t *testing.T) {
 	}
 }
 
-func TestAppendAttribution(t *testing.T) {
-	got := appendAttribution("Needs roofline lighting", `{"landing_page":"/free-estimate/","utm_source":"google","utm_campaign":"holiday_lighting_2026","gclid":"abc123","ignored":"nope"}`, "")
-	want := "Needs roofline lighting\n\nLead attribution:\nLanding page: /free-estimate/\nUTM source: google\nUTM campaign: holiday_lighting_2026\nGoogle click ID: abc123"
+func TestFormatAttribution(t *testing.T) {
+	got := formatAttribution(`{"landing_page":"/free-estimate/","utm_source":"google","utm_campaign":"holiday_lighting_2026","gclid":"abc123","ignored":"nope"}`, "")
+	want := "Landing page: /free-estimate/\nUTM source: google\nUTM campaign: holiday_lighting_2026\nGoogle click ID: abc123"
 	if got != want {
-		t.Fatalf("appendAttribution() = %q, want %q", got, want)
+		t.Fatalf("formatAttribution() = %q, want %q", got, want)
 	}
 }
 
-func TestAppendAttributionRetainsMetaIdentifiers(t *testing.T) {
-	got := appendAttribution("", `{"fbclid":"IwAR0abc","fbc":"fb.1.1700000000000.IwAR0abc","fbp":"fb.1.1700000000000.123456","page":"/contact/","message":"ignored"}`, "tts-lead-deadbeef")
-	want := "Lead attribution:\nMeta click ID: IwAR0abc\nMeta fbc: fb.1.1700000000000.IwAR0abc\nMeta browser ID: fb.1.1700000000000.123456\nMeta event ID: tts-lead-deadbeef"
+func TestFormatAttributionRetainsMetaIdentifiers(t *testing.T) {
+	got := formatAttribution(`{"fbclid":"IwAR0abc","fbc":"fb.1.1700000000000.IwAR0abc","fbp":"fb.1.1700000000000.123456","page":"/contact/","message":"ignored"}`, "tts-lead-deadbeef")
+	want := "Meta click ID: IwAR0abc\nMeta fbc: fb.1.1700000000000.IwAR0abc\nMeta browser ID: fb.1.1700000000000.123456\nMeta event ID: tts-lead-deadbeef"
 	if got != want {
-		t.Fatalf("appendAttribution() = %q, want %q", got, want)
+		t.Fatalf("formatAttribution() = %q, want %q", got, want)
 	}
 }
 
-func TestAppendAttributionIgnoresInvalidData(t *testing.T) {
-	if got := appendAttribution("Customer note", "not json", ""); got != "Customer note" {
-		t.Fatalf("appendAttribution() = %q, want original message", got)
+func TestFormatAttributionIgnoresInvalidData(t *testing.T) {
+	if got := formatAttribution("not json", ""); got != "" {
+		t.Fatalf("formatAttribution() = %q, want empty", got)
 	}
 	// An event ID alone is still recorded so the Airtable lead can be reconciled.
-	if got := appendAttribution("Customer note", "not json", "tts-lead-1"); got != "Customer note\n\nLead attribution:\nMeta event ID: tts-lead-1" {
-		t.Fatalf("appendAttribution() = %q", got)
+	if got := formatAttribution("not json", "tts-lead-1"); got != "Meta event ID: tts-lead-1" {
+		t.Fatalf("formatAttribution() = %q", got)
 	}
 }
 
@@ -207,10 +210,10 @@ func TestMetaLeadEventPrefersPixelCookiesAndExcludesInquiryData(t *testing.T) {
 
 func TestHandleContactSetsLeadSavedOnlyAfterAirtableSuccess(t *testing.T) {
 	leadCreated := false
-	var savedMessage string
+	var savedForm FormData
 	stubContactDependencies(t, func(fd FormData) error {
 		leadCreated = true
-		savedMessage = fd.Message
+		savedForm = fd
 		return nil
 	}, func(string) (string, error) { return "US", nil })
 	metaEvents := captureMetaLeads(t)
@@ -229,7 +232,8 @@ func TestHandleContactSetsLeadSavedOnlyAfterAirtableSuccess(t *testing.T) {
 		t.Fatalf("success response did not contain thank-you HTML: %q", res.Body.String())
 	}
 
-	// Browser and server Lead events must share one ID, and the saved lead keeps it.
+	// Browser and server Lead events must share one ID, and the saved lead keeps
+	// it in Tracking Metrics — never in the customer-facing comments.
 	eventID := res.Header().Get("X-Meta-Event-Id")
 	if !strings.HasPrefix(eventID, "tts-lead-") {
 		t.Fatalf("X-Meta-Event-Id = %q, want generated event ID", eventID)
@@ -245,8 +249,11 @@ func TestHandleContactSetsLeadSavedOnlyAfterAirtableSuccess(t *testing.T) {
 	case <-time.After(time.Second):
 		t.Fatal("server-side Meta Lead was not sent after Airtable success")
 	}
-	if !strings.Contains(savedMessage, "Meta event ID: "+eventID) {
-		t.Fatalf("Airtable comments did not retain Meta event ID: %q", savedMessage)
+	if !strings.Contains(savedForm.TrackingMetrics, "Meta event ID: "+eventID) {
+		t.Fatalf("Airtable Tracking Metrics did not retain Meta event ID: %q", savedForm.TrackingMetrics)
+	}
+	if savedForm.Message != "Please send an estimate." {
+		t.Fatalf("comments must carry only the customer message, got %q", savedForm.Message)
 	}
 }
 

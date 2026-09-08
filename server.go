@@ -33,6 +33,9 @@ type FormData struct {
 	FormSource    string  `json:"formSource"`
 	Attribution   string  `json:"_attribution"`
 	FillTime      float64 `json:"_fillTime"`
+	// TrackingMetrics is the formatted attribution summary written to the
+	// Airtable "Tracking Metrics" field (never to the customer comments).
+	TrackingMetrics string `json:"-"`
 }
 
 var emailRe = regexp.MustCompile(`^[^\s@]+@[^\s@]+\.[^\s@]+$`)
@@ -167,10 +170,10 @@ func isVanQR(rawAttribution string) bool {
 		values["utm_campaign"] == "van_wrap"
 }
 
-// appendAttribution stores a concise, allow-listed summary alongside the lead's
-// comments. This keeps paid-click attribution available in Airtable without
-// requiring a schema change to the existing Leads table.
-func appendAttribution(message, raw, metaEventID string) string {
+// formatAttribution builds a concise, allow-listed tracking summary for the
+// lead's "Tracking Metrics" field in Airtable. It never touches the comments
+// field, which the office staff uses for customer-facing notes.
+func formatAttribution(raw, metaEventID string) string {
 	values := parseAttribution(raw)
 	if metaEventID != "" {
 		values["meta_event_id"] = metaEventID
@@ -209,14 +212,9 @@ func appendAttribution(message, raw, metaEventID string) string {
 		lines = append(lines, fmt.Sprintf("%s: %s", field.label, value))
 	}
 	if len(lines) == 0 {
-		return message
+		return ""
 	}
-
-	summary := "Lead attribution:\n" + strings.Join(lines, "\n")
-	if message == "" {
-		return summary
-	}
-	return message + "\n\n" + summary
+	return strings.Join(lines, "\n")
 }
 
 // parseAttribution decodes the browser-supplied session attribution JSON.
@@ -436,9 +434,10 @@ func handleContact(w http.ResponseWriter, r *http.Request) {
 
 	// One Meta event ID is minted per accepted submission and shared by the
 	// server Conversions API event, the browser Pixel event, and the Airtable
-	// comments so the two channels deduplicate and can be reconciled later.
+	// Tracking Metrics field so the two channels deduplicate and can be
+	// reconciled later.
 	metaEventID := services.NewMetaEventID()
-	fd.Message = appendAttribution(fd.Message, fd.Attribution, metaEventID)
+	fd.TrackingMetrics = formatAttribution(fd.Attribution, metaEventID)
 
 	// ── Accepted ──
 
@@ -599,8 +598,9 @@ func airtableLeadPayload(fd FormData) map[string]any {
 					"flduHz8NtmIzaTakp": fd.StreetAddress,                          // Street Address
 					"fldRHrzLnl0dIEScW": fd.City,                                   // City
 					"flddThKQZrXUkq2LD": fd.State,                                  // State
-					"fldSe1UzJLxSb5yWW": zipNum,                                    // Zip Code
-					"fldGhAjDinMRV827I": fd.Message,                                // Comments
+					"fldSe1UzJLxSb5yWW": zipNum,             // Zip Code
+					"fldGhAjDinMRV827I": fd.Message,         // Comments
+					"fldqlM7utGqqVnVa7": fd.TrackingMetrics, // Tracking Metrics
 				},
 			},
 		},
