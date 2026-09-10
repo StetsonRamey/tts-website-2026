@@ -15,25 +15,12 @@
     {{/* ── Application Form Embed ── */}}
     <section class="region" aria-label="Job application form">
         <div class="wrapper flow" style="--wrapper-max: 50rem">
-            <div style="width:100%;height:700px;" data-zite-id="26lkxpvj47" data-zite-embed-type="standard" data-zite-inherit-parameters></div><script src="https://server.fillout.com/embed/v2-zite/"></script>
-        </div>
-    </section>
-
-    {{/* ── Questions ── */}}
-    <section class="region bg-light" aria-label="Questions about applying">
-        <div class="wrapper switcher">
-            <div class="flow">
-                <p class="overline">Questions?</p>
-                <h2 data-balance>Please call or text.</h2>
-                <p>If you'd rather talk to someone directly about working with us, reach out anytime.</p>
-                <div class="cluster">
-                    <a href="tel:{{ site.Params.phone }}" class="button">Call {{ site.Params.phone }}</a>
-                    <a href="sms:{{ site.Params.textPhone }}" class="text-link">Text {{ site.Params.textPhone }}</a>
-                </div>
-            </div>
-            <div>
-                {{ partial "image.html" (dict "src" "images/originals/about/ladders.jpg" "alt" "Tis the Season holiday lighting installation crew at work" "sizes" "(min-width: 90rem) 90rem, 100vw" "lazy" true "class" "") }}
-            </div>
+            <div
+                class="jobs-form"
+                data-zite-id="26lkxpvj47"
+                data-zite-embed-type="standard"
+                data-zite-inherit-parameters></div>
+            <script src="https://server.fillout.com/embed/v2-zite/"></script>
         </div>
     </section>
 </main>
