@@ -70,10 +70,12 @@ func ConfirmationHandler(cfg *Config) http.HandlerFunc {
 		lead, err := GetLeadByRecordID(req.RecordID)
 		if err != nil {
 			log.Printf("[confirmation] fetch lead failed: %v", err)
+			cfg.sendErrorEmail(fmt.Sprintf("confirmation: fetch lead %s failed: %v", req.RecordID, err))
 			http.Error(w, "failed to fetch lead", http.StatusInternalServerError)
 			return
 		}
 		if lead == nil {
+			cfg.sendErrorEmail(fmt.Sprintf("confirmation: lead %s not found", req.RecordID))
 			http.Error(w, "lead not found", http.StatusNotFound)
 			return
 		}
@@ -85,6 +87,8 @@ func ConfirmationHandler(cfg *Config) http.HandlerFunc {
 		var buf bytes.Buffer
 		if err := tmpl.ExecuteTemplate(&buf, "confirmation.html", data); err != nil {
 			log.Printf("[confirmation] template render failed: %v", err)
+			cfg.sendErrorEmail(fmt.Sprintf("confirmation: template render for %s (%s) failed: %v",
+				lead.FullName, req.RecordID, err))
 			http.Error(w, "template error", http.StatusInternalServerError)
 			return
 		}
@@ -93,6 +97,8 @@ func ConfirmationHandler(cfg *Config) http.HandlerFunc {
 		// TODO: call sendConfirmationEmail
 		if err := sendConfirmationEmail(resolveRecipient(lead.Email), lead.FirstName, buf.Bytes()); err != nil {
 			log.Printf("[confirmation] email send failed: %v", err)
+			cfg.sendErrorEmail(fmt.Sprintf("confirmation: send to %s (%s) failed: %v",
+				lead.FullName+" <"+lead.Email+">", req.RecordID, err))
 			http.Error(w, `{"error":"email send failed"}`, http.StatusInternalServerError)
 			return
 		}

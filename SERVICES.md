@@ -165,6 +165,10 @@ Both authenticated endpoints accept an Airtable record ID, fetch the lead, and s
 
 All three customer-facing email handlers (estimate, confirmation, oos) route the recipient through `resolveRecipient` (`services/emailtest.go`): when `EMAIL_TEST_TO` is set, mail is delivered to that address instead of the lead's email and the redirect is logged. Unset/empty means normal delivery.
 
+All three handlers alert on failure: if lead fetch, template render, or Gmail SMTP delivery fails (or a requested lead is not found), they send an error email to `ERROR_EMAIL_TO` (default `stetson@tts.lighting`) and report the message to Sentry via `cfg.sendErrorEmail` (which wraps `CaptureMessage`) — the same alert path used by checkout/webhook/invoice/sold-sync. Photo-staging failures are non-fatal (the email still sends without photos) but still trigger the alert so re-hosting problems are visible. Successful sends are logged with the recipient.
+
+Because requests arrive through the exe.dev edge proxy (which can return transient `503 Service Unavailable` before the request reaches this VM — that response body carries a `trace:` id and `x-trace-id` header, and never appears in `journalctl`), the calling Airtable automation should retry on 5xx/network errors with a short backoff (e.g. 3 attempts, ~5 s apart) and surface the final `trace:` id if it still fails.
+
 ### Sold Sync
 
 **Route:** `POST /sold/sync`

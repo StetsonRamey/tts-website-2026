@@ -83,7 +83,6 @@ func EstimateHandler(cfg *Config) http.HandlerFunc {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
-		
 
 		// ── 3. Parse request body ──────────────────────────────────────────────
 		var req estimateRequest
@@ -104,10 +103,12 @@ func EstimateHandler(cfg *Config) http.HandlerFunc {
 		lead, err := GetLeadByRecordID(req.RecordID)
 		if err != nil {
 			log.Printf("[estimate] fetch lead failed: %v", err)
+			cfg.sendErrorEmail(fmt.Sprintf("estimate: fetch lead %s failed: %v", req.RecordID, err))
 			http.Error(w, "failed to fetch lead", http.StatusInternalServerError)
 			return
 		}
 		if lead == nil {
+			cfg.sendErrorEmail(fmt.Sprintf("estimate: lead %s not found", req.RecordID))
 			http.Error(w, "lead not found", http.StatusNotFound)
 			return
 		}
@@ -117,22 +118,26 @@ func EstimateHandler(cfg *Config) http.HandlerFunc {
 		if err != nil {
 			// Non-fatal: log and continue with no photos rather than failing
 			log.Printf("[estimate] photo staging failed: %v", err)
+			cfg.sendErrorEmail(fmt.Sprintf("estimate: photo staging for %s (%s) failed: %v",
+				lead.FullName, req.RecordID, err))
 			publicURLs = nil
 		}
 
 		// ── 6. Render template ─────────────────────────────────────────────────
 		data := EstimateEmailData{
 			// TODO: populate from lead fields
-			PhotoURLs: publicURLs,
-			FirstName: lead.FirstName,
-			Feet:      lead.Feet,
-			PriceLED:  lead.PriceLED,
+			PhotoURLs:   publicURLs,
+			FirstName:   lead.FirstName,
+			Feet:        lead.Feet,
+			PriceLED:    lead.PriceLED,
 			PriceRehang: lead.PriceRehang,
 		}
 
 		var htmlBuf bytes.Buffer
 		if err := tmpl.ExecuteTemplate(&htmlBuf, "estimate.html", data); err != nil {
 			log.Printf("[estimate] template render failed: %v", err)
+			cfg.sendErrorEmail(fmt.Sprintf("estimate: template render for %s (%s) failed: %v",
+				lead.FullName, req.RecordID, err))
 			http.Error(w, `{"error":"template error"}`, http.StatusInternalServerError)
 			return
 		}
@@ -144,12 +149,14 @@ func EstimateHandler(cfg *Config) http.HandlerFunc {
 		// TODO: return 500 on error
 		if err := sendHTMLEmail(resolveRecipient(lead.Email), subject, htmlBuf.String()); err != nil {
 			log.Printf("[estimate] email send failed: %v", err)
+			cfg.sendErrorEmail(fmt.Sprintf("estimate: send to %s (%s) failed: %v",
+				lead.FullName+" <"+lead.Email+">", req.RecordID, err))
 			http.Error(w, `{"error":"email send failed"}`, http.StatusInternalServerError)
 			return
 		}
-		
 
 		// ── 8. Respond ─────────────────────────────────────────────────────────
+		log.Printf("[estimate] sent to %s %s (%s)", lead.FirstName, lead.LastName, lead.Email)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"success":   true,

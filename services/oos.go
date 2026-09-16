@@ -45,16 +45,20 @@ func OOSHandler(cfg *Config) http.HandlerFunc {
 		lead, err := GetLeadByRecordID(req.RecordID)
 		if err != nil {
 			log.Printf("[oos] fetch lead failed: %v", err)
+			cfg.sendErrorEmail(fmt.Sprintf("oos: fetch lead %s failed: %v", req.RecordID, err))
 			http.Error(w, "failed to fetch lead", http.StatusInternalServerError)
 			return
 		}
 		if lead == nil {
+			cfg.sendErrorEmail(fmt.Sprintf("oos: lead %s not found", req.RecordID))
 			http.Error(w, "lead not found", http.StatusNotFound)
 			return
 		}
 
 		if err := sendOOSEmail(resolveRecipient(lead.Email), lead.FirstName); err != nil {
 			log.Printf("[oos] email send failed: %v", err)
+			cfg.sendErrorEmail(fmt.Sprintf("oos: send to %s (%s) failed: %v",
+				lead.FullName+" <"+lead.Email+">", req.RecordID, err))
 			http.Error(w, `{"error":"email send failed"}`, http.StatusInternalServerError)
 			return
 		}
