@@ -19,7 +19,13 @@
   var CLICK_IDS = ["gclid", "gbraid", "wbraid", "fbclid"];
   var UTMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
 
-  function read() {
+  function copy(values) {
+    var out = {};
+    Object.keys(values).forEach(function (key) { out[key] = values[key]; });
+    return out;
+  }
+
+  function readStored() {
     try {
       var stored = sessionStorage.getItem(KEY);
       return stored ? JSON.parse(stored) || {} : {};
@@ -34,17 +40,24 @@
 
   function cookie(name) {
     var match = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
-    return match ? decodeURIComponent(match[1]).slice(0, 200) : "";
+    return match ? decodeURIComponent(match[1]) : "";
   }
 
   var params = new URLSearchParams(window.location.search);
   var incoming = {};
-  CLICK_IDS.concat(UTMS).forEach(function (key) {
+  CLICK_IDS.forEach(function (key) {
+    var value = params.get(key);
+    if (value) incoming[key] = value;
+  });
+  UTMS.forEach(function (key) {
     var value = params.get(key);
     if (value) incoming[key] = value.slice(0, 200);
   });
 
-  var attribution = read();
+  // Keep the current page's attribution even when sessionStorage is denied,
+  // unreadable, or accepts a write without later returning it. Storage is only
+  // the cross-page handoff; without it, attribution intentionally ends here.
+  var attribution = readStored();
   if (Object.keys(incoming).length) {
     // New campaign arrival: start clean so identifiers never cross campaigns.
     attribution = incoming;
@@ -58,13 +71,11 @@
   }
 
   /**
-   * Snapshot for submission: stored session attribution plus the Pixel's own
+   * Snapshot for submission: current-page attribution plus the Pixel's own
    * first-party cookies (when present) and the page the form lives on.
    */
   function snapshot() {
-    var out = {};
-    var current = read();
-    Object.keys(current).forEach(function (k) { out[k] = current[k]; });
+    var out = copy(attribution);
     var fbc = cookie("_fbc");
     var fbp = cookie("_fbp");
     if (fbc) out.fbc = fbc;
@@ -85,5 +96,10 @@
     form.addEventListener("submit", fill, true);
   });
 
-  window.ttsAttribution = { read: read, snapshot: snapshot };
+  // `read` exposes current-page state. It does not promise persistence across
+  // a navigation when browser storage is unavailable.
+  window.ttsAttribution = {
+    read: function () { return copy(attribution); },
+    snapshot: snapshot
+  };
 })();

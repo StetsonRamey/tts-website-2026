@@ -9,6 +9,7 @@ The site is rendered and built with **Hugo**. A small **Go** server serves the b
 - [Hugo Extended](https://gohugo.io/installation/)
 - GNU Make
 - Go 1.26+
+- Node.js (only for browser-attribution tests)
 
 ## Quick Start
 
@@ -16,6 +17,8 @@ The site is rendered and built with **Hugo**. A small **Go** server serves the b
 make dev          # Hugo development server only: http://localhost:1313
 make build        # Hugo development build → public/
 make build-prod   # Production Hugo build → public/
+go test ./...     # Go backend tests
+node --test assets/js/attribution_test.js # Browser-attribution tests
 go run server.go  # Go server: public/ plus backend routes on :8000
 make clean        # Remove generated Hugo artifacts
 ```
@@ -81,7 +84,7 @@ City service-area pages are Hugo branch bundles at `content/service-areas/<city>
 Frontend JavaScript is progressively enhanced through Hugo-bundled files in `assets/js/`:
 
 - form validation and asynchronous contact submission
-- session attribution capture for Google/Meta click IDs and UTM parameters (`attribution.js`), carried from landing page to contact form
+- session attribution capture for Google/Meta click IDs and UTM parameters (`attribution.js`): retained in memory for the current page and carried from landing page to contact form through `sessionStorage` when available
 - Meta Pixel PageView on public marketing pages and a deduplicated browser Lead after an Airtable-confirmed save
 - phone-number formatting
 - address autocomplete

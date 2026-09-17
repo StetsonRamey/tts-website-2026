@@ -172,7 +172,10 @@ func isVanQR(rawAttribution string) bool {
 
 // formatAttribution builds a concise, allow-listed tracking summary for the
 // lead's "Tracking Metrics" field in Airtable. It never touches the comments
-// field, which the office staff uses for customer-facing notes.
+// field, which the office staff uses for customer-facing notes. Human-readable
+// values are normalized and capped for readability; opaque click and browser
+// identifiers are retained in full so CRM reconciliation and CAPI fallbacks do
+// not receive altered identifiers.
 func formatAttribution(raw, metaEventID string) string {
 	values := parseAttribution(raw)
 	if metaEventID != "" {
@@ -180,34 +183,38 @@ func formatAttribution(raw, metaEventID string) string {
 	}
 
 	fields := []struct {
-		key   string
-		label string
+		key           string
+		label         string
+		humanReadable bool
 	}{
-		{"landing_page", "Landing page"},
-		{"utm_source", "UTM source"},
-		{"utm_medium", "UTM medium"},
-		{"utm_campaign", "UTM campaign"},
-		{"utm_content", "UTM content"},
-		{"utm_term", "UTM term"},
-		{"gclid", "Google click ID"},
-		{"gbraid", "Google iOS click ID"},
-		{"wbraid", "Google web-to-app ID"},
-		{"fbclid", "Meta click ID"},
-		{"fbc", "Meta fbc"},
-		{"fbp", "Meta browser ID"},
-		{"meta_event_id", "Meta event ID"},
+		{"landing_page", "Landing page", true},
+		{"utm_source", "UTM source", true},
+		{"utm_medium", "UTM medium", true},
+		{"utm_campaign", "UTM campaign", true},
+		{"utm_content", "UTM content", true},
+		{"utm_term", "UTM term", true},
+		{"gclid", "Google click ID", false},
+		{"gbraid", "Google iOS click ID", false},
+		{"wbraid", "Google web-to-app ID", false},
+		{"fbclid", "Meta click ID", false},
+		{"fbc", "Meta fbc", false},
+		{"fbp", "Meta browser ID", false},
+		{"meta_event_id", "Meta event ID", false},
 	}
 
 	var lines []string
 	for _, field := range fields {
-		value := strings.TrimSpace(values[field.key])
-		if value == "" {
+		value := values[field.key]
+		if strings.TrimSpace(value) == "" {
 			continue
 		}
-		value = strings.ReplaceAll(value, "\r", " ")
-		value = strings.ReplaceAll(value, "\n", " ")
-		if len(value) > 200 {
-			value = value[:200]
+		if field.humanReadable {
+			value = strings.TrimSpace(value)
+			value = strings.ReplaceAll(value, "\r", " ")
+			value = strings.ReplaceAll(value, "\n", " ")
+			if len(value) > 200 {
+				value = value[:200]
+			}
 		}
 		lines = append(lines, fmt.Sprintf("%s: %s", field.label, value))
 	}

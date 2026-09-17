@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -154,6 +155,23 @@ func TestFormatAttributionRetainsMetaIdentifiers(t *testing.T) {
 	}
 }
 
+func TestFormatAttributionPreservesCompleteOpaqueIdentifiers(t *testing.T) {
+	fbclid := strings.Repeat("f", 214)
+	fbc := "fb.1.1700000000000." + strings.Repeat("c", 214)
+	fbp := "fb.1.1700000000000." + strings.Repeat("p", 214)
+	raw := fmt.Sprintf(`{"utm_campaign":"%s","fbclid":"%s","fbc":"%s","fbp":"%s"}`,
+		strings.Repeat("u", 220), fbclid, fbc, fbp)
+
+	got := formatAttribution(raw, "")
+	want := "UTM campaign: " + strings.Repeat("u", 200) +
+		"\nMeta click ID: " + fbclid +
+		"\nMeta fbc: " + fbc +
+		"\nMeta browser ID: " + fbp
+	if got != want {
+		t.Fatalf("formatAttribution() altered opaque identifiers:\n got %q\nwant %q", got, want)
+	}
+}
+
 func TestFormatAttributionIgnoresInvalidData(t *testing.T) {
 	if got := formatAttribution("not json", ""); got != "" {
 		t.Fatalf("formatAttribution() = %q, want empty", got)
@@ -205,6 +223,50 @@ func TestMetaLeadEventPrefersPixelCookiesAndExcludesInquiryData(t *testing.T) {
 	e4 := metaLeadEvent(req2, fd, "tts-lead-4", at)
 	if e4.FBC != "" || e4.FBP != "" || e4.SourceURL != "https://tistheseasonkc.com/contact/" {
 		t.Fatalf("unexpected synthesized data: %+v", e4)
+	}
+}
+
+func TestMetaLeadEventPreservesCompleteCookieAndAttributionFallbacks(t *testing.T) {
+	cookieFBC := "fb.1.1700000000000." + strings.Repeat("c", 214)
+	cookieFBP := "fb.1.1700000000000." + strings.Repeat("p", 214)
+	fallbackFBC := "fb.1.1700000000000." + strings.Repeat("f", 214)
+	fallbackFBP := "fb.1.1700000000000." + strings.Repeat("b", 214)
+	fd := validFormData()
+	fd.Attribution = fmt.Sprintf(`{"fbc":"%s","fbp":"%s"}`, fallbackFBC, fallbackFBP)
+	at := time.Unix(1_700_000_000, 0)
+
+	req := httptest.NewRequest(http.MethodPost, "/contact", nil)
+	req.AddCookie(&http.Cookie{Name: "_fbc", Value: cookieFBC})
+	req.AddCookie(&http.Cookie{Name: "_fbp", Value: cookieFBP})
+	fromCookie := metaLeadEvent(req, fd, "tts-lead-1", at)
+	if fromCookie.FBC != cookieFBC || fromCookie.FBP != cookieFBP {
+		t.Fatalf("request cookies must win unchanged: %+v", fromCookie)
+	}
+
+	fromAttribution := metaLeadEvent(httptest.NewRequest(http.MethodPost, "/contact", nil), fd, "tts-lead-2", at)
+	if fromAttribution.FBC != fallbackFBC || fromAttribution.FBP != fallbackFBP {
+		t.Fatalf("attribution fallback altered: %+v", fromAttribution)
+	}
+
+	fromClick := metaLeadEvent(httptest.NewRequest(http.MethodPost, "/contact", nil), FormData{
+		Attribution: fmt.Sprintf(`{"fbclid":"%s","fbclid_ts":"1700000000000"}`, strings.Repeat("i", 214)),
+	}, "tts-lead-3", at)
+	wantClickFBC := "fb.1.1700000000000." + strings.Repeat("i", 214)
+	if fromClick.FBC != wantClickFBC {
+		t.Fatalf("fbclid fallback altered: %q", fromClick.FBC)
+	}
+
+	form, err := (&services.MetaClient{}).Payload(fromAttribution)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var events []map[string]any
+	if err := json.Unmarshal([]byte(form.Get("data")), &events); err != nil {
+		t.Fatal(err)
+	}
+	userData := events[0]["user_data"].(map[string]any)
+	if userData["fbc"] != fallbackFBC || userData["fbp"] != fallbackFBP {
+		t.Fatalf("CAPI payload altered attribution fallback: %v", userData)
 	}
 }
 
