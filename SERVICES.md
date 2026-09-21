@@ -166,6 +166,18 @@ For a reported unexpected charge, investigate read-only before changing billing 
 5. Separately list charges, invoices, and subscriptions (`status=all`) for the reported customer, following pagination. This distinguishes a misidentified payment from a real unexpected renewal or another payment. A missing Stripe `payment_link` object does not mean the customer never opened our `/pay` link, which creates a Checkout Session directly.
 6. State what the evidence establishes and what remains unknown (for example, how the person obtained the link). Confirm property ownership/contact details before proposing customer renames, refunds, payment reassignment, or CRM paid-state changes. Keep private API responses and customer identifiers out of Git.
 
+#### Periodic duplicate and contact audit
+
+Run this read-only; obtaining an audit is not authorization to rename, unlink, detach payment methods, or delete customers.
+
+- Page through live Stripe Customers and compare them with both Master Customers and the 2026 Leads table. Group exact case-insensitive emails and normalized names, then corroborate with phone, address, payment history, and the Airtable property. Shared family or business email addresses can legitimately represent several properties; an email match alone is not a duplicate to delete.
+- Check both directions of the relationship: multiple Stripe customers for one person/property, and multiple Master Customers records sharing one Stripe customer ID. **The current webhook resolves a Stripe ID using `GetCustomerByStripeID` and takes the first Airtable match.** Shared IDs are therefore ambiguous for marking a particular property paid, even when the payer legitimately owns both properties. Preserve this finding for a separately authorized mapping/code fix; do not merge property records to hide it.
+- Compare Stripe's name/email with the currently linked Airtable contact, including records whose property changed owners. Inspect the charge's billing name and `receipt_email` separately from the customer profile. A correct payment and paid flag can coexist with a receipt addressed to an outdated contact.
+- For flagged records, inspect attached payment methods and defaults. Distinguish the saved method from the method used for a particular payment. A missing billing name does not prove card ownership; verify before detaching anything, and never relabel a previous owner's bank/card as the new owner's.
+- Check subscription schedules, subscriptions (`status=all`), and invoice status/collection settings separately. A duplicate profile or saved card is not evidence of automatic billing. Historical paid/void automatic-collection invoices must not be reported as future scheduled charges.
+- Reconcile this season's successful, non-fully-refunded charges to the linked paid flags; identify internal tests explicitly. Missing Stripe IDs or unpaid CRM rows need context before declaring a lost webhook or a duplicate charge.
+- Keep raw exports and customer-specific reports outside the repository and the public web root, with owner-only filesystem permissions. Record snapshot time, pagination completeness, matching rules, and audit scope. Do not publish private customer reports through the public listener.
+
 ### Estimate Email and Photo Hosting
 
 **Routes:** `POST /estimate/send`, `GET /photos/{filename}`
