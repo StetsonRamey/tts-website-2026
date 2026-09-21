@@ -149,6 +149,23 @@ The Stripe Dashboard endpoint must subscribe to both event types in the applicab
 
 Configure Stripe Dashboard endpoints for the actual deployed public hostname and mode. This is deployment state, not a repository guarantee.
 
+### Payment Policy and Unexpected-charge Investigation
+
+Customer payments must remain customer-initiated: customers open their payment link and confirm payment on Stripe's hosted page. Signup and reminder delivery are not authorization to charge a saved payment method.
+
+- `services/checkout.go` explicitly uses `mode=payment` with one-time line items; it does not create subscriptions or request `setup_future_usage` for later off-session charges. Creating a Checkout Session is not itself payment confirmation.
+- `services/invoice.go` explicitly uses `collection_method=send_invoice` and `auto_advance=false`, then finalizes the invoice to obtain the customer-facing payment URL. Do not change this to `charge_automatically`.
+- Do not introduce subscription renewals, off-session payment confirmation, or automation that charges a saved card without an explicit change to this business policy. Dashboard actions and external automations are separate from this repository and must be audited separately if suspected.
+
+For a reported unexpected charge, investigate read-only before changing billing or CRM state:
+
+1. Retrieve the exact PaymentIntent from the appropriate Stripe mode, expanding `latest_charge`. Confirm its actual `customer`, amount/currency, creation time, status, invoice relationship, billing name, and wallet type. Do not assume the supplied customer ID owns the supplied payment ID.
+2. Look up Checkout Sessions with `GET /v1/checkout/sessions?payment_intent=<id>`. Inspect the session's customer, mode, payment status, line items, and any subscription/invoice relationship. If there is an invoice or subscription, inspect its collection settings and event history rather than assuming Checkout initiated it.
+3. Find the Airtable Customers record by the PaymentIntent's actual Stripe customer ID. Compare it with the reported Airtable record and invoice amount. Stripe display names can be stale, especially when properties or contacts change; distinguish customer identity from the charge's billing name. A billing name alone does not prove who authorized payment.
+4. Correlate the Checkout Session and PaymentIntent IDs with `journalctl -u tts.service` and Stripe events. Server timestamps are UTC; convert explicitly to `America/Chicago` for customer discussions. Look for both `[checkout] session ... created` and `[webhook] marked paid` on the actual record. An unpaid *different* record does not establish that the webhook failed.
+5. Separately list charges, invoices, and subscriptions (`status=all`) for the reported customer, following pagination. This distinguishes a misidentified payment from a real unexpected renewal or another payment. A missing Stripe `payment_link` object does not mean the customer never opened our `/pay` link, which creates a Checkout Session directly.
+6. State what the evidence establishes and what remains unknown (for example, how the person obtained the link). Confirm property ownership/contact details before proposing customer renames, refunds, payment reassignment, or CRM paid-state changes. Keep private API responses and customer identifiers out of Git.
+
 ### Estimate Email and Photo Hosting
 
 **Routes:** `POST /estimate/send`, `GET /photos/{filename}`
