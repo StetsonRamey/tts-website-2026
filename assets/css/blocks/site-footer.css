@@ -59,6 +59,47 @@
         font-size: var(--step--1);
     }
 
+    /* ── "We're Hiring" badge ── */
+    .site-footer__hiring {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45em;
+        margin-block-start: var(--space-2xs);
+        padding: 0.3em 0.9em;
+        border: 1px solid var(--color-primary);
+        border-radius: 999px;
+        font-size: var(--step--2);
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--color-primary);
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .site-footer__hiring:hover {
+        background-color: var(--color-primary);
+        color: var(--color-band);
+    }
+
+    .site-footer__hiring-dot {
+        inline-size: 0.55em;
+        block-size: 0.55em;
+        border-radius: 50%;
+        background-color: var(--color-secondary);
+        animation: hiring-pulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes hiring-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .site-footer__hiring-dot {
+            animation: none;
+        }
+    }
+
     .site-footer__bottom {
         display: flex;
         justify-content: space-between;

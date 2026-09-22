@@ -25,7 +25,7 @@ Tis The Season KC is a holiday-lighting website at `tistheseasonkc.com`.
 | Page content | `content/` |
 | Page layouts and shared SEO/UI partials | `layouts/` |
 | Paid Google Ads estimate landing page | `content/free-estimate/`, `layouts/free-estimate/`, `assets/js/landing-tracking.js` |
-| Seasonal-installer job posting (info only; candidates are collected in Indeed, no form) | `content/jobs/`, `layouts/jobs/single.html` |
+| Seasonal-installer job posting (info only; candidates apply via the public Indeed posting linked from the page's Apply button — no form) | `content/jobs/`, `layouts/jobs/single.html` |
 | Campaign attribution + conversion tracking (Google Ads, Meta Pixel/CAPI, Umami) | `assets/js/attribution.js`, `assets/js/form-submit.js`, `layouts/partials/meta-pixel.html`, `services/meta.go`, `SERVICES.md` |
 | CSS and progressive-enhancement JavaScript | `assets/css/`, `assets/js/` |
 | Passthrough public assets | `static/` |
