@@ -18,6 +18,9 @@
 .gap-m  { gap: var(--space-m); }
 .gap-l  { gap: var(--space-l); }
 
+/* --- List utilities --- */
+.bulleted     { list-style: disc; padding-inline-start: 1.25em; }
+
 /* --- Typography utilities --- */
 .text-center  { text-align: center; }
 /*.text-center p:not(.overline) { text-align: left; }*/
