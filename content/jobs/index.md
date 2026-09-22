@@ -2,7 +2,7 @@
 title: 'Seasonal Holiday Lighting Installer'
 description: 'Seasonal holiday lighting installer job in Lee''s Summit, MO. $20–$25 per hour, weekly pay of $850–$1,100, no experience required. Apply through our Indeed posting.'
 seo:
-  og_image: '/images/og/social.jpg'
+  og_image: '/images/og/jobs.jpg'
   og_type: 'website'
   schema_type: ''
 keywords:
