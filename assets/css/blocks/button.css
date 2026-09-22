@@ -17,4 +17,15 @@
         background-color: var(--color-band);
         color: var(--color-white);
     }
+
+    /* ── Variant: brand-pink border on hover ──
+       The border is always present but transparent so enabling it on hover
+       doesn't shift the button's layout. */
+    .button--pink-border {
+        border: 2px solid transparent;
+    }
+
+    .button--pink-border:hover {
+        border-color: var(--color-secondary);
+    }
 }

@@ -76,9 +76,12 @@
         transition: background-color 0.2s ease, color 0.2s ease;
     }
 
-    .site-footer__hiring:hover {
+    /* Extra specificity so this beats `.site-footer a:hover` (which would
+       paint the label teal on the teal fill). Black text reads on the fill
+       in both light and dark themes. */
+    .site-footer .site-footer__hiring:hover {
         background-color: var(--color-primary);
-        color: var(--color-band);
+        color: var(--color-black);
     }
 
     .site-footer__hiring-dot {
