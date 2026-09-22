@@ -1,26 +1,122 @@
 {{ define "main" }}
 <main id="main-content">
     {{ partial "breadcrumbs.html" . }} {{/* ── Hero ── */}}
-    <section class="hero region bg-light" aria-label="Jobs">
+    <section class="hero region bg-light" aria-label="Job posting">
         <div class="wrapper text-center flow">
-            <p class="overline">Join Our Team</p>
-            <h1 data-balance>Work With Us</h1>
-            <p>
-                We're always looking for dependable people to join our crew for the holiday season. Fill out the
-                application below and we'll be in touch.
+            <p class="overline">Now Hiring · Lee's Summit, MO</p>
+            <h1 data-balance>Seasonal Holiday Lighting Installer</h1>
+            <p style="max-width: 60rem; margin-inline: auto">
+                Join the Tis the Season crew for the holiday season. Great pay, a fun team, and paid training — no
+                experience required.
+            </p>
+            <p class="cluster" style="justify-content: center; font-weight: 700">
+                <span>$20–$25 per hour</span> · <span>$850–$1,100 per week</span> · <span>Posted October 5, 2024</span>
             </p>
         </div>
     </section>
 
-    {{/* ── Application Form Embed ── */}}
-    <section class="region" aria-label="Job application form">
-        <div class="wrapper flow" style="--wrapper-max: 50rem">
-            <div
-                class="jobs-form"
-                data-zite-id="26lkxpvj47"
-                data-zite-embed-type="standard"
-                data-zite-inherit-parameters></div>
-            <script src="https://server.fillout.com/embed/v2-zite/"></script>
+    {{/* ── Who We Are ── */}}
+    <section class="region" aria-label="Who we are">
+        <div class="wrapper flow" style="--wrapper-max: 60rem">
+            <p class="overline">Who We Are</p>
+            <h2>A Local Company That Works Alongside You</h2>
+            <p>
+                We're Tis the Season Holiday Lighting — a local Lee's Summit holiday lighting company in our 8th year
+                of business. We install lighting on over 800 homes and businesses in the Lee's Summit area each year.
+                Our owners are heavily involved in the business and still work in the field installing lights with the
+                crews each season.
+            </p>
+            <p>
+                We're looking for seasonal help with our installations and we'd love to hear from you. We pay great,
+                we're fun to work for, and we have a great time doing what we do.
+            </p>
+            <p>
+                There is no experience required for this role. If you have some, that's great — but we provide all the
+                training to get you up to speed, and you'll receive ample hands-on experience.
+            </p>
+        </div>
+    </section>
+
+    {{/* ── What You Will Do ── */}}
+    <section class="region bg-dark" aria-label="What you will do">
+        <div class="wrapper flow" style="--wrapper-max: 60rem">
+            <p class="overline">The Work</p>
+            <h2>What You Will Do</h2>
+            <ul role="list" style="max-width: 60rem">
+                <li>
+                    Work with our team to install holiday lighting on our existing customers' homes and commercial
+                    businesses.
+                </li>
+                <li>Work with our team to custom fit new holiday lighting for new customers' homes and businesses.</li>
+            </ul>
+        </div>
+    </section>
+
+    {{/* ── What You'll Need ── */}}
+    <section class="region" aria-label="What you'll need">
+        <div class="wrapper flow" style="--wrapper-max: 60rem">
+            <p class="overline">Requirements</p>
+            <h2>What You'll Need</h2>
+            <ul role="list" style="max-width: 60rem">
+                <li>Comfort with heights.</li>
+                <li>Physical capability to move aluminum ladders around and ascend and descend them.</li>
+                <li>
+                    A healthy sense of caution and care — we work on ladders and roofs, and we must be careful doing
+                    so.
+                </li>
+                <li>Ability to work well in a team environment.</li>
+                <li>Willingness and aptitude to pick up skills through direction and observation.</li>
+                <li>
+                    Comfort with physical work — you'll be working with your hands, on your feet, and up and down
+                    ladders for the majority of the day.
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    {{/* ── Hours & Pay ── */}}
+    <section class="region bg-light" aria-label="Hours and pay">
+        <div class="wrapper flow" style="--wrapper-max: 60rem">
+            <p class="overline">Hours &amp; Pay</p>
+            <h2>Hours, Pay, and the Season</h2>
+            <ul role="list" style="max-width: 60rem">
+                <li>Weekly pay ranges between $850 – $1,100 per week ($20.00 – $25.00 per hour).</li>
+                <li>We start at 8am and are generally done by mid-afternoon (though an occasional late day happens).</li>
+                <li>Our season runs from now until around December 10th.</li>
+                <li>We generally need to work some Saturdays to keep our schedule on track.</li>
+                <li>Job types: Full-time, Temporary.</li>
+            </ul>
+        </div>
+    </section>
+
+    {{/* ── Photos ── */}}
+    <section class="region" aria-label="Our work">
+        <div class="wrapper flow">
+            <p class="overline">Our Work</p>
+            <h2>Homes You Could Be Lighting</h2>
+            <p style="max-width: 60rem">
+                These are displays our crews designed and installed around Lee's Summit and Raymore. See more in our
+                <a href="/gallery/">gallery</a>.
+            </p>
+            <div class="gallery__grid grid" style="--grid-min-item-size: 18rem; gap: 0.75rem">
+                {{ range .Params.job_images }}
+                    <figure class="gallery-card">
+                        {{ partial "image.html" (dict "src" .src "alt" .alt "sizes" "(min-width: 90rem) 28rem, (min-width: 60rem) 42vw, 90vw" "lazy" true "class" "") }}
+                    </figure>
+                {{ end }}
+            </div>
+        </div>
+    </section>
+
+    {{/* ── How to Apply ── */}}
+    <section class="region bg-dark" aria-label="How to apply">
+        <div class="wrapper text-center flow">
+            <p class="overline">How to Apply</p>
+            <h2>We'd Love to Hear From You</h2>
+            <p style="max-width: 60rem; margin-inline: auto">
+                We collect applications through our Indeed posting. If you found this page from our listing, head back
+                to Indeed to apply — and we'll see you soon.
+            </p>
         </div>
     </section>
 </main>

@@ -95,6 +95,7 @@ Shared Hugo partials also provide canonical URLs, Open Graph/Twitter metadata, s
 ## Special-Purpose Pages
 
 - `/free-estimate/` — focused paid-campaign landing page with a minimal header, estimate form above the fold, paid-click attribution capture, and noindex metadata while it is used as an ad destination.
+- `/jobs/` — static seasonal-installer job posting (`content/jobs/`, `layouts/jobs/single.html`). Information only: applications are collected via Indeed, so there is no form or backend handler; the page reuses gallery photos and standard site chrome.
 - `/thank-you/` — post-contact confirmation with next steps (`content/thank-you/`, custom layout).
 - `/review/ — customer-facing Google review solicitation page for the annual review drawing (5 winners, $75 off install). Linked from the Fillout signup form; `noindex` and excluded from the sitemap since it is not organic-search content (`content/review/`, custom layout).
 
