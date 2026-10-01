@@ -192,6 +192,35 @@ The authenticated estimate endpoint accepts `{"recordId":"rec..."}`, loads a lea
 
 Both authenticated endpoints accept an Airtable record ID, fetch the lead, and send Gmail SMTP communication. The confirmation flow renders `services/email_templates/confirmation.html`; the out-of-service flow sends a plain-text notice.
 
+For the “Full for This Area” Airtable automation, map the trigger record's Airtable ID to a Run script input named `recordId`, and add `WEBHOOK_AUTH_KEY` as an Airtable secret. Use this script:
+
+```js
+const { recordId } = input.config();
+const WEBHOOK_URL = "https://tistheseasonkc.com/oos/send";
+const WEBHOOK_AUTH_KEY = input.secret("WEBHOOK_AUTH_KEY");
+
+if (!recordId) throw new Error("Missing Airtable recordId input");
+
+const response = await fetch(WEBHOOK_URL, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${WEBHOOK_AUTH_KEY}`
+    },
+    body: JSON.stringify({ recordId })
+});
+
+const result = await response.json().catch(() => ({}));
+if (!response.ok) {
+    throw new Error(result.error || `Email request failed: HTTP ${response.status}`);
+}
+
+console.log(`Email sent to ${result.data.recipient}`);
+console.log(`Subject: ${result.data.subject}`);
+```
+
+The endpoint looks up the recipient and first name from the trigger record in the Leads base. It replies with `data.recipient` and `data.subject` (SMTP does not provide a message ID here). The notice uses the supplied wording, remains `text/plain`, and keeps the subject “Thanks for Contacting Us!”. The previous `estimates.tistheseasonkc.com/full` URL and `{firstName, email}` request body do not match this Go server route.
+
 All three customer-facing email handlers (estimate, confirmation, oos) route the recipient through `resolveRecipient` (`services/emailtest.go`): when `EMAIL_TEST_TO` is set, mail is delivered to that address instead of the lead's email and the redirect is logged. Unset/empty means normal delivery.
 
 All three handlers alert on failure: if lead fetch, template render, or Gmail SMTP delivery fails (or a requested lead is not found), they send an error email to `ERROR_EMAIL_TO` (default `stetson@tts.lighting`) and report the message to Sentry via `cfg.sendErrorEmail` (which wraps `CaptureMessage`) — the same alert path used by checkout/webhook/invoice/sold-sync. Photo-staging failures are non-fatal (the email still sends without photos) but still trigger the alert so re-hosting problems are visible. Successful sends are logged with the recipient.

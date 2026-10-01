@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"net/smtp"
 	"os"
-	"strings"
 )
 
 // OOSHandler returns the http.HandlerFunc for POST /oos/send.
@@ -24,11 +23,7 @@ func OOSHandler(cfg *Config) http.HandlerFunc {
 			return
 		}
 
-		authHeader := r.Header.Get("Authorization")
-		if strings.TrimPrefix(authHeader, "Bearer ") != os.Getenv("WEBHOOK_AUTH_KEY") {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(`{"error":"unauthorized"}`))
+		if !RequireBearerAuth(w, r) {
 			return
 		}
 
@@ -55,18 +50,35 @@ func OOSHandler(cfg *Config) http.HandlerFunc {
 			return
 		}
 
-		if err := sendOOSEmail(resolveRecipient(lead.Email), lead.FirstName); err != nil {
+		recipient := resolveRecipient(lead.Email)
+		if err := sendOOSEmail(recipient, lead.FirstName); err != nil {
 			log.Printf("[oos] email send failed: %v", err)
 			cfg.sendErrorEmail(fmt.Sprintf("oos: send to %s (%s) failed: %v",
-				lead.FullName+" <"+lead.Email+">", req.RecordID, err))
+				lead.FullName+" <"+recipient+">", req.RecordID, err))
 			http.Error(w, `{"error":"email send failed"}`, http.StatusInternalServerError)
 			return
 		}
 
-		log.Printf("[oos] sent to %s %s (%s)", lead.FirstName, lead.LastName, lead.Email)
+		subject := oosEmailSubject
+		log.Printf("[oos] sent to %s %s (%s)", lead.FirstName, lead.LastName, recipient)
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`{"ok":true}`))
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": true,
+			"data": map[string]string{
+				"recipient": recipient,
+				"subject":   subject,
+			},
+		})
 	}
+}
+
+const oosEmailSubject = "Thanks for Contacting Us!"
+
+func oosEmailBody(firstName string) string {
+	return fmt.Sprintf(
+		"Hi %s,\r\n\r\nWe are not taking new clients in your neighborhood. Sorry that we cannot help, but thanks for reaching out to us!\r\n\r\nThank You🌲",
+		firstName,
+	)
 }
 
 func sendOOSEmail(to, firstName string) error {
@@ -80,20 +92,14 @@ func sendOOSEmail(to, firstName string) error {
 		return fmt.Errorf("GMAIL_SEND_AS or GMAIL_APP_PASSWORD not set")
 	}
 
-	body := fmt.Sprintf(
-		"Hi %s. Unfortunately you are out of our service area so we can't provide you with an estimate. "+
-			"We appreciate you finding us and visiting our website. Have a great holiday!\r\n\r\nThank you \U0001f384",
-		firstName,
-	)
-
 	var msg bytes.Buffer
 	msg.WriteString("From: Tis The Season KC <" + from + ">\r\n")
 	msg.WriteString("To: " + to + "\r\n")
-	msg.WriteString("Subject: Thanks for Contacting Us!\r\n")
+	msg.WriteString("Subject: " + oosEmailSubject + "\r\n")
 	msg.WriteString("MIME-Version: 1.0\r\n")
 	msg.WriteString("Content-Type: text/plain; charset=UTF-8\r\n")
 	msg.WriteString("\r\n")
-	msg.WriteString(body)
+	msg.WriteString(oosEmailBody(firstName))
 
 	auth := smtp.PlainAuth("", user, pass, "smtp.gmail.com")
 	return smtp.SendMail("smtp.gmail.com:587", auth, from, []string{to}, msg.Bytes())
