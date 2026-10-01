@@ -197,7 +197,7 @@ Map the Airtable automation's first-name and email values to Run script inputs n
 
 ```js
 const { firstName, email } = input.config();
-const WEBHOOK_URL = "https://estimates.tistheseasonkc.com/full";
+const WEBHOOK_URL = "https://tistheseasonkc.com/full";
 const WEBHOOK_AUTH_KEY = input.secret("WEBHOOK_AUTH_KEY");
 
 if (!firstName || !email) {
