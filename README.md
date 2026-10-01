@@ -113,7 +113,7 @@ The public Go listener runs on port `8000`. It serves `public/` and backend rout
 
 - **Contact intake** (`/contact`) — accepts HTML form and JSON POSTs; validates fields, applies anti-spam checks, writes accepted leads to Airtable before acknowledging success, exposes an Airtable-confirmed signal (plus a shared Meta event ID) for browser conversion tracking, and sends a server-side Meta Conversions API Lead.
 - **Payments** (`/pay`, `/stripe/webhook`) — Stripe Checkout and signed webhook handling.
-- **Operational automations** (`/estimate/send`, `/confirmation/send`, `/oos/send`, `/sold/sync`, `/invoice/create`) — authenticated email, CRM, CompanyCam, and invoicing workflows.
+- **Operational automations** (`/estimate/send`, `/confirmation/send`, `/oos/send`, `/full`, `/sold/sync`, `/invoice/create`) — authenticated email, CRM, CompanyCam, and invoicing workflows.
 - **Analytics and observability** — first-party Umami proxy (`/analytics/*`), Meta Conversions API delivery (`services/meta.go`), Sentry error reporting, a bot/crawler dashboard (`/internal/bots`), and a synthetic Meta test-event tool (`/internal/meta-test`, internal listener).
 - **Photo hosting** (`/photos/*`) — permanent serving of staged photos used in estimate emails.
 - **Static-site middleware** — canonical `www` and legacy URL redirects, security headers, a Hugo-styled 404 response, and cache headers: one year immutable for CSS/JS/fonts, 30 days for images, and one hour for other responses.

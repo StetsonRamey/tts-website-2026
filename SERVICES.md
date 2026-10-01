@@ -26,6 +26,7 @@ TTS/
 │   ├── estimate.go                 # POST /estimate/send and GET /photos/*
 │   ├── confirmation.go             # POST /confirmation/send
 │   ├── oos.go                      # POST /oos/send
+│   ├── full_area.go                # POST /full
 │   ├── emailtest.go                # EMAIL_TEST_TO recipient override for customer emails
 │   ├── sold_sync.go                # POST /sold/sync
 │   ├── invoice.go                  # POST /invoice/create
@@ -83,7 +84,7 @@ Startup logs identify the selected mode. Do not switch modes casually: validate 
 | `GMAIL_USER` | Optional SMTP authentication account; defaults to `GMAIL_SEND_AS` when unset |
 | `GMAIL_SEND_AS` | SMTP envelope/from address and visible sender alias |
 | `GMAIL_APP_PASSWORD` | Gmail App Password used for SMTP |
-| `EMAIL_TEST_TO` | Optional test-recipient override; when set, all automated customer emails (estimate, confirmation, out-of-service) go to this address instead of the lead's email |
+| `EMAIL_TEST_TO` | Optional test-recipient override; when set, all automated customer emails (estimate, confirmation, out-of-service, full-area) go to this address instead of the lead's email |
 | `ERROR_EMAIL_TO` | Recipient for backend error alerts; defaults to `stetson@tts.lighting` |
 | `SENTRY_DSN` | Optional Sentry DSN; unset disables Sentry reporting |
 | `INTERNAL_PORT` | Internal owner-only listener port; defaults to `3001`, or `0` disables it |
@@ -185,21 +186,23 @@ Run this read-only; obtaining an audit is not authorization to rename, unlink, d
 
 The authenticated estimate endpoint accepts `{"recordId":"rec..."}`, loads a lead from Airtable, downloads its photo attachments before their Airtable CDN URLs expire, writes permanent copies under `/var/lib/tts/photos/`, renders the estimate template, and sends it by Gmail SMTP. The photo route serves those staged copies at the public site hostname for use in the email.
 
-### Confirmation and Out-of-Service Emails
+### Confirmation, Out-of-Service, and Full-Area Emails
 
-**Routes:** `POST /confirmation/send`, `POST /oos/send`
-**Code:** `services/confirmation.go`, `services/oos.go`
+**Routes:** `POST /confirmation/send`, `POST /oos/send`, `POST /full`
+**Code:** `services/confirmation.go`, `services/oos.go`, `services/full_area.go`
 
-Both authenticated endpoints accept an Airtable record ID, fetch the lead, and send Gmail SMTP communication. The confirmation flow renders `services/email_templates/confirmation.html`; the out-of-service flow sends a plain-text notice.
+The confirmation and out-of-service endpoints accept an Airtable record ID, fetch the lead, and send Gmail SMTP communication. The confirmation flow renders `services/email_templates/confirmation.html`; the out-of-service flow sends its existing plain-text notice. The separate `/full` endpoint accepts `firstName` and `email` from the “Full for This Area” Airtable automation and sends the full-area plain-text email.
 
-For the “Full for This Area” Airtable automation, map the trigger record's Airtable ID to a Run script input named `recordId`, and add `WEBHOOK_AUTH_KEY` as an Airtable secret. Use this script:
+Map the Airtable automation's first-name and email values to Run script inputs named `firstName` and `email`, and add `WEBHOOK_AUTH_KEY` as an Airtable secret. Use this script:
 
 ```js
-const { recordId } = input.config();
-const WEBHOOK_URL = "https://tistheseasonkc.com/oos/send";
+const { firstName, email } = input.config();
+const WEBHOOK_URL = "https://estimates.tistheseasonkc.com/full";
 const WEBHOOK_AUTH_KEY = input.secret("WEBHOOK_AUTH_KEY");
 
-if (!recordId) throw new Error("Missing Airtable recordId input");
+if (!firstName || !email) {
+    throw new Error("Missing firstName or email input");
+}
 
 const response = await fetch(WEBHOOK_URL, {
     method: "POST",
@@ -207,7 +210,7 @@ const response = await fetch(WEBHOOK_URL, {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${WEBHOOK_AUTH_KEY}`
     },
-    body: JSON.stringify({ recordId })
+    body: JSON.stringify({ firstName, email })
 });
 
 const result = await response.json().catch(() => ({}));
@@ -215,15 +218,16 @@ if (!response.ok) {
     throw new Error(result.error || `Email request failed: HTTP ${response.status}`);
 }
 
-console.log(`Email sent to ${result.data.recipient}`);
+console.log("Full-area email sent successfully");
+console.log(`Recipient: ${result.data.recipient}`);
 console.log(`Subject: ${result.data.subject}`);
 ```
 
-The endpoint looks up the recipient and first name from the trigger record in the Leads base. It replies with `data.recipient` and `data.subject` (SMTP does not provide a message ID here). The notice uses the supplied wording, remains `text/plain`, and keeps the subject “Thanks for Contacting Us!”. The previous `estimates.tistheseasonkc.com/full` URL and `{firstName, email}` request body do not match this Go server route.
+The handler sends the supplied full-area wording as `text/plain` and replies with `data.recipient` and `data.subject`. SMTP does not provide a message ID here.
 
-All three customer-facing email handlers (estimate, confirmation, oos) route the recipient through `resolveRecipient` (`services/emailtest.go`): when `EMAIL_TEST_TO` is set, mail is delivered to that address instead of the lead's email and the redirect is logged. Unset/empty means normal delivery.
+All customer-facing email handlers (estimate, confirmation, oos, full-area) route the recipient through `resolveRecipient` (`services/emailtest.go`): when `EMAIL_TEST_TO` is set, mail is delivered to that address instead of the lead's email and the redirect is logged. Unset/empty means normal delivery.
 
-All three handlers alert on failure: if lead fetch, template render, or Gmail SMTP delivery fails (or a requested lead is not found), they send an error email to `ERROR_EMAIL_TO` (default `stetson@tts.lighting`) and report the message to Sentry via `cfg.sendErrorEmail` (which wraps `CaptureMessage`) — the same alert path used by checkout/webhook/invoice/sold-sync. Photo-staging failures are non-fatal (the email still sends without photos) but still trigger the alert so re-hosting problems are visible. Successful sends are logged with the recipient.
+These handlers alert on failures through `cfg.sendErrorEmail` (which wraps `CaptureMessage`) — the same alert path used by checkout/webhook/invoice/sold-sync. Photo-staging failures on estimates are non-fatal but still trigger an alert. Successful sends are logged with the recipient.
 
 Because requests arrive through the exe.dev edge proxy (which can return transient `503 Service Unavailable` before the request reaches this VM — that response body carries a `trace:` id and `x-trace-id` header, and never appears in `journalctl`), the calling Airtable automation should retry on 5xx/network errors with a short backoff (e.g. 3 attempts, ~5 s apart) and surface the final `trace:` id if it still fails.
 
@@ -325,6 +329,7 @@ The `llms.txt` file at `/llms.txt` (served from `static/llms.txt`) provides a hu
 | `POST` | `/estimate/send` | Bearer token required |
 | `POST` | `/confirmation/send` | Bearer token required |
 | `POST` | `/oos/send` | Bearer token required |
+| `POST` | `/full` | Bearer token required |
 | `POST` | `/sold/sync` | Bearer token required |
 | `POST` | `/invoice/create` | Bearer token required |
 | `GET` | `/photos/{filename}` | Public permanent email-photo URLs |

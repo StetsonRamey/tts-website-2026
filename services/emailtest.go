@@ -2,8 +2,8 @@ package services
 
 // Test-recipient override for automated customer emails.
 //
-// When EMAIL_TEST_TO is set, every customer-facing email sent by the
-// estimate, confirmation, and oos handlers is delivered to that address
+// When EMAIL_TEST_TO is set, every customer-facing email sent by the estimate,
+// confirmation, oos, and full-area handlers is delivered to that address
 // instead of the lead's email from Airtable. Empty/unset = normal behavior.
 // Used to preview real production emails before they go to live clients.
 
