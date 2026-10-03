@@ -191,7 +191,7 @@ The authenticated estimate endpoint accepts `{"recordId":"rec..."}`, loads a lea
 **Routes:** `POST /confirmation/send`, `POST /oos/send`, `POST /full`
 **Code:** `services/confirmation.go`, `services/oos.go`, `services/full_area.go`
 
-The confirmation and out-of-service endpoints accept an Airtable record ID, fetch the lead, and send Gmail SMTP communication. The confirmation flow renders `services/email_templates/confirmation.html`; the out-of-service flow sends its existing plain-text notice. The separate `/full` endpoint accepts `firstName` and `email` from the “Full for This Area” Airtable automation and sends the full-area plain-text email.
+The confirmation and out-of-service endpoints accept an Airtable record ID, fetch the lead, and send Gmail SMTP communication. The confirmation flow renders `services/email_templates/confirmation.html`; the out-of-service flow sends its existing plain-text notice. On success, `/oos/send` returns `{"success":true,"data":{"recipient":"…","subject":"Thanks for Contacting Us!"}}`, matching the Airtable script's recipient/subject logging. The separate `/full` endpoint accepts `firstName` and `email` from the “Full for This Area” Airtable automation and sends the full-area plain-text email.
 
 Map the Airtable automation's first-name and email values to Run script inputs named `firstName` and `email`, and add `WEBHOOK_AUTH_KEY` as an Airtable secret. Use this script:
 

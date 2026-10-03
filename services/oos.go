@@ -16,6 +16,8 @@ import (
 	"strings"
 )
 
+const oosEmailSubject = "Thanks for Contacting Us!"
+
 // OOSHandler returns the http.HandlerFunc for POST /oos/send.
 func OOSHandler(cfg *Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +57,8 @@ func OOSHandler(cfg *Config) http.HandlerFunc {
 			return
 		}
 
-		if err := sendOOSEmail(resolveRecipient(lead.Email), lead.FirstName); err != nil {
+		recipient := resolveRecipient(lead.Email)
+		if err := sendOOSEmail(recipient, lead.FirstName); err != nil {
 			log.Printf("[oos] email send failed: %v", err)
 			cfg.sendErrorEmail(fmt.Sprintf("oos: send to %s (%s) failed: %v",
 				lead.FullName+" <"+lead.Email+">", req.RecordID, err))
@@ -64,9 +67,19 @@ func OOSHandler(cfg *Config) http.HandlerFunc {
 		}
 
 		log.Printf("[oos] sent to %s %s (%s)", lead.FirstName, lead.LastName, lead.Email)
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`{"ok":true}`))
+		writeOOSSuccessResponse(w, recipient)
 	}
+}
+
+func writeOOSSuccessResponse(w http.ResponseWriter, recipient string) {
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"data": map[string]string{
+			"recipient": recipient,
+			"subject":   oosEmailSubject,
+		},
+	})
 }
 
 func sendOOSEmail(to, firstName string) error {
@@ -89,7 +102,7 @@ func sendOOSEmail(to, firstName string) error {
 	var msg bytes.Buffer
 	msg.WriteString("From: Tis The Season KC <" + from + ">\r\n")
 	msg.WriteString("To: " + to + "\r\n")
-	msg.WriteString("Subject: Thanks for Contacting Us!\r\n")
+	msg.WriteString("Subject: " + oosEmailSubject + "\r\n")
 	msg.WriteString("MIME-Version: 1.0\r\n")
 	msg.WriteString("Content-Type: text/plain; charset=UTF-8\r\n")
 	msg.WriteString("\r\n")
