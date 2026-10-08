@@ -33,6 +33,7 @@
         border: 0;
         padding: 0;
         margin: 0;
+        margin-block-start: var(--space-m);
         min-inline-size: 0;
         display: flex;
         flex-direction: column;
