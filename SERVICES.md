@@ -24,6 +24,7 @@ TTS/
 │   ├── checkout.go                 # GET /pay
 │   ├── webhook.go                  # POST /stripe/webhook
 │   ├── estimate.go                 # POST /estimate/send and GET /photos/*
+│   ├── fix.go                      # POST /fix-request (Fix Tickets intake + photo staging)
 │   ├── confirmation.go             # POST /confirmation/send
 │   ├── oos.go                      # POST /oos/send
 │   ├── full_area.go                # POST /full
@@ -125,6 +126,17 @@ journalctl -u tts.service -n 50 --no-pager
 - Both forms submit an allow-listed `_attribution` JSON snapshot (Google click IDs, Meta `fbclid`/`_fbc`/`_fbp`, UTMs, landing page). Opaque click and browser identifiers are retained in full; the human-readable UTM/path summary is capped separately. The handler stores those values plus the Meta event ID in the lead's Airtable `Tracking Metrics` field (`fldqlM7utGqqVnVa7`); the `Comments` field carries only the customer's own form notes. The paid landing page (`/free-estimate/`) additionally sets the Lead record's `Which Form` single select to `/free-estimate/ ads lander`. This enables later reconciliation of paid traffic with qualified and sold jobs.
 - Lead source labeling: the exact printed van-QR combination (`utm_source=van`, `utm_medium=qr`, `utm_campaign=van_wrap` carried in the session attribution) maps the `Which Form` field to the literal option `QR Code` (`server.go` `leadSource`/`isVanQR`). The original UTMs remain in the lead's `Tracking Metrics` field via the attribution summary, so van leads stay distinguishable from future QR campaigns. Missing or mismatched tags never produce `QR Code`; ordinary, Google Ads, Meta, and non-van free-estimate leads keep their existing values.
 - Standard HTML form posts redirect to `/thank-you/`; JavaScript-enhanced HTML requests receive a thank-you fragment; JSON clients receive JSON.
+
+### Fix Request Intake
+
+**Route:** `POST /fix-request` (multipart/form-data) — **Code:** `services/fix.go`; page: `layouts/create-fix-request/single.html`, `assets/js/fix-request.js`, `assets/css/blocks/fix-request.css`
+
+- Replaces the old embedded Fillout form on `/create-fix-request/`. Creates a row in the Master Customer DB **Fix Tickets** table (`tblVqvNWOelGUyGII`): `Full Name`, `Type of Fix` (existing multi-select options only), `Phone`, `description`, `Photo`. `Status` defaults to `New Fix` in Airtable.
+- Required: name, 10-digit phone, at least one fix type, description. Photos optional: up to 6, 10 MB each, sniffed as JPEG/PNG/WebP/HEIC (not trusted by extension).
+- The exe.dev Airtable proxy cannot reach Airtable's `uploadAttachment` endpoint, so photos are written to `/var/lib/tts/photos/fix-<random>.<ext>` and attached by public URL (`https://tistheseasonkc.com/photos/...`); Airtable copies them into its own storage on save. Staged files are not deleted automatically.
+- The browser downsizes photos (2000 px, JPEG) before upload so phone-camera shots are fast on cellular. The file input uses `accept="image/*"` without `capture`, so phones offer both camera and library.
+- fetch clients (`Accept: application/json`) get JSON and the page shows its `#fix-received` success panel; plain form posts redirect to `/create-fix-request/#fix-received`. Airtable failures return 503 and email `ERROR_EMAIL_TO` with the submitted details.
+- No rate limiting, geo-IP, honeypot, or cleanup of staged photos yet (recommended follow-ups).
 
 ### Airtable Clients
 
@@ -323,6 +335,7 @@ The `llms.txt` file at `/llms.txt` (served from `static/llms.txt`) provides a hu
 |---|---|---|
 | `GET`, `HEAD` | `/contact` | Public; redirects to `/contact/` |
 | `POST` | `/contact` | Public contact intake |
+| `POST` | `/fix-request` | Public fix-request intake (multipart) |
 | `GET` | `/pay` | Public customer checkout |
 | `POST` | `/stripe/webhook` | Stripe signature required |
 | `GET` | `/status` | Public operational status |

@@ -12,17 +12,102 @@
         </div>
     </section>
 
-    {{/* ── Fix Request Form Embed ── */}}
-    <section class="region" aria-label="Fix request form">
-        <div class="wrapper flow" style="--wrapper-max: 50rem">
-            <!-- TODO: Paste your Fillout form embed code here -->
-            <div
-                style="width: 100%; height: 500px"
-                data-fillout-id="5iBwN8y7vvus"
-                data-fillout-embed-type="standard"
-                data-fillout-inherit-parameters
-                data-fillout-dynamic-resize></div>
-            <script src="https://server.fillout.com/embed/v1/"></script>
+    {{/* ── Fix Request Form ── */}}
+    <section class="fix-request region" aria-label="Fix request form">
+        <div class="wrapper flow" style="--wrapper-max: 40rem">
+            <form
+                class="fix-form flow"
+                id="fix-form"
+                action="/fix-request"
+                method="POST"
+                enctype="multipart/form-data"
+                novalidate>
+                <div class="contact-form__field">
+                    <label for="fix-name">Full Name</label>
+                    <input
+                        type="text"
+                        id="fix-name"
+                        name="fullName"
+                        required
+                        minlength="2"
+                        autocomplete="name"
+                        autocapitalize="words" />
+                    <span class="field-error" role="alert"></span>
+                </div>
+                <div class="contact-form__field">
+                    <label for="phone">Phone Number</label>
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        required
+                        autocomplete="tel"
+                        inputmode="tel"
+                        placeholder="(816) 555-1234"
+                        minlength="14"
+                        maxlength="14"
+                        pattern="\(\d{3}\)\s\d{3}-\d{4}"
+                        title="Enter a 10-digit phone number" />
+                    <span class="field-error" role="alert"></span>
+                </div>
+                <fieldset class="fix-form__types">
+                    <legend>What needs fixing?</legend>
+                    <p class="fix-form__hint">Choose all that apply.</p>
+                    <div class="fix-form__chips">
+                        <label class="fix-chip">
+                            <input type="checkbox" name="fixType" value="Bulb(s) Out" />
+                            <span>Bulb(s) out</span>
+                        </label>
+                        <label class="fix-chip">
+                            <input type="checkbox" name="fixType" value="Bulb(s) unclipped" />
+                            <span>Bulb(s) unclipped</span>
+                        </label>
+                        <label class="fix-chip">
+                            <input type="checkbox" name="fixType" value="Other Issue" />
+                            <span>Other issue</span>
+                        </label>
+                    </div>
+                    <span class="field-error" role="alert"></span>
+                </fieldset>
+                <div class="contact-form__field">
+                    <label for="fix-description">Describe the problem</label>
+                    <textarea
+                        id="fix-description"
+                        name="description"
+                        rows="4"
+                        required
+                        placeholder="Where is it on the house? What did you notice?"></textarea>
+                    <span class="field-error" role="alert"></span>
+                </div>
+                <div class="contact-form__field">
+                    <span class="fix-form__label" id="fix-photo-label">Photos <small>(optional, but they help)</small></span>
+                    <label class="fix-photo" for="fix-photos">
+                        <input
+                            type="file"
+                            id="fix-photos"
+                            name="photos"
+                            accept="image/*"
+                            multiple
+                            aria-describedby="fix-photo-label" />
+                        <span class="fix-photo__prompt">
+                            <span aria-hidden="true">📷</span>
+                            <span>Take or choose photos</span>
+                        </span>
+                    </label>
+                    <ul class="fix-photo__list" id="fix-photo-list" aria-live="polite"></ul>
+                    <span class="field-error" id="fix-photo-error" role="alert"></span>
+                </div>
+                <p class="contact-form__submission-error" id="fix-error" role="alert" hidden></p>
+                <button type="submit" class="button contact-form__submit">Send Fix Request</button>
+            </form>
+
+            <div class="fix-success flow" id="fix-received" tabindex="-1">
+                <h2 data-balance>Got it — thank you!</h2>
+                <p>
+                    Your fix request is in our inbox. We'll text you when we're on the way to take care of it.
+                </p>
+                <p><a href="/" class="button">Back to Home</a></p>
+            </div>
         </div>
     </section>
 

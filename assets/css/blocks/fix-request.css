@@ -1,0 +1,209 @@
+@layer blocks {
+    /* ── Fix Request Form (/create-fix-request/) ── */
+    .fix-form {
+        --flow-space: var(--space-m);
+        background: var(--color-surface);
+        border-radius: var(--radius-l);
+        padding: var(--space-l);
+        text-align: left;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .fix-form input,
+    .fix-form textarea {
+        /* 16px+ keeps iOS Safari from zooming on focus */
+        font-size: max(1rem, var(--step-0));
+    }
+
+    .fix-form .contact-form__field input:user-invalid,
+    .fix-form .contact-form__field textarea:user-invalid {
+        border-color: var(--color-error);
+        background-color: var(--color-error-bg);
+    }
+
+    .fix-form .field-error {
+        min-height: 0;
+    }
+
+    .fix-form .field-error:empty {
+        display: none;
+    }
+
+    .fix-form__types {
+        border: 0;
+        padding: 0;
+        margin: 0;
+        min-inline-size: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3xs);
+    }
+
+    .fix-form__types legend,
+    .fix-form__label {
+        font-size: var(--step--1);
+        font-weight: 600;
+        padding: 0;
+    }
+
+    .fix-form__label small {
+        font-weight: 400;
+        color: var(--color-text-muted);
+    }
+
+    .fix-form__hint {
+        margin: 0;
+        font-size: var(--step--1);
+        color: var(--color-text-muted);
+    }
+
+    /* Checkbox "chips": large tap targets, native checkbox stays for a11y */
+    .fix-form__chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-xs);
+        margin-block-start: var(--space-3xs);
+    }
+
+    .fix-chip {
+        position: relative;
+        flex: 1 1 10rem;
+    }
+
+    .fix-chip input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .fix-chip span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 3rem;
+        padding: 0.5rem 1rem;
+        border: 2px solid var(--color-border);
+        border-radius: var(--radius-m, var(--radius-s));
+        background: var(--color-surface);
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .fix-chip input:checked + span {
+        border-color: var(--color-primary);
+        background: var(--color-bg-accent);
+        box-shadow: inset 0 0 0 1px var(--color-primary);
+    }
+
+    .fix-chip input:focus-visible + span,
+    .fix-photo:has(input:focus-visible) {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+    /* Photo picker */
+    .fix-photo {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 5rem;
+        border: 2px dashed var(--color-border);
+        border-radius: var(--radius-m, var(--radius-s));
+        background: var(--color-surface);
+        cursor: pointer;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .fix-photo:hover {
+        border-color: var(--color-primary);
+    }
+
+    .fix-photo input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        /* never smaller than the box so the whole area is tappable */
+        width: 100%;
+        height: 100%;
+    }
+
+    .fix-photo__prompt {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+        pointer-events: none;
+    }
+
+    .fix-photo__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+        gap: var(--space-xs);
+    }
+
+    .fix-photo__list:empty {
+        display: none;
+    }
+
+    .fix-photo__item {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: var(--radius-s);
+        overflow: hidden;
+        background: var(--color-bg-accent);
+    }
+
+    .fix-photo__item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .fix-photo__remove {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: rgb(0 0 0 / 0.7);
+        color: #fff;
+        font-size: 1.25rem;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    /* Success state: shown via :target (works with and without JS) */
+    .fix-success {
+        display: none;
+        text-align: center;
+        background: var(--color-surface);
+        border-radius: var(--radius-l);
+        padding: var(--space-l);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .fix-success:target {
+        display: block;
+    }
+
+    .fix-request .wrapper:has(.fix-success:target) .fix-form {
+        display: none;
+    }
+
+    @media (max-width: 50rem) {
+        .fix-form {
+            padding: var(--space-s);
+        }
+    }
+}

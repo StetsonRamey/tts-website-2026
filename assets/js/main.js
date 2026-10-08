@@ -4,5 +4,6 @@ import './validation.js';
 import './attribution.js';
 import './form-tracking.js';
 import './form-submit.js';
+import './fix-request.js';
 import './landing-tracking.js';
 import './theme-toggle.js';
