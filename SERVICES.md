@@ -133,10 +133,12 @@ journalctl -u tts.service -n 50 --no-pager
 
 - Replaces the old embedded Fillout form on `/create-fix-request/`. Creates a row in the Master Customer DB **Fix Tickets** table (`tblVqvNWOelGUyGII`): `Full Name`, `Type of Fix` (existing multi-select options only), `Phone`, `description`, `Photo`. `Status` defaults to `New Fix` in Airtable.
 - Required: name, 10-digit phone, at least one fix type, description. Photos optional: up to 6, 10 MB each, sniffed as JPEG/PNG/WebP/HEIC (not trusted by extension).
-- The exe.dev Airtable proxy cannot reach Airtable's `uploadAttachment` endpoint, so photos are written to `/var/lib/tts/photos/fix-<random>.<ext>` and attached by public URL (`https://tistheseasonkc.com/photos/...`); Airtable copies them into its own storage on save. Staged files are not deleted automatically.
+- The exe.dev Airtable proxy cannot reach Airtable's `uploadAttachment` endpoint, so photos are written to `/var/lib/tts/photos/fix-<random>.<ext>` and attached by public URL (`https://tistheseasonkc.com/photos/...`); Airtable copies them into its own storage on save.
+- **Photo cleanup:** a background job re-reads the ticket (immediately, then at 5 s, 30 s, 2 min, 5 min) and deletes the staged files once every attachment URL is Airtable-hosted. Files are deleted at once if validation or the Airtable save fails, and each submission sweeps any `fix-*` file older than 24 h as a safety net.
+- **Customer link:** the handler looks up Customers by the 10-digit `non-formatted phone` formula field. One match → linked. Several (multiple properties on one phone) → narrowed by last name appearing in the submitted name, then by `Active Status = Active`. No phone match → exact first+last name match. Anything still ambiguous or a lookup error → ticket is saved **unlinked** for manual linking (the handler never guesses between customers). Name-only matches do not consider Active Status.
+- **Spam controls:** hidden `website` honeypot, non-US IP rejection (fail-open, same ip-api lookup as `/contact`), and 5 submissions/IP/hour. Rejections return a neutral success response.
 - The browser downsizes photos (2000 px, JPEG) before upload so phone-camera shots are fast on cellular. The file input uses `accept="image/*"` without `capture`, so phones offer both camera and library.
-- fetch clients (`Accept: application/json`) get JSON and the page shows its `#fix-received` success panel; plain form posts redirect to `/create-fix-request/#fix-received`. Airtable failures return 503 and email `ERROR_EMAIL_TO` with the submitted details.
-- No rate limiting, geo-IP, honeypot, or cleanup of staged photos yet (recommended follow-ups).
+- fetch clients (`Accept: application/json`) get JSON and the page shows its `#fix-received` success panel; plain form posts redirect to `/create-fix-request/#fix-received`. Airtable save failures return 503 and email `ERROR_EMAIL_TO` with the submitted details.
 
 ### Airtable Clients
 

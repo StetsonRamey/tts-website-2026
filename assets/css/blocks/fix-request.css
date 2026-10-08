@@ -52,6 +52,14 @@
         color: var(--color-text-muted);
     }
 
+    .fix-form__hp {
+        position: absolute;
+        left: -10000px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+    }
+
     .fix-form__hint {
         margin: 0;
         font-size: var(--step--1);

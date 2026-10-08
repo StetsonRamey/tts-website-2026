@@ -845,7 +845,7 @@ func main() {
 
 	// Existing routes
 	mux.HandleFunc("/contact", handleContact)
-	mux.HandleFunc("/fix-request", services.FixRequestHandler(cfg))
+	mux.HandleFunc("/fix-request", services.FixRequestHandler(cfg, clientIP, countryLookup))
 
 	// Payment services
 	mux.HandleFunc("/pay", services.CheckoutHandler(cfg))
