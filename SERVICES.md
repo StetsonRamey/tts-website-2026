@@ -275,6 +275,18 @@ The public Go server proxies the self-hosted Umami tracker and collection endpoi
 
 **Google Ads conversion tracking:** The global Google tag (`AW-17686347200`) is loaded once in `layouts/partials/head.html`. `assets/js/form-submit.js` fires the Google Ads `Submit lead form` conversion (`AW-17686347200/utHpCODyheocEMD7wPFB`) only when `/contact` returns `X-Lead-Saved: true`, which the server sets after Airtable confirms lead creation. Phone calls from Google Ads are tracked separately through the Google Ads call asset/conversion action and do not use this website event.
 
+#### Ad performance reviews
+
+Reporting access is separate from website conversion tracking. Discover the VM's current integrations through `https://reflection.int.exe.xyz/integrations` rather than assuming an old integration name still works. The `google-ads` service-account integration mints a short-lived token with an empty-body `POST https://google-ads.int.exe.xyz/token`; use that token directly against Google's API, never print or persist it.
+
+- **Access check, October 13, 2026:** token minting succeeded, but the token carried only `https://www.googleapis.com/auth/cloud-platform`. Google Ads returned HTTP 403 `ACCESS_TOKEN_SCOPE_INSUFFICIENT`. The required OAuth scope is `https://www.googleapis.com/auth/adwords`. The owner must correct the integration's mint scope before retrying; account/project authorization may need separate verification afterward. Do not claim current campaign metrics were retrieved when token minting alone succeeds.
+- Verify current Google API access requirements and supported versions against official documentation; historical developer-token application notes are not evidence of current access.
+- Meta Pixel/CAPI configuration delivers conversion events; it does **not** provide Ads Manager reporting access. Use owner-supplied Meta exports unless a reporting integration is explicitly available.
+- Use completed days in the ad account's reporting timezone. Request daily ad-set and period-total ad exports for Meta, with spend, results/result type, website leads, cost per result, reach, impressions, frequency, CPM, link clicks/CTR/CPC, landing-page views, attribution settings, and current budgets. Also verify the objective/performance goal, geography, and recent setting changes.
+- For Google, review campaign daily spend/conversions/CPL, budget, bidding, Search impression share, Search lost impression share (budget/rank), search terms, keywords, locations, and conversion actions before recommending more spend.
+- Reconcile accepted leads against Airtable `Tracking Metrics`, creation time, and current `Status`. The form/page label alone does not establish the channel. Meta click IDs or CAPI delivery alone do not establish **paid** attribution, and platform-attributed conversions need not equal CRM leads created in the same period. Compare close rates only with the denominator and cohort age made explicit.
+- Preserve private campaign history and aggregate reporting outside Git in `/home/exedev/google-ads-context.md` and `/home/exedev/google-ads-2026-data/`. Never put raw CRM exports, customer details, click IDs, or credentials in Git or the public web root. A review does not authorize campaign, budget, targeting, tracking, or CRM changes.
+
 **Umami conversion tracking:** The contact form fires a sequence of Umami custom events so conversion goals and the Funnel report can measure engagement and drop-off:
 
 | Event | Fired from | When |
