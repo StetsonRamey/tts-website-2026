@@ -257,7 +257,7 @@ An authenticated Airtable automation calls this after a lead is marked sold. The
 **Route:** `POST /invoice/create`
 **Code:** `services/invoice.go`
 
-An authenticated Airtable automation calls this after sold sync. The handler verifies the lead has a Stripe customer and valid feet amount, gets the configured environment-specific Stripe product's default price, creates/finalizes a Stripe invoice, and stores the hosted invoice URL in Airtable. The Stripe product controls the unit price.
+An authenticated Airtable automation calls this after sold sync. The handler verifies the lead has a Stripe customer and valid feet amount, gets the configured environment-specific Stripe product's default price, creates/finalizes a Stripe invoice, and stores the hosted invoice URL in Airtable. The Stripe product controls the unit price. Live (`STRIPE_INVOICE_PRODUCT_ID_PROD`) must be the first-year product `prod_Oo4XKQCqb6vKCY` ("1st Year Lighting Install - LED", $4.25/ft); it was previously misconfigured as the Re-Installation product ($2.25/ft) and Sold leads invoiced that way were voided and re-issued in Nov 2026.
 
 ### Bot Crawl Tracking
 
