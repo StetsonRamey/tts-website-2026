@@ -47,6 +47,10 @@ type Config struct {
 	CompanyCamBaseURL   string
 	CompanyCamAPIToken  string // blank when a proxy injects auth
 	CompanyCamUserEmail string // sent as X-CompanyCam-User header
+
+	// TextMagic — used by /sold/sync to create an SMS contact for sold leads.
+	// Auth is injected by the exe.dev textmagic proxy.
+	TextMagicBaseURL string
 }
 
 // LoadConfig reads APP_ENV and sets up the correct Stripe proxy URL.
@@ -98,6 +102,8 @@ func LoadConfig() *Config {
 		CompanyCamBaseURL:   getEnvOr("COMPANYCAM_BASE_URL", "https://companycam.int.exe.xyz/v2"),
 		CompanyCamAPIToken:  os.Getenv("COMPANYCAM_API_TOKEN"),
 		CompanyCamUserEmail: os.Getenv("COMPANYCAM_USER_EMAIL"),
+
+		TextMagicBaseURL: getEnvOr("TEXTMAGIC_BASE_URL", "https://textmagic.int.exe.xyz/api/v2"),
 	}
 }
 

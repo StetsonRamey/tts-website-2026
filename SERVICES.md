@@ -82,6 +82,7 @@ Startup logs identify the selected mode. Do not switch modes casually: validate 
 | `COMPANYCAM_BASE_URL` | Optional CompanyCam API base URL override; defaults to the exe.dev CompanyCam proxy |
 | `COMPANYCAM_API_TOKEN` | Optional direct CompanyCam token for local/non-proxy development |
 | `COMPANYCAM_USER_EMAIL` | Optional CompanyCam user identity header for direct/non-proxy development |
+| `TEXTMAGIC_BASE_URL` | Optional TextMagic API base URL override; defaults to the exe.dev TextMagic proxy (`https://textmagic.int.exe.xyz/api/v2`), which injects credentials |
 | `GMAIL_USER` | Optional SMTP authentication account; defaults to `GMAIL_SEND_AS` when unset |
 | `GMAIL_SEND_AS` | SMTP envelope/from address and visible sender alias |
 | `GMAIL_APP_PASSWORD` | Gmail App Password used for SMTP |
@@ -250,7 +251,7 @@ Because requests arrive through the exe.dev edge proxy (which can return transie
 **Route:** `POST /sold/sync`
 **Code:** `services/sold_sync.go`
 
-An authenticated Airtable automation calls this after a lead is marked sold. The handler creates a CompanyCam project and uploads lead photos when a project ID is missing, creates a Stripe customer when needed, and writes resulting IDs back to Airtable. It is designed to be idempotent: existing IDs are not recreated.
+An authenticated Airtable automation calls this after a lead is marked sold. The handler creates a CompanyCam project and uploads lead photos when a project ID is missing, creates a Stripe customer when needed, and writes resulting IDs back to Airtable. It then creates a TextMagic contact (first/last name, normalized US phone, email; not added to any list) via the `textmagic` proxy integration. TextMagic enforces unique phone numbers, so a duplicate (retry, or a contact entered by hand) returns `textMagic: "exists"` and is not an error; the response reports `created`, `exists`, `failed`, or `skipped: no phone`. TextMagic failures are non-fatal (an alert email is sent and CompanyCam/Stripe results are still returned). No Airtable field stores a TextMagic ID. Sync was added Nov 2026 and does not backfill earlier sold leads. It is designed to be idempotent: existing IDs are not recreated.
 
 ### Invoice Creation
 

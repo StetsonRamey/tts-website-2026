@@ -54,7 +54,7 @@ TTS/
 
 - **Hugo** — page content, page rendering, templates, SEO/meta tags, schema, generated `robots.txt`, and asset bundling.
 - **Go** — contact form intake, Stripe checkout/webhooks, email and internal automation endpoints, staged-photo hosting, first-party analytics proxy, markdown content negotiation for AI agents (AEO), bot-crawl tracking, redirects, caching, security headers, and custom 404 handling.
-- **`services/`** — focused backend integrations for Airtable, Stripe, Gmail, CompanyCam, Sentry, Umami, and bot tracking.
+- **`services/`** — focused backend integrations for Airtable, Stripe, Gmail, CompanyCam, TextMagic, Sentry, Umami, and bot tracking.
 
 ## Workflow Conventions
 

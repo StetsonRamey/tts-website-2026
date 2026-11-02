@@ -4,7 +4,8 @@ package services
 //
 // Triggered by an Airtable automation when a lead is marked Sold.
 // Idempotent: skips work that has already been completed (CompanyCam project
-// already exists, Stripe customer already exists).
+// already exists, Stripe customer already exists, TextMagic contact already
+// exists for the phone number).
 //
 // Each external ID is patched back to Airtable IMMEDIATELY after creation
 // (before the next external call) — so a partial failure never causes a
@@ -113,6 +114,22 @@ func SoldSyncHandler(cfg *Config) http.HandlerFunc {
 			stripeID = id
 			result["stripeID"] = id
 			result["stripeCreated"] = true
+		}
+
+		// ── TextMagic contact ─────────────────────────────────────────────────
+		// Non-fatal. TextMagic rejects duplicate phone numbers, so retries and
+		// leads already entered by hand are reported as "exists", not duplicated.
+		if lead.Phone == "" {
+			result["textMagic"] = "skipped: no phone"
+		} else {
+			status, err := createTextMagicContact(cfg, lead)
+			if err != nil {
+				log.Printf("[sold-sync] textmagic contact for %s: %v", lead.RecordID, err)
+				cfg.sendErrorEmail(fmt.Sprintf("sold-sync: TextMagic contact for %s: %v", lead.RecordID, err))
+				result["textMagic"] = "failed"
+			} else {
+				result["textMagic"] = status
+			}
 		}
 
 		log.Printf("[sold-sync] done record=%s ccam=%s stripe=%s", lead.RecordID, ccamID, stripeID)
@@ -297,6 +314,64 @@ func createStripeCustomer(cfg *Config, lead *Lead) (string, error) {
 		return "", fmt.Errorf("stripe returned empty customer id")
 	}
 	return out.ID, nil
+}
+
+// ── TextMagic ────────────────────────────────────────────────────────────────
+
+// createTextMagicContact POSTs to TextMagic /contacts via the exe.dev proxy.
+// Returns "created" or "exists" (TextMagic enforces unique phone numbers).
+//
+// Docs: https://docs.textmagic.com/#tag/Contacts/operation/createContact
+func createTextMagicContact(cfg *Config, lead *Lead) (string, error) {
+	phone := textMagicPhone(lead.Phone)
+	if phone == "" {
+		return "", fmt.Errorf("unusable phone number %q", lead.Phone)
+	}
+	body := map[string]interface{}{
+		"firstName": strings.TrimSpace(lead.FirstName),
+		"lastName":  strings.TrimSpace(lead.LastName),
+		"phone":     phone,
+	}
+	if lead.Email != "" {
+		body["email"] = lead.Email
+	}
+	b, err := json.Marshal(body)
+	if err != nil {
+		return "", fmt.Errorf("marshal body: %w", err)
+	}
+	resp, err := http.Post(cfg.TextMagicBaseURL+"/contacts", "application/json", bytes.NewReader(b))
+	if err != nil {
+		return "", fmt.Errorf("POST /contacts: %w", err)
+	}
+	defer resp.Body.Close()
+	respBody, _ := io.ReadAll(resp.Body)
+
+	if resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusOK {
+		return "created", nil
+	}
+	if resp.StatusCode == http.StatusBadRequest && strings.Contains(string(respBody), "already exists") {
+		return "exists", nil
+	}
+	return "", fmt.Errorf("textmagic contact %d: %s", resp.StatusCode, string(respBody))
+}
+
+// textMagicPhone normalizes a US number to digits with the leading country
+// code (e.g. "(913) 707-4407" -> "19137074407"). Returns "" if unusable.
+func textMagicPhone(raw string) string {
+	var digits strings.Builder
+	for _, r := range raw {
+		if r >= '0' && r <= '9' {
+			digits.WriteRune(r)
+		}
+	}
+	d := digits.String()
+	switch {
+	case len(d) == 10:
+		return "1" + d
+	case len(d) == 11 && d[0] == '1':
+		return d
+	}
+	return ""
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
