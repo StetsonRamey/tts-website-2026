@@ -5,6 +5,10 @@
 </head>
 <body>
   <a href="#main-content" class="visually-hidden">Skip to content</a>
+  {{- $fb := site.Params.fixBanner }}
+  {{- if and $fb (ne .Kind "404") (not (in $fb.excludepaths .RelPermalink)) }}
+  {{ partial "fix-banner.html" (dict "variant" $fb.variant) }}
+  {{- end }}
   {{ partial "header.html" . }}
   {{ block "main" . }}{{ end }}
   {{ partial "footer.html" . }}

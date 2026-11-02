@@ -26,6 +26,7 @@ Tis The Season KC is a holiday-lighting website at `tistheseasonkc.com`.
 | Page layouts and shared SEO/UI partials | `layouts/` |
 | Paid Google Ads estimate landing page | `content/free-estimate/`, `layouts/free-estimate/`, `assets/js/landing-tracking.js` |
 | Paid-campaign performance reviews and reporting access | `SERVICES.md` → Ad performance reviews; private history in `/home/exedev/google-ads-context.md`, reports in `/home/exedev/google-ads-2026-data/` and `/home/exedev/meta-ads-2026-data/` (outside Git) |
+| Fix-ticket banner above the header (variants + excluded pages via `[params.fixBanner]` in `hugo.toml`) | `layouts/partials/fix-banner.html`, `assets/css/blocks/fix-banner.css`, `layouts/_default/baseof.html` |
 | Seasonal-installer job posting (info only; candidates apply via the public Indeed posting linked from the page's Apply button — no form) | `content/jobs/`, `layouts/jobs/single.html` |
 | Campaign attribution + conversion tracking (Google Ads, Meta Pixel/CAPI, Umami) | `assets/js/attribution.js`, `assets/js/form-submit.js`, `layouts/partials/meta-pixel.html`, `services/meta.go`, `SERVICES.md` |
 | CSS and progressive-enhancement JavaScript | `assets/css/`, `assets/js/` |

@@ -1,0 +1,221 @@
+@layer blocks {
+    /* ── Fix Banner (top of main pages; links to /create-fix-request/) ──
+       Variants: classic | slim | twinkle | flicker.
+       Colors are theme-constant (brand teal / dark band) so they read the
+       same in light and dark mode. Animations honor reduced-motion. */
+    .fix-banner {
+        --fix-fg: var(--color-dark);
+        position: relative;
+        color: var(--fix-fg);
+        font-size: var(--step-0);
+    }
+
+    .fix-banner__inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2xs) var(--space-s);
+        padding-block: var(--space-xs);
+        text-align: center;
+    }
+
+    .fix-banner__text {
+        margin: 0;
+        text-wrap: balance;
+    }
+
+    .fix-banner__lights {
+        flex: none;
+        inline-size: 4.5rem;
+        block-size: auto;
+    }
+
+    .fix-banner__button {
+        display: inline-block;
+        padding: 0.5rem 1.25rem;
+        background: var(--color-white);
+        color: var(--color-dark);
+        font-weight: 700;
+        font-size: var(--step--1);
+        text-decoration: none;
+        border-radius: var(--radius-s);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+        transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .fix-banner__button:hover {
+        background: var(--color-dark);
+        color: var(--color-white);
+        transform: translateY(-1px);
+    }
+
+    /* ── 1. Classic: the original teal band ── */
+    .fix-banner--classic {
+        background: var(--color-primary);
+    }
+
+    /* ── 2. Slim: one-line dark strip ── */
+    .fix-banner--slim {
+        --fix-fg: var(--color-on-dark);
+        background: #131322;
+        font-size: var(--step--1);
+    }
+
+    .fix-banner--slim .fix-banner__inner {
+        padding-block: var(--space-2xs);
+    }
+
+    .fix-banner__dot {
+        display: inline-block;
+        inline-size: 0.5rem;
+        block-size: 0.5rem;
+        margin-inline-end: 0.35rem;
+        border-radius: 50%;
+        background: var(--color-secondary);
+        vertical-align: middle;
+    }
+
+    .fix-banner__link {
+        color: var(--color-primary);
+        font-weight: 700;
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+        white-space: nowrap;
+    }
+
+    .fix-banner__link:hover {
+        color: var(--color-secondary);
+    }
+
+    /* ── 3. Twinkle: teal band with a strand of twinkling bulbs ── */
+    .fix-banner--twinkle {
+        background: var(--color-primary);
+        padding-block-end: 1.75rem;
+        overflow: hidden;
+    }
+
+    .fix-banner__strand {
+        position: absolute;
+        inset-inline: 0;
+        inset-block-end: 0;
+        display: flex;
+        justify-content: space-around;
+        block-size: 1.75rem;
+        pointer-events: none;
+    }
+
+    /* the wire */
+    .fix-banner__strand::before {
+        content: "";
+        position: absolute;
+        inset-inline: -2%;
+        inset-block-start: 0;
+        block-size: 0.5rem;
+        border-block-end: 2px solid rgba(26, 26, 46, 0.55);
+        border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    }
+
+    .fix-banner__bulb {
+        --bulb: #f8dc78;
+        position: relative;
+        inline-size: 0.7rem;
+        block-size: 1.05rem;
+        margin-block-start: 0.35rem;
+        border-radius: 50% 50% 55% 55% / 35% 35% 65% 65%;
+        background: var(--bulb);
+        box-shadow: 0 0 0.5rem 0.1rem var(--bulb);
+        animation: fix-twinkle 2.4s ease-in-out infinite;
+    }
+
+    .fix-banner__bulb:nth-child(4n + 1) { --bulb: #f8dc78; }
+    .fix-banner__bulb:nth-child(4n + 2) { --bulb: #f066a1; }
+    .fix-banner__bulb:nth-child(4n + 3) { --bulb: #ffffff; }
+    .fix-banner__bulb:nth-child(4n + 4) { --bulb: #c9f2ec; }
+    .fix-banner__bulb:nth-child(3n + 1) { animation-delay: -0.4s; }
+    .fix-banner__bulb:nth-child(3n + 2) { animation-delay: -1.2s; }
+    .fix-banner__bulb:nth-child(5n + 3) { animation-delay: -1.9s; }
+
+    /* hide extra bulbs on narrow screens so they don't crowd */
+    @media (max-width: 40rem) {
+        .fix-banner__bulb:nth-child(2n) { display: none; }
+    }
+
+    @keyframes fix-twinkle {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.25; transform: scale(0.8); box-shadow: 0 0 0.15rem 0 var(--bulb); }
+    }
+
+    /* ── 4. Flicker: a bulb that sputters, then glows back to life ── */
+    .fix-banner--flicker {
+        --fix-fg: var(--color-on-dark);
+        background: linear-gradient(90deg, #131322, #2a1a36 50%, #131322);
+        border-block-end: 2px solid var(--color-secondary);
+    }
+
+    .fix-banner__bulb-icon {
+        display: inline-flex;
+        flex: none;
+    }
+
+    .fix-banner__bulb-icon svg {
+        overflow: visible;
+    }
+
+    .fix-banner__glass {
+        fill: #f8dc78;
+        animation: fix-flicker 6s linear infinite;
+    }
+
+    .fix-banner__filament {
+        stroke: #b8860b;
+        stroke-width: 1.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .fix-banner__base {
+        fill: #8a8aa0;
+    }
+
+    .fix-banner--flicker .fix-banner__bulb-icon {
+        animation: fix-glow 6s linear infinite;
+    }
+
+    .fix-banner--flicker .fix-banner__button {
+        background: var(--color-secondary);
+        color: var(--color-white);
+    }
+
+    .fix-banner--flicker .fix-banner__button:hover {
+        background: var(--color-white);
+        color: var(--color-dark);
+    }
+
+    /* off → sputter → steady on, then repeat */
+    @keyframes fix-flicker {
+        0%, 100% { fill-opacity: 1; }
+        62% { fill-opacity: 1; }
+        64% { fill-opacity: 0.15; }
+        66% { fill-opacity: 1; }
+        68% { fill-opacity: 0.2; }
+        71% { fill-opacity: 0.9; }
+        73% { fill-opacity: 0.1; }
+        78% { fill-opacity: 1; }
+    }
+
+    @keyframes fix-glow {
+        0%, 62%, 78%, 100% { filter: drop-shadow(0 0 6px rgba(248, 220, 120, 0.9)); }
+        64%, 68%, 73% { filter: drop-shadow(0 0 0 rgba(248, 220, 120, 0)); }
+        66%, 71% { filter: drop-shadow(0 0 4px rgba(248, 220, 120, 0.6)); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .fix-banner__bulb,
+        .fix-banner__glass,
+        .fix-banner--flicker .fix-banner__bulb-icon {
+            animation: none;
+        }
+        .fix-banner__button { transition: none; }
+    }
+}

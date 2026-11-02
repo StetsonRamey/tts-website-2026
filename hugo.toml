@@ -49,6 +49,12 @@ enableRobotsTXT = true
   # omit the Pixel from the build. Per-page opt-out: `tracking.metaPixel: false`.
   metaPixelId = '1737341487496114'
 
+  [params.fixBanner]
+    # classic | slim | twinkle | flicker  (see layouts/partials/fix-banner.html)
+    variant = 'classic'
+    # Pages that do NOT show the banner (matched against .RelPermalink)
+    excludePaths = ['/about/', '/contact/', '/create-fix-request/', '/free-estimate/', '/thank-you/', '/payment-success/', '/review/', '/jobs/', '/banner-preview/']
+
 [menus]
   [[menus.main]]
     name = 'Home'

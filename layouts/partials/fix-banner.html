@@ -1,0 +1,54 @@
+{{/*
+  Fix-ticket banner. Link to /create-fix-request/ shown above the site header.
+
+  Usage:
+    {{ partial "fix-banner.html" (dict "variant" "classic") }}
+
+  Variants: classic | slim | twinkle (animated) | flicker (animated)
+  Site-wide variant + excluded sections are set in hugo.toml [params.fixBanner].
+*/}}
+{{- $variant := .variant | default "classic" -}}
+{{- $url := "/create-fix-request/" -}}
+<aside class="fix-banner fix-banner--{{ $variant }}" aria-label="Need a repair?">
+  {{- if eq $variant "classic" }}
+  <div class="fix-banner__inner wrapper">
+    {{ partial "fix-banner-lights.html" . }}
+    <p class="fix-banner__text">Light out or something not right? We'll make it right.</p>
+    <a class="fix-banner__button" href="{{ $url }}">Create a Fix Request</a>
+  </div>
+
+  {{- else if eq $variant "slim" }}
+  <div class="fix-banner__inner wrapper">
+    <p class="fix-banner__text">
+      <span class="fix-banner__dot" aria-hidden="true"></span>
+      Already a customer with an issue?
+      <a class="fix-banner__link" href="{{ $url }}">Create a Fix Request <span aria-hidden="true">&rarr;</span></a>
+    </p>
+  </div>
+
+  {{- else if eq $variant "twinkle" }}
+  <div class="fix-banner__inner wrapper">
+    {{ partial "fix-banner-lights.html" . }}
+    <p class="fix-banner__text">Something not shining right? We'll get it glowing again.</p>
+    <a class="fix-banner__button" href="{{ $url }}">Create a Fix Request</a>
+  </div>
+  <div class="fix-banner__strand" aria-hidden="true">
+    {{- range seq 40 }}<i class="fix-banner__bulb"></i>{{ end }}
+  </div>
+
+  {{- else if eq $variant "flicker" }}
+  <div class="fix-banner__inner wrapper">
+    <span class="fix-banner__bulb-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 40" width="28" height="46" focusable="false">
+        <path class="fix-banner__glass" d="M12 1C5.9 1 2 5.2 2 10.6c0 3.5 1.7 5.6 3.3 7.6 1 1.2 1.7 2.4 1.7 3.8h10c0-1.4.7-2.6 1.7-3.8 1.6-2 3.3-4.1 3.3-7.6C22 5.2 18.1 1 12 1z"/>
+        <path class="fix-banner__filament" d="M9 21l1.500-7 1.500 3 1.500-3L15 21" fill="none"/>
+        <rect class="fix-banner__base" x="7" y="22" width="10" height="3" rx="1"/>
+        <rect class="fix-banner__base" x="8" y="26" width="8" height="3" rx="1"/>
+        <path class="fix-banner__base" d="M9 30h6l-1 3h-4z"/>
+      </svg>
+    </span>
+    <p class="fix-banner__text">Bulb acting up? Tell us and we'll be out to fix it.</p>
+    <a class="fix-banner__button" href="{{ $url }}">Create a Fix Request</a>
+  </div>
+  {{- end }}
+</aside>
