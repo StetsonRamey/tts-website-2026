@@ -51,9 +51,9 @@ enableRobotsTXT = true
 
   [params.fixBanner]
     # classic | slim | twinkle | flicker  (see layouts/partials/fix-banner.html)
-    variant = 'classic'
+    variant = 'flicker'
     # Pages that do NOT show the banner (matched against .RelPermalink)
-    excludePaths = ['/about/', '/contact/', '/create-fix-request/', '/free-estimate/', '/thank-you/', '/payment-success/', '/review/', '/jobs/', '/banner-preview/']
+    excludePaths = ['/about/', '/contact/', '/create-fix-request/', '/free-estimate/', '/thank-you/', '/payment-success/', '/review/', '/jobs/']
 
 [menus]
   [[menus.main]]
