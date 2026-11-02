@@ -5,6 +5,8 @@ package services
 // Listens for Stripe payment-completion events:
 //   - checkout.session.completed for website Checkout payments
 //   - payment_intent.succeeded for manually-entered phone payments
+//   - invoice.paid for hosted-invoice payments on Sold leads (marks the 2026
+//     Leads row Paid?; Master Customers is untouched)
 // When a payment completes:
 //   1. Verify the Stripe-Signature header (prevents spoofed requests)
 //   2. Find the customer in Airtable by their Stripe customer ID
@@ -19,6 +21,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -80,6 +83,12 @@ func WebhookHandler(cfg *Config) http.HandlerFunc {
 				// The error email will alert you to fix manually if needed.
 			}
 
+		case "invoice.paid":
+			if err := handleInvoicePaid(event.Data.Object.Customer, event.Data.Object.ID); err != nil {
+				log.Printf("[webhook] handleInvoicePaid: %v", err)
+				cfg.sendErrorEmail(fmt.Sprintf("webhook: invoice paid but Leads update failed: %v", err))
+			}
+
 		default:
 			log.Printf("[webhook] ignored event type: %s", event.Type)
 		}
@@ -96,6 +105,14 @@ func handlePaymentCompleted(cfg *Config, stripeCustomerID, paymentID string) err
 	log.Printf("[webhook] payment completed for Stripe customer %s (payment %s)", stripeCustomerID, paymentID)
 
 	customer, err := GetCustomerByStripeID(stripeCustomerID)
+	if errors.Is(err, errCustomerNotFound) {
+		// A Stripe customer that only exists in the 2026 Leads table pays through
+		// invoice.paid; its payment_intent.succeeded is not an error.
+		if leads, lerr := GetLeadsByStripeID(stripeCustomerID); lerr == nil && len(leads) > 0 {
+			log.Printf("[webhook] payment %s for lead-only Stripe customer %s; leaving to invoice.paid", paymentID, stripeCustomerID)
+			return nil
+		}
+	}
 	if err != nil {
 		return fmt.Errorf("GetCustomerByStripeID(%s): %w", stripeCustomerID, err)
 	}
@@ -105,6 +122,47 @@ func handlePaymentCompleted(cfg *Config, stripeCustomerID, paymentID string) err
 	}
 
 	log.Printf("[webhook] marked paid: %s (airtable %s)", customer.FullName, customer.AirtableID)
+	return nil
+}
+
+// handleInvoicePaid marks the 2026 Leads row for the invoice's Stripe customer
+// as paid. Customers with no lead (e.g. existing Master Customers invoiced from
+// the dashboard) are ignored here — their payment_intent.succeeded handles them.
+// If several unpaid Sold leads share the Stripe ID, nothing is changed and an
+// alert is raised so the wrong property is never marked paid.
+func handleInvoicePaid(stripeCustomerID, invoiceID string) error {
+	if stripeCustomerID == "" {
+		return fmt.Errorf("invoice %s has no customer ID", invoiceID)
+	}
+	leads, err := GetLeadsByStripeID(stripeCustomerID)
+	if err != nil {
+		return fmt.Errorf("GetLeadsByStripeID(%s): %w", stripeCustomerID, err)
+	}
+	if len(leads) == 0 {
+		log.Printf("[webhook] invoice %s paid for Stripe customer %s with no lead; ignoring", invoiceID, stripeCustomerID)
+		return nil
+	}
+	candidates := leads
+	if len(leads) > 1 {
+		candidates = nil
+		for _, l := range leads {
+			if l.Status == "Sold" && !l.Paid && l.StripeInvoiceLink != "" {
+				candidates = append(candidates, l)
+			}
+		}
+	}
+	if len(candidates) != 1 {
+		return fmt.Errorf("invoice %s (customer %s) matches %d leads (%d candidates); mark the right one paid manually", invoiceID, stripeCustomerID, len(leads), len(candidates))
+	}
+	lead := candidates[0]
+	if lead.Paid {
+		log.Printf("[webhook] lead %s already paid (invoice %s)", lead.FullName, invoiceID)
+		return nil
+	}
+	if err := MarkLeadPaid(lead.AirtableID); err != nil {
+		return fmt.Errorf("MarkLeadPaid(%s / %s): %w", lead.FullName, lead.AirtableID, err)
+	}
+	log.Printf("[webhook] marked lead paid: %s (airtable %s, invoice %s)", lead.FullName, lead.AirtableID, invoiceID)
 	return nil
 }
 

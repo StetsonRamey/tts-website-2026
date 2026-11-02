@@ -158,7 +158,7 @@ The handler loads the customer and the Yearly Invoicing rows linked directly fro
 **Route:** `POST /stripe/webhook`
 **Code:** `services/webhook.go`
 
-Receives `checkout.session.completed` for website Checkout payments and `payment_intent.succeeded` for successful manually-entered phone payments. It verifies the `Stripe-Signature` header with the mode-specific webhook secret, finds the customer through the Stripe customer ID, and marks the customer paid in Airtable. Both events can be emitted for a Checkout payment; applying the same paid update twice is safe.
+Receives `checkout.session.completed` for website Checkout payments and `payment_intent.succeeded` for successful manually-entered phone payments. It also receives `invoice.paid` (must be enabled on the Stripe endpoint) for hosted-invoice payments on Sold leads: the handler finds the 2026 Leads row by `stripeID` and sets `Paid?` = `Paid`. If several leads share the Stripe ID it narrows to Sold, unpaid leads with an invoice link; if that is still not exactly one, it changes nothing and sends an alert email so the right property is marked manually. Customers with no lead are ignored by `invoice.paid`. A `payment_intent.succeeded` for a Stripe customer that exists only in Leads (no Master Customers row) is logged and skipped rather than alerted, since `invoice.paid` covers it. It verifies the `Stripe-Signature` header with the mode-specific webhook secret, finds the customer through the Stripe customer ID, and marks the customer paid in Airtable. Both events can be emitted for a Checkout payment; applying the same paid update twice is safe.
 
 The Stripe Dashboard endpoint must subscribe to both event types in the applicable mode.
 

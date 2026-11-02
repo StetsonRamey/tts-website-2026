@@ -13,6 +13,7 @@ package services
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -266,6 +267,9 @@ func GetCustomerByRecordID(recordID string) (*Customer, error) {
 
 // GetCustomerByStripeID fetches a Customer by their Stripe customer ID (cus_...).
 // Used by the webhook handler to identify who just paid.
+// errCustomerNotFound is returned (wrapped) when no Master Customers row matches.
+var errCustomerNotFound = errors.New("no customer found")
+
 func GetCustomerByStripeID(stripeCustomerID string) (*Customer, error) {
 	params := atParams()
 	params.Set("filterByFormula", fmt.Sprintf("{Stripe ID} = '%s'", stripeCustomerID))
@@ -280,7 +284,7 @@ func GetCustomerByStripeID(stripeCustomerID string) (*Customer, error) {
 		return nil, err
 	}
 	if len(records) == 0 {
-		return nil, fmt.Errorf("no customer found for Stripe ID %q", stripeCustomerID)
+		return nil, fmt.Errorf("%w for Stripe ID %q", errCustomerNotFound, stripeCustomerID)
 	}
 
 	return parseCustomer(records[0]), nil

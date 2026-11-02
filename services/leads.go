@@ -43,6 +43,7 @@ const (
 	fieldLeadStripeID          = "fldU6bJBjtQvd6dAX" // singleLineText — Stripe customer (cus_...)
 	fieldLeadStripeInvoiceLink = "fld2JkST42hZMHltf" // url — hosted_invoice_url
 	fieldLeadMakeInvoice       = "fldskscCdCGUlxhXq" // checkbox — triggers invoice creation
+	fieldLeadPaid              = "fldTraPqz7CGTQ1xc" // singleSelect — "Paid"
 	fieldLeadSendInvoice       = "fldmPoHcq6HBInZXC" // checkbox — (future: triggers send)
 )
 
@@ -69,6 +70,7 @@ type Lead struct {
 	CompanyCamID      string // CompanyCam project ID (set after sold/sync)
 	StripeID          string // Stripe customer ID (cus_...)
 	StripeInvoiceLink string // Stripe hosted invoice URL
+	Paid              bool   // Paid? = "Paid"
 }
 
 // LeadPhoto is one attachment from the Photo field.
@@ -157,6 +159,31 @@ func parseLead(r atRecord) *Lead {
 		StripeID:          str(f[fieldLeadStripeID]),
 		StripeInvoiceLink: str(f[fieldLeadStripeInvoiceLink]),
 	}
+}
+
+// GetLeadsByStripeID returns every 2026 Leads row whose stripeID matches.
+func GetLeadsByStripeID(stripeCustomerID string) ([]*Lead, error) {
+	params := atParams()
+	params.Set("filterByFormula", fmt.Sprintf("{stripeID} = '%s'", stripeCustomerID))
+	for _, f := range []string{fieldLeadFullName, fieldLeadRecordID, fieldLeadStatus, fieldLeadStripeID, fieldLeadStripeInvoiceLink, fieldLeadPaid} {
+		params.Add("fields[]", f)
+	}
+	records, err := atGet(leadsURL() + "?" + params.Encode())
+	if err != nil {
+		return nil, err
+	}
+	leads := make([]*Lead, 0, len(records))
+	for _, r := range records {
+		l := parseLead(r)
+		l.Paid = str(r.Fields[fieldLeadPaid]) == "Paid"
+		leads = append(leads, l)
+	}
+	return leads, nil
+}
+
+// MarkLeadPaid sets Paid? = "Paid" on a lead.
+func MarkLeadPaid(airtableID string) error {
+	return PatchLeadFields(airtableID, map[string]interface{}{fieldLeadPaid: "Paid"})
 }
 
 // PatchLeadFields updates one or more fields on a lead record in the LEADS base.
