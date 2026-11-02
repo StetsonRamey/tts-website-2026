@@ -310,7 +310,7 @@ The landing page sets the existing Airtable `Which Form` single-select field to 
 
 Browser side:
 
-- `layouts/partials/meta-pixel.html` (included by `analytics.html`) loads the Pixel and fires `PageView` when `params.metaPixelId` is set in `hugo.toml`. It is omitted on the 404 page and on pages whose front matter sets `tracking.metaPixel: false` (`/payment-success/`, `/create-fix-request/`, `/review/`). Internal tools on the Go listeners never include it.
+- `layouts/partials/meta-pixel.html` (included by `analytics.html`) loads the Pixel and fires `PageView` when `params.metaPixelId` is set in `hugo.toml`. It is omitted on the 404 page and on pages whose front matter sets `tracking.metaPixel: false` (`/payment-success/`, `/create-fix-request/`, `/review/`, `/new-customers/`). Internal tools on the Go listeners never include it.
 - `form-submit.js` fires `fbq('track', 'Lead', {}, { eventID })` only when `/contact` returned `X-Lead-Saved: true`, using the server's `X-Meta-Event-Id`. No customer data is attached to the browser event. Loading `/thank-you/` never fires a Lead.
 - If the Pixel script is blocked, the form still works and the server event is the only one Meta receives.
 

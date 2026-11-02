@@ -1,0 +1,19 @@
+{{ define "main" }}
+<main id="main-content">
+    <section class="hero region bg-light" aria-label="Page heading">
+        <div class="wrapper text-center flow">
+            <p class="overline">New Customers</p>
+            <h1 data-balance>Welcome to Tis the Season!</h1>
+            <p>We are excited to work with you. Here's what to expect and what we need from you before your install.</p>
+        </div>
+    </section>
+
+    <section class="region" aria-label="New customer information">
+        <div class="wrapper" style="--wrapper-max: 50rem; margin-inline: auto">
+            <article class="prose flow">
+                {{ .Content }}
+            </article>
+        </div>
+    </section>
+</main>
+{{ end }}
