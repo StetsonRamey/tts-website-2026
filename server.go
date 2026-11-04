@@ -836,6 +836,8 @@ func main() {
 	// Load config — reads APP_ENV and Stripe keys, logs active mode
 	cfg := services.LoadConfig()
 	metaClient = services.LoadMetaClient(cfg.Env)
+	bookingUploader := services.NewGoogleBookingUploader()
+	bookingUploader.Start(context.Background())
 
 	loadCustom404()
 
@@ -861,6 +863,7 @@ func main() {
 	// Sold sync + invoice automation (internal — protected by WEBHOOK_AUTH_KEY)
 	mux.HandleFunc("/sold/sync", services.SoldSyncHandler(cfg))
 	mux.HandleFunc("/invoice/create", services.InvoiceHandler(cfg))
+	mux.HandleFunc("/ads/google/booked", bookingUploader.Handler())
 
 	// Bot / AI-crawler crawl dashboard on the PUBLIC mux — still bearer-authed
 	// so it's reachable via curl with the WEBHOOK_AUTH_KEY from anywhere.

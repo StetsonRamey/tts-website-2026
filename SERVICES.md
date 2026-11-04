@@ -253,6 +253,25 @@ Because requests arrive through the exe.dev edge proxy (which can return transie
 
 An authenticated Airtable automation calls this after a lead is marked sold. The handler creates a CompanyCam project and uploads lead photos when a project ID is missing, creates a Stripe customer when needed, and writes resulting IDs back to Airtable. It then creates a TextMagic contact (first/last name, normalized US phone, email; not added to any list) via the `textmagic` proxy integration. TextMagic enforces unique phone numbers, so a duplicate (retry, or a contact entered by hand) returns `textMagic: "exists"` and is not an error; the response reports `created`, `exists`, `failed`, or `skipped: no phone`. TextMagic failures are non-fatal (an alert email is sent and CompanyCam/Stripe results are still returned). No Airtable field stores a TextMagic ID. Sync was added Nov 2026 and does not backfill earlier sold leads. It is designed to be idempotent: existing IDs are not recreated.
 
+### Google booked installations
+
+**Routes:** `POST /ads/google/booked`, `GET /ads/google/booked?recordId=rec...` (both require `Authorization: Bearer WEBHOOK_AUTH_KEY`).
+**Code:** `services/google_bookings.go`.
+
+A separate Airtable automation on `2026 Leads (forward)` triggers when Status is exactly Sold, Booked At is nonempty, and Google Booking Upload is empty. Pass the trigger record's Airtable record ID as Run script input `recordId`. Use the same protected webhook secret as the sold automation, named `exe-webhookAuthKey`; never put it in the URL or script text.
+
+POST body is only `{"recordId":"rec..."}`. `{"recordId":"rec...","checkOnly":true}` performs a read-only local eligibility check (no queue, Google request, CRM write, invoices or messages). The server reads current Status, Booked At (`fldI4XfUgt8DxXzOl`) and Tracking Metrics (`fldqlM7utGqqVnVa7`). A non-Sold lead or missing standard Google click ID is Skipped. A missing/invalid booking date returns 422; no Created date/current-time fallback is invented. Existing matched rows are not automatically backfilled.
+
+The callback saves a private 0600 outbox record before returning 202. It keeps `tts-booked-2026-<recordId>`, the immutable booking date, and the same retained GCLID across retries. Repeated callbacks return the existing delivery state. Google target is fixed to customer 8159232231, Secondary UPLOAD_CLICKS action 7883540386 (`TTS - Booked installation`). No customer contact information or conversion value is submitted. An absent value uses the action's configured $0 default; the acquisition target is not revenue.
+
+The background minute worker submits queued jobs only when `GOOGLE_ADS_BOOKING_ENABLED=true`; false (default) accepts callbacks and updates Airtable delivery status but pauses all Google sends. Configuration also requires `GOOGLE_ADS_BOOKING_CREDENTIALS_FILE` (private authorized-user JSON with Data Manager refresh grant) and `GOOGLE_ADS_BOOKING_STATE_FILE` (default `/var/lib/tts/google-bookings.json`). These must remain outside the repository and public web root. One server process owns the outbox; do not run two production uploaders against this file. The process must have read/write access to its private state directory and read access to its credential file. Never remove the outbox to force a retry.
+
+A successful ingestion response means Processing, not Processed. Diagnostics begin after 30 minutes and continue at 30-minute intervals. Final SUCCESS with one processed row becomes Processed; final errors become Failed with a Google reason. A destination-too-recent failure is requeued after six hours. Network errors, 401/429/5xx and CRM-read failures retry after 15 minutes with the same transaction/event. Other ingestion HTTP failures stop as Failed. A queued lead no longer Sold is Cancelled before any upload. Cancellation after successful upload requires manual review/retraction; it does not silently modify Google's existing record. BRAID-only leads are skipped because the current one-per-click action does not support them.
+
+Airtable fields `Google Booking Upload` (`fldy9hhY3H0e3Ti9c`) and `Google Booking Upload Details` (`fldDLczv541bIHAiH`) receive Queued, Processing, Processed, Failed or Cancelled plus safe diagnostic codes/request ID/check timestamp. CRM status-write failure does not resend a Google conversion; the worker retries the status write separately. Only these two CRM fields are patched. Booked At, customer Status, invoice/payment fields and existing email workflows are untouched. The GET route exposes delivery status without GCLIDs or credentials. Processed confirms Google's ingestion result; conversion reporting may update later and should be independently checked before using bookings for bidding.
+
+Operational checks: with sending paused, test authentication and `checkOnly`, enqueue a reviewed eligible lead only if desired, and verify 202 plus Queued/paused CRM state. After explicit approval, enable the flag and restart the existing service, then inspect `journalctl -u tts.service` and the two CRM fields. Do not change a customer's Status to test; existing Sold automations create invoices and send messages. Test the independent callback instead. Check failures before retrying terminal jobs; state files are private and include click IDs, so do not copy them into support logs or Git.
+
 ### Invoice Creation
 
 **Route:** `POST /invoice/create`
@@ -362,6 +381,7 @@ The `llms.txt` file at `/llms.txt` (served from `static/llms.txt`) provides a hu
 | `POST` | `/full` | Bearer token required |
 | `POST` | `/sold/sync` | Bearer token required |
 | `POST` | `/invoice/create` | Bearer token required |
+| `POST`, `GET` | `/ads/google/booked` | Bearer token required; queue/check delivery status |
 | `GET` | `/photos/{filename}` | Public permanent email-photo URLs |
 | `GET` | `/internal/bots` | Bearer token on public listener; no bearer token on internal listener |
 | `GET` | `/internal/meta-test` | Internal listener only; synthetic Meta Lead test (requires `?code=TEST…`) |
