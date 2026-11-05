@@ -96,8 +96,11 @@ func NewGoogleBookingUploader() *GoogleBookingUploader {
 		for _, f := range []string{fieldLeadStatus, bookingDateField, bookingTrackingField} {
 			params.Add("fields[]", f)
 		}
-		// Direct record URL avoids fetching customer contact/payment fields.
-		req, _ := http.NewRequest(http.MethodGet, leadsURL()+"/"+id+"?"+params.Encode(), nil)
+		// The single-record endpoint ignores field filters, so use a one-row list
+		// query to avoid fetching customer contact/payment fields.
+		params.Set("maxRecords", "1")
+		params.Set("filterByFormula", `RECORD_ID()="`+id+`"`)
+		req, _ := http.NewRequest(http.MethodGet, leadsURL()+"?"+params.Encode(), nil)
 		response, err := u.client.Do(req)
 		if err != nil {
 			return atRecord{}, errors.New("airtable_read_failed")
@@ -106,11 +109,14 @@ func NewGoogleBookingUploader() *GoogleBookingUploader {
 		if response.StatusCode != 200 {
 			return atRecord{}, fmt.Errorf("airtable_read_http_%d", response.StatusCode)
 		}
-		var record atRecord
-		if err := json.NewDecoder(response.Body).Decode(&record); err != nil {
+		var list atListResponse
+		if err := json.NewDecoder(response.Body).Decode(&list); err != nil {
 			return atRecord{}, errors.New("airtable_read_invalid_response")
 		}
-		return record, nil
+		if len(list.Records) != 1 {
+			return atRecord{}, errors.New("airtable_record_not_found")
+		}
+		return list.Records[0], nil
 	}
 	data, err := os.ReadFile(u.stateFile)
 	if err == nil {

@@ -291,3 +291,28 @@ func TestGoogleBookingWorkerCanStop(t *testing.T) {
 	cancel()
 	f.u.Start(ctx)
 }
+
+func TestBookingFetchUsesFilteredListQuery(t *testing.T) {
+	var got *http.Request
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got = r
+		fmt.Fprint(w, `{"records":[{"id":"`+bookingTestRecord+`","fields":{}}]}`)
+	}))
+	defer server.Close()
+	oldBase := airtableBase
+	airtableBase = server.URL
+	defer func() { airtableBase = oldBase }()
+	f := newBookingFixture(t)
+	u := NewGoogleBookingUploader() // restore the real fetch function
+	_ = f
+	record, err := u.fetch(bookingTestRecord)
+	if err != nil || record.ID != bookingTestRecord {
+		t.Fatalf("fetch failed: %v", err)
+	}
+	if strings.HasSuffix(got.URL.Path, bookingTestRecord) || got.URL.Query().Get("filterByFormula") != `RECORD_ID()="`+bookingTestRecord+`"` {
+		t.Fatalf("expected filtered list query, got %s", got.URL.String())
+	}
+	if fields := got.URL.Query()["fields[]"]; len(fields) != 3 {
+		t.Fatalf("expected only 3 fields, got %v", fields)
+	}
+}
