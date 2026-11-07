@@ -46,9 +46,39 @@ func TestCreateTextMagicContact(t *testing.T) {
 		t.Errorf("body = %s", gotBody)
 	}
 
+	// Phone already in TextMagic.
 	status, resp = 400, `{"errors":{"fields":{"phone":["Phone number already exists in your contacts."]}}}`
-	if s, err := createTextMagicContact(cfg, lead); err != nil || s != "exists" {
-		t.Fatalf("exists: %q %v", s, err)
+	existing := `{"id":7,"phone":"19135550100","firstName":"19135550100","lastName":null,"email":null}`
+	var putBody string
+	lookupSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+		switch {
+		case r.Method == http.MethodPost && r.URL.Path == "/contacts":
+			w.WriteHeader(status)
+			w.Write([]byte(resp))
+		case r.Method == http.MethodGet && r.URL.Path == "/contacts/phone/19135550100":
+			w.Write([]byte(existing))
+		case r.Method == http.MethodPut && r.URL.Path == "/contacts/7":
+			putBody = string(b)
+			w.WriteHeader(http.StatusCreated)
+			w.Write([]byte(`{"id":7}`))
+		default:
+			t.Errorf("unexpected %s %s", r.Method, r.URL.Path)
+		}
+	}))
+	defer lookupSrv.Close()
+	cfg2 := &Config{TextMagicBaseURL: lookupSrv.URL}
+	if s, err := createTextMagicContact(cfg2, lead); err != nil || s != "updated" {
+		t.Fatalf("placeholder: %q %v", s, err)
+	}
+	if want := `{"email":"j@example.com","firstName":"Jane","lastName":"Doe","phone":"19135550100"}`; putBody != want {
+		t.Errorf("put body = %s", putBody)
+	}
+
+	// Hand-entered name is left alone.
+	existing, putBody = `{"id":7,"phone":"19135550100","firstName":"Janie","lastName":null,"email":null}`, ""
+	if s, err := createTextMagicContact(cfg2, lead); err != nil || s != "exists" || putBody != "" {
+		t.Fatalf("named: %q %v put=%q", s, err, putBody)
 	}
 
 	status, resp = 500, `boom`

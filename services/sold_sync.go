@@ -350,9 +350,74 @@ func createTextMagicContact(cfg *Config, lead *Lead) (string, error) {
 		return "created", nil
 	}
 	if resp.StatusCode == http.StatusBadRequest && strings.Contains(string(respBody), "already exists") {
-		return "exists", nil
+		return fillPlaceholderTextMagicContact(cfg, lead, phone)
 	}
 	return "", fmt.Errorf("textmagic contact %d: %s", resp.StatusCode, string(respBody))
+}
+
+// fillPlaceholderTextMagicContact handles a phone that already has a contact.
+// TextMagic auto-creates a contact named after the phone number when a
+// customer texts in (or is texted) first, so the create above is rejected and
+// the contact never gets the customer's name. If the existing contact has no
+// real name, fill in name/email; a hand-entered name is left untouched.
+// Returns "updated" or "exists".
+func fillPlaceholderTextMagicContact(cfg *Config, lead *Lead, phone string) (string, error) {
+	resp, err := http.Get(cfg.TextMagicBaseURL + "/contacts/phone/" + phone)
+	if err != nil {
+		return "", fmt.Errorf("GET /contacts/phone: %w", err)
+	}
+	defer resp.Body.Close()
+	respBody, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("textmagic lookup contact %d: %s", resp.StatusCode, string(respBody))
+	}
+	var existing struct {
+		ID        int     `json:"id"`
+		FirstName *string `json:"firstName"`
+		LastName  *string `json:"lastName"`
+		Email     *string `json:"email"`
+	}
+	if err := json.Unmarshal(respBody, &existing); err != nil {
+		return "", fmt.Errorf("decode contact: %w", err)
+	}
+	first, last := "", ""
+	if existing.FirstName != nil {
+		first = strings.TrimSpace(*existing.FirstName)
+	}
+	if existing.LastName != nil {
+		last = strings.TrimSpace(*existing.LastName)
+	}
+	if existing.ID == 0 || last != "" || (first != "" && textMagicPhone(first) != phone) {
+		return "exists", nil
+	}
+
+	body := map[string]interface{}{
+		"firstName": strings.TrimSpace(lead.FirstName),
+		"lastName":  strings.TrimSpace(lead.LastName),
+		"phone":     phone,
+	}
+	if lead.Email != "" && (existing.Email == nil || *existing.Email == "") {
+		body["email"] = lead.Email
+	}
+	b, err := json.Marshal(body)
+	if err != nil {
+		return "", fmt.Errorf("marshal body: %w", err)
+	}
+	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/contacts/%d", cfg.TextMagicBaseURL, existing.ID), bytes.NewReader(b))
+	if err != nil {
+		return "", fmt.Errorf("new request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	putResp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("PUT /contacts: %w", err)
+	}
+	defer putResp.Body.Close()
+	putBody, _ := io.ReadAll(putResp.Body)
+	if putResp.StatusCode != http.StatusOK && putResp.StatusCode != http.StatusCreated {
+		return "", fmt.Errorf("textmagic update contact %d: %s", putResp.StatusCode, string(putBody))
+	}
+	return "updated", nil
 }
 
 // textMagicPhone normalizes a US number to digits with the leading country
