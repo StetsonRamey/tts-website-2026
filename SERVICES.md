@@ -20,6 +20,7 @@ TTS/
 ├── services/
 │   ├── config.go                   # Runtime config, bearer auth, status, error-email helper
 │   ├── airtable.go                 # Customers and yearly-invoicing Airtable client
+│   ├── airtable_retry.go           # Retry/backoff for Airtable proxy dial failures
 │   ├── leads.go                    # Leads Airtable client and patch helpers
 │   ├── checkout.go                 # GET /pay
 │   ├── webhook.go                  # POST /stripe/webhook
@@ -146,6 +147,8 @@ journalctl -u tts.service -n 50 --no-pager
 **Code:** `services/airtable.go`, `services/leads.go`
 
 The backend has separate typed clients for the customer/yearly-invoicing data and the leads data. They support checkout/webhook state changes, lead lookups, photo metadata, sold-job sync, invoice-link updates, and coupon catalog lookups. Airtable requests use the exe.dev proxy integration in the deployed environment.
+
+**Retry on proxy outages:** `services/airtable_retry.go` (`DoAirtable`) retries up to 3 times (250ms, 750ms, 1.5s backoff) when the proxy can't be dialed (e.g. `connect: connection refused` to 169.254.169.254, seen briefly on 2026-11-10). A failed dial means the request never left, so this is safe for POST/PATCH too; GETs also retry on 502/503/504. Used by the customer/leads clients, fix-ticket creation, and contact-form lead creation in `server.go`. Other failures are not retried.
 
 The customer `Discount/Coupon` link points to a coupon catalog record in the Services table. Coupon catalog records use `Catalog Type = Coupon`, `Stripe TEST Coupon ID`, and `Stripe Coupon ID`; they are intentionally separate from the customer's `Products/Services` line-item links. The 2026 Google Review Drawing coupon is configured as a one-time $75 discount with a five-redemption cap in both Stripe modes. The payment handler selects the sandbox or live coupon based on `APP_ENV` and only applies it when `Review Discount?` is checked.
 

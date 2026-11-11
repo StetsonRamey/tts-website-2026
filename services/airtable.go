@@ -150,7 +150,7 @@ func atGet(rawURL string) ([]atRecord, error) {
 			}
 			pageURL = rawURL + sep + "offset=" + url.QueryEscape(offset)
 		}
-		resp, err := http.Get(pageURL) //nolint:noctx
+		resp, err := doAirtableGet(pageURL)
 		if err != nil {
 			return nil, fmt.Errorf("airtable GET %s: %w", pageURL, err)
 		}
@@ -175,7 +175,7 @@ func atGet(rawURL string) ([]atRecord, error) {
 
 // atGetRecord performs a GET request for one Airtable record.
 func atGetRecord(rawURL string) (atRecord, error) {
-	resp, err := http.Get(rawURL) //nolint:noctx
+	resp, err := doAirtableGet(rawURL)
 	if err != nil {
 		return atRecord{}, fmt.Errorf("airtable GET %s: %w", rawURL, err)
 	}
@@ -203,7 +203,7 @@ func atPatch(table, recordID string, fields map[string]interface{}) error {
 		bytes.NewReader(payload))
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := DoAirtable(req)
 	if err != nil {
 		return fmt.Errorf("airtable PATCH %s/%s: %w", table, recordID, err)
 	}

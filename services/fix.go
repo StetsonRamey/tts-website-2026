@@ -355,7 +355,12 @@ func isHEIFBrand(b string) bool {
 
 func createFixTicket(fields map[string]any) (atRecord, error) {
 	payload, _ := json.Marshal(map[string]any{"typecast": true, "fields": fields})
-	resp, err := http.Post(atURL(tableFixTickets), "application/json", bytes.NewReader(payload))
+	req, err := http.NewRequest(http.MethodPost, atURL(tableFixTickets), bytes.NewReader(payload))
+	if err != nil {
+		return atRecord{}, fmt.Errorf("airtable POST: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := DoAirtable(req)
 	if err != nil {
 		return atRecord{}, fmt.Errorf("airtable POST: %w", err)
 	}

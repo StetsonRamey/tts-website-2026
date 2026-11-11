@@ -198,7 +198,7 @@ func PatchLeadFields(airtableID string, fields map[string]interface{}) error {
 		bytes.NewReader(payload))
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := DoAirtable(req)
 	if err != nil {
 		return fmt.Errorf("airtable PATCH leads/%s: %w", airtableID, err)
 	}
