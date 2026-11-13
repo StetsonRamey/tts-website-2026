@@ -49,4 +49,4 @@ If anything needs attention during the season, text "Fix" to [(844) 600-1675](sm
 
 ### 🌳 Trees and ⛳ Flags
 
-Please trim back tree branches that touch your roofline and remove any flags within reach of your gutters before installation. Damage to bulbs, or lines becoming unclipped from trees, flags, or other objects hitting your lights, is not included in our warranty. We invoice **$50** for fixes related to trees and/or flags. You can read more in our [Terms of Service](/terms/).
+Please trim back tree branches that touch your roofline and remove any flags within reach of your gutters before installation. Damage to bulbs, or lines becoming unclipped from trees, flags, or other objects hitting your lights, is not included in our warranty. Fixes related to trees and/or flags are invoiced at a minimum of **$50**; the price starts at $50 and can increase based on severity. You can read more in our [Terms of Service](/terms/).
