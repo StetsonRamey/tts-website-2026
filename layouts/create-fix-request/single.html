@@ -80,7 +80,14 @@
                     <span class="field-error" role="alert"></span>
                 </div>
                 <div class="contact-form__field">
-                    <span class="fix-form__label" id="fix-photo-label">Photos <small>(optional, but they help)</small></span>
+                    <span class="fix-form__label" id="fix-photo-label">Photos <small>(optional, but a big help)</small></span>
+                    <div class="fix-photo-tips" id="fix-photo-tips">
+                        <p>Photos help our crews find all the problems in daylight, so good photos are a tremendous help.</p>
+                        <ul>
+                            <li><span aria-hidden="true">🏠</span> <strong>Show the entire area</strong>, not a zoomed-in shot.</li>
+                            <li><span aria-hidden="true">🌙</span> <strong>Photos at night</strong> are especially helpful.</li>
+                        </ul>
+                    </div>
                     <label class="fix-photo" for="fix-photos">
                         <input
                             type="file"
@@ -88,7 +95,7 @@
                             name="photos"
                             accept="image/*"
                             multiple
-                            aria-describedby="fix-photo-label" />
+                            aria-describedby="fix-photo-tips" />
                         <span class="fix-photo__prompt">
                             <span aria-hidden="true">📷</span>
                             <span>Take or choose photos</span>
