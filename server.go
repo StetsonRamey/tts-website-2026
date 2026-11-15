@@ -859,6 +859,7 @@ func main() {
 	mux.HandleFunc("/confirmation/send", services.ConfirmationHandler(cfg))
 	mux.HandleFunc("/oos/send", services.OOSHandler(cfg))
 	mux.HandleFunc("/full", services.FullAreaHandler(cfg))
+	mux.HandleFunc("/booked-season", services.BookedSeasonHandler(cfg))
 
 	// Sold sync + invoice automation (internal — protected by WEBHOOK_AUTH_KEY)
 	mux.HandleFunc("/sold/sync", services.SoldSyncHandler(cfg))

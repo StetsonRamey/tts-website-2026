@@ -204,6 +204,13 @@ Run this read-only; obtaining an audit is not authorization to rename, unlink, d
 
 The authenticated estimate endpoint accepts `{"recordId":"rec..."}`, loads a lead from Airtable, downloads its photo attachments before their Airtable CDN URLs expire, writes permanent copies under `/var/lib/tts/photos/`, renders the estimate template, and sends it by Gmail SMTP. The photo route serves those staged copies at the public site hostname for use in the email.
 
+### Booked-for-Season Email
+
+**Route:** `POST /booked-season`
+**Code:** `services/booked_season.go`
+
+Authenticated (`WEBHOOK_AUTH_KEY` bearer) endpoint for an Airtable automation. Accepts `{"email":"…"}` and sends a fixed plain-text Gmail SMTP email (subject `Bad news......`: "We're booked for this season…", asking the lead to reach out in September/October next year, signed `🎄 'Tis the Season`). Replies with `data.recipient` and `data.subject`. Uses `resolveRecipient` (`EMAIL_TEST_TO`) and alerts on failure like the other email handlers. Airtable script: same as the `/full` script below but POST to `https://tistheseasonkc.com/booked-season` with body `{ email }`.
+
 ### Confirmation, Out-of-Service, and Full-Area Emails
 
 **Routes:** `POST /confirmation/send`, `POST /oos/send`, `POST /full`
