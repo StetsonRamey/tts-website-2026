@@ -49,6 +49,10 @@ enableRobotsTXT = true
   # omit the Pixel from the build. Per-page opt-out: `tracking.metaPixel: false`.
   metaPixelId = '1737341487496114'
 
+  # When true, /contact/ shows a "fully booked" notice and its form is disabled.
+  # Note: /free-estimate/ (ads lander) is a separate form and is not affected.
+  contactFormClosed = true
+
   [params.fixBanner]
     # classic | slim | twinkle | flicker  (see layouts/partials/fix-banner.html)
     variant = 'flicker'

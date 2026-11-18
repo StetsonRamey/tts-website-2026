@@ -8,7 +8,7 @@
             <p style="max-width: 80ch">
                 We provide residential holiday lighting and commercial holiday lighting in Lee's Summit and Raymore, Missouri. Every project includes custom design, professional installation, in-season maintenance, post-season takedown, and off-season storage of the lights. Get a free, no-obligation estimate for professional holiday lighting.
             </p>
-            <p><a href="#estimate-form" class="button">Get Your Free Estimate</a></p>
+            {{ if not site.Params.contactFormClosed }}<p><a href="#estimate-form" class="button">Get Your Free Estimate</a></p>{{ end }}
         </div>
     </section>
 
@@ -47,16 +47,25 @@
         <div class="wrapper text-center flow" style="--wrapper-max: 50rem">
             <p class="overline">Request an Estimate</p>
             <h2 data-balance>Tell Us About Your Property</h2>
+            {{ if site.Params.contactFormClosed }}
+            <div class="contact-form__notice" role="status">
+                <p><strong>We're fully booked for this season.</strong></p>
+                <p>Our installation schedule is full, so we can't take any new installs right now. Thank you for thinking of us. We'd love to light up your home next year!</p>
+            </div>
+            {{ else }}
             <p>
                 Fill in a few details about your home or business and we'll put together a custom holiday lighting quote
                 just for you.
             </p>
+            {{ end }}
             <form
-                class="contact-form__card flow"
+                class="contact-form__card flow{{ if site.Params.contactFormClosed }} is-closed{{ end }}"
+                {{ if site.Params.contactFormClosed }}aria-disabled="true" onsubmit="return false"{{ end }}
                 action="/contact"
                 method="POST"
                 autocomplete="off"
                 data-1p-ignore="true">
+                <fieldset class="contact-form__fieldset"{{ if site.Params.contactFormClosed }} disabled{{ end }}>
                 <div class="contact-form__row">
                     <div class="contact-form__field">
                         <label for="first-name">First Name</label>
@@ -176,8 +185,9 @@
                 </div>
                 <input type="hidden" name="_loaded" id="_loaded" value="" />
                 <input type="hidden" name="_attribution" value="" />
-                <button type="submit" class="button contact-form__submit">Submit Request</button>
+                <button type="submit" class="button contact-form__submit"{{ if site.Params.contactFormClosed }} disabled{{ end }}>Submit Request</button>
                 <script>document.getElementById('_loaded').value = Date.now();</script>
+                </fieldset>
             </form>
         </div>
     </section>

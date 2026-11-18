@@ -41,6 +41,31 @@
         box-shadow: var(--shadow-soft);
     }
 
+    .contact-form__fieldset {
+        border: 0;
+        margin: 0;
+        padding: 0;
+        min-inline-size: 0;
+        display: contents;
+    }
+
+    .contact-form__notice {
+        --flow-space: var(--space-2xs);
+        background: var(--color-surface);
+        border: 2px solid var(--color-primary, currentColor);
+        border-radius: var(--radius-l);
+        padding: var(--space-m);
+        text-wrap: balance;
+    }
+
+    .contact-form__card.is-closed {
+        opacity: 0.55;
+    }
+
+    .contact-form__card.is-closed .contact-form__submit {
+        cursor: not-allowed;
+    }
+
     .contact-form__row {
         display: grid;
         grid-template-columns: 1fr 1fr;
