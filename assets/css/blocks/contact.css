@@ -1,4 +1,10 @@
 @layer blocks {
+    /* Keep hero/intro text aligned with the centered 80ch contact cards */
+    .contact-narrow {
+        max-width: 80ch;
+        margin-inline: auto;
+    }
+
     /* ── Contact Cards ── */
     .contact-options__grid {
         margin-block-start: var(--space-l);

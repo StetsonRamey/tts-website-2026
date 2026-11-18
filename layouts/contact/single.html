@@ -2,21 +2,25 @@
 <main id="main-content">
     {{ partial "breadcrumbs.html" . }} {{/* ── Hero ── */}}
     <section class="hero region bg-light" aria-label="Contact hero">
-        <div class="wrapper flow">
+        <div class="wrapper">
+            <div class="contact-narrow flow">
             <p class="overline">Get in Touch</p>
             <h1 data-balance>Let's Light Up Your Holidays</h1>
-            <p style="max-width: 80ch">
+            <p>
                 We provide residential holiday lighting and commercial holiday lighting in Lee's Summit and Raymore, Missouri. Every project includes custom design, professional installation, in-season maintenance, post-season takedown, and off-season storage of the lights. Get a free, no-obligation estimate for professional holiday lighting.
             </p>
             {{ if not site.Params.contactFormClosed }}<p><a href="#estimate-form" class="button">Get Your Free Estimate</a></p>{{ end }}
+            </div>
         </div>
     </section>
 
     {{/* ── Contact Options ── */}}
     <section class="contact-options region" aria-label="Contact options">
         <div class="wrapper flow">
-            <p class="overline">Reach Us Directly</p>
-            <h2 data-balance>Other Ways to Connect</h2>
+            <div class="contact-narrow flow">
+                <p class="overline">Reach Us Directly</p>
+                <h2 data-balance>Other Ways to Connect</h2>
+            </div>
             <div class="contact-options__grid grid" style="--grid-min-item-size: 16rem; max-width: 80ch; margin-inline: auto;">
                 <div class="contact-card flow">
                     <p class="contact-card__icon" aria-hidden="true">📞</p>
